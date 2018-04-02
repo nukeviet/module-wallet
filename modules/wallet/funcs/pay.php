@@ -34,8 +34,8 @@ if (!defined('NV_IS_USER')) {
     nv_redirect_location(NV_BASE_SITEURL . "index.php?" . NV_NAME_VARIABLE . "=users&" . NV_OP_VARIABLE . "=login&nv_redirect=" . nv_redirect_encrypt($redirect));
 }
 
-// Đơn hàng đang được xử lý thì không được truy cập vào nữa
-if ($order_info['paid_status'] != 0) {
+// Đơn hàng có giao dịch đang chờ xử lý, đang bị tạm giữ, đã hoàn thành thì không thể tiếp tục thanh toán nữa.
+if (in_array($order_info['paid_status'], array(1, 2, 4))) {
     // Chuyển trả về trang xử lý kết quả của module được kết nối
     $url_back = unserialize($order_info['url_back']);
     $url_back['querystr'] = trim(str_replace('&amp;', '&', $url_back['querystr']), '&');
