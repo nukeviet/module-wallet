@@ -1,0 +1,85 @@
+/**
+ * @Project WALLET 4.x
+ * @Author VINADES.,JSC <contact@vinades.vn>
+ * @Copyright (C) 2018 VINADES.,JSC. All rights reserved
+ * @License GNU/GPL version 2 or any later version
+ * @Createdate Friday, March 9, 2018 6:24:54 AM
+ */
+
+.hidden {
+    display: none;
+}
+.w60 {
+    width: 60px;
+}
+.w180 {
+    width: 180px;
+}
+.w250 {
+    width: 250px;
+}
+.form-control-fullwidth{
+	width: 100%!important;
+}
+.margin-bottom {
+    margin-bottom: 10px;
+}
+.mb0 {
+    margin-bottom: 0;
+}
+
+.payport-item {
+    border: 1px #ddd solid;
+    padding: 6px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+.payport-item a.im {
+    display: block;
+    margin-bottom: 10px;
+    height: 70px;
+    overflow: hidden;
+    text-align: center;
+}
+.payport-item img {
+    height: 100%;
+    width: auto;
+}
+.help-block-bottom {
+    margin-bottom: 0;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+.money-exchange-count {
+    margin-top: 7px;
+}
+.money-exchange-count strong {
+    float: right;
+    color: red;
+}
+
+.payment-term {
+    padding: 10px;
+    max-height: 250px;
+    overflow: auto;
+    background-color: #eee;
+    margin-bottom: 10px;
+}
+.payment-term-label {
+    font-style: italic;
+    font-weight: normal;
+}
+.payment-term-label input {
+    margin-top: -2px;
+}
+#rechargeMoneyOther {
+    margin-top: 10px;
+}
+
+/* PAY */
+@media (min-width: 768px) {
+.wpay_submit {
+    margin-left: 180px;
+}
+}

@@ -1,0 +1,34 @@
+/**
+ * @Project WALLET 4.x
+ * @Author VINADES.,JSC <contact@vinades.vn>
+ * @Copyright (C) 2018 VINADES.,JSC. All rights reserved
+ * @License GNU/GPL version 2 or any later version
+ * @Createdate Friday, March 9, 2018 6:24:54 AM
+ */
+
+.mw250 {
+    max-width: 250px;
+}
+.help-block-wallet {
+    margin-bottom: 0;
+    margin-top: 5px;
+}
+.alert-inline {
+    margin-bottom: 0;
+}
+.form-creat-account {
+    max-width: 400px;
+    margin: 0 auto;
+    display: block;
+}
+.form-creat-account .control-label {
+    display: block;
+    text-align: center;
+}
+.display-inline-block {
+    display: inline-block;
+}
+
+.cfg-msys .cfg-msys-item {
+    margin-bottom: 10px;
+}
