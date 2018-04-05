@@ -33,6 +33,7 @@ class nukeviet_wallet
     private $glanguage = array();
     private $db = null;
     private $nv_Cache = null;
+    private $is_error = false;
 
     /**
      * nukeviet_wallet::__construct()
@@ -260,15 +261,19 @@ class nukeviet_wallet
      */
     public function update($money, $money_unit, $userid, $message = "", $is_add = false, $dayamount = 0)
     {
+        $this->is_error = false;
+
         // Nếu có số tiền thì trừ hoặc cộng
         $money = floatval($money);
         if ($money <= 0) {
+            $this->is_error = true;
             return $this->lang('payclass_error_money');
         }
         $userid = abs(intval($userid));
         $tran_status = ($is_add ? 1 : -1);
         $money_sys = $this->list_money();
         if (!isset($money_sys[$money_unit])) {
+            $this->is_error = true;
             return $this->lang('payclass_error_money_unit');
         }
 
@@ -294,6 +299,7 @@ class nukeviet_wallet
 
         $tran_id = $this->db->insert_id($sql, 'id', $data_insert);
         if (!$tran_id) {
+            $this->is_error = true;
             return $this->lang('payclass_error_save_transaction');
         }
 
@@ -304,6 +310,7 @@ class nukeviet_wallet
                 money_total = money_total - " . $money . "
             WHERE userid=" . $userid . " AND money_unit=" . $this->db->quote($money_unit);
             if (!$this->db->exec($sql)) {
+                $this->is_error = true;
                 return $this->lang('payclass_error_update_account');
             }
         } else {
@@ -313,12 +320,13 @@ class nukeviet_wallet
                 money_total = money_total + " . $money . "
             WHERE userid=" . $userid . " AND money_unit=" . $this->db->quote($money_unit);
             if (!$this->db->exec($sql)) {
+                $this->is_error = true;
                 return $this->lang('payclass_error_update_account');
             }
         }
 
         $this->nv_Cache->delMod(NV_WALLET_MODULE);
-        return true;
+        return $tran_id;
     }
 
     /**
@@ -424,7 +432,7 @@ class nukeviet_wallet
         }
 
         $return['status'] = 'SUCCESS';
-        $return['data'] = array($order['paid_status'], $order['paid_time']);
+        $return['data'] = array($order['paid_status'], $order['paid_time'], $order['paid_id']);
 
         return $return;
     }
@@ -527,7 +535,7 @@ class nukeviet_wallet
         if (strcasecmp($this->getOrderChecksum($order, $order['paid_status'], $order['paid_time']), $checksum) !== 0) {
             return false;
         }
-        return array($order['paid_status'], $order['paid_time']);
+        return array($order['paid_status'], $order['paid_time'], $order['paid_id']);
     }
 
     /**
@@ -617,5 +625,15 @@ class nukeviet_wallet
             }
         }
         return $secret_code;
+    }
+
+    /**
+     * nukeviet_wallet::isError()
+     *
+     * @return
+     */
+    public function isError()
+    {
+        return $this->is_error;
     }
 }

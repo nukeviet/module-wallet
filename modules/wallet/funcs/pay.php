@@ -97,11 +97,15 @@ if ($nv_Request->isset_request('wallet', 'get')) {
     }
 
     $message = $lang_module['paygate_title'] . " " . $order_obj;
-    $check_transaction = $wallet->update($order_info['money_amount'], $order_info['money_unit'], $user_info['userid'], $message, false);
-    if ($check_transaction !== true) {
-        redict_link($check_transaction, $lang_module['back'], nv_url_rewrite($order_info['payurl'], true));
+    $transaction_id = $wallet->update($order_info['money_amount'], $order_info['money_unit'], $user_info['userid'], $message, false);
+    if ($wallet->isError()) {
+        redict_link($transaction_id, $lang_module['back'], nv_url_rewrite($order_info['payurl'], true));
     }
-    $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET paid_status=4, paid_time=" . NV_CURRENTTIME . " WHERE id=" . $order_id);
+    $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
+        paid_status=4,
+        paid_id=" . $db->quote(vsprintf('GD%010s', $transaction_id)) . ",
+        paid_time=" . NV_CURRENTTIME . "
+    WHERE id=" . $order_id);
     if (!$check) {
         redict_link($lang_module['paygate_error_update'], $lang_module['back'], nv_url_rewrite($order_info['payurl'], true));
     }
@@ -186,7 +190,11 @@ if ($nv_Request->isset_request('payment', 'get')) {
             }
 
             // Cập nhật lại đơn hàng
-            $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET paid_status=" . $responseData['transaction_status'] . ", paid_time=" . $responseData['transaction_time'] . " WHERE id=" . $order_id);
+            $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
+                paid_status=" . $responseData['transaction_status'] . ",
+                paid_id=" . $db->quote(vsprintf('WP%010s', $transaction['id'])) . ",
+                paid_time=" . $responseData['transaction_time'] . "
+            WHERE id=" . $order_id);
             if (!$check) {
                 redict_link($lang_module['paygate_error_update'], $lang_module['back'], $order_info['payurl']);
             }

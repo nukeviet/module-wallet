@@ -82,7 +82,11 @@ if ($responseData['ordertype'] == 'pay') {
                 if (!$db->exec($sql)) {
                     $walletReturnCode = 2;
                 } else {
-                    $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET paid_status=" . $responseData['transaction_status'] . ", paid_time=" . $responseData['transaction_time'] . " WHERE id=" . $order_info['id']);
+                    $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
+                        paid_status=" . $responseData['transaction_status'] . ",
+                        paid_id=" . $db->quote(vsprintf('GD%010s', $transaction['id'])) . ",
+                        paid_time=" . $responseData['transaction_time'] . "
+                    WHERE id=" . $order_info['id']);
                     if (!$check) {
                         $walletReturnCode = 2;
                     } else {

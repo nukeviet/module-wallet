@@ -14,7 +14,7 @@ $sql_drop_module = array();
 
 $result = $db->query("SHOW TABLE STATUS LIKE '" . $db_config['prefix'] . "\_" . $module_data . "\_money%'");
 $num_table = intval($result->rowCount());
-$num_table = 0;
+
 if (empty($num_table)) {
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_epay_log";
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_exchange";
@@ -180,6 +180,7 @@ if (empty($num_table)) {
       add_time int(11) NOT NULL DEFAULT '0',
       update_time int(11) NOT NULL DEFAULT '0',
       paid_status varchar(100) NOT NULL DEFAULT '' COMMENT 'Trạng thái giao dịch',
+      paid_id varchar(50) NOT NULL DEFAULT '' COMMENT 'ID giao dịch',
       paid_time int(11) NOT NULL DEFAULT '0' COMMENT 'Thời gian cập nhật của status kia',
       PRIMARY KEY (id),
       UNIQUE KEY order_key (order_mod, order_id),
