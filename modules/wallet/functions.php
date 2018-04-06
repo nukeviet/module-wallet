@@ -153,12 +153,12 @@ function nv_wallet_checkRate($money1, $money2)
 {
     global $db, $db_config, $global_config, $module_data, $user_info;
 
-    $sql = "SELECT exchange FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE money_unit=" . $db->quote($money1) . " AND than_unit=" . $db->quote($money2);
+    $sql = "SELECT exchange_from, exchange_to FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE money_unit=" . $db->quote($money1) . " AND than_unit=" . $db->quote($money2);
     $result = $db->query($sql);
 
     if ($result->rowCount()) {
         $row = $result->fetch();
-        $exchange = $row['exchange'];
+        $exchange = array($row['exchange_from'], $row['exchange_to']);
     } else {
         $exchange = false;
     }
@@ -177,12 +177,12 @@ function nv_wallet_tinhtoan($money1, $money2, $totalmoneyexchange)
 {
     global $db, $db_config, $global_config, $module_data, $user_info;
 
-    $sql = "SELECT exchange FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE money_unit=" . $db->quote($money1) . " AND than_unit=" . $db->quote($money2);
+    $sql = "SELECT exchange_from, exchange_to FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE money_unit=" . $db->quote($money1) . " AND than_unit=" . $db->quote($money2);
     $result = $db->query($sql);
 
     if ($result->rowCount()) {
         $row = $result->fetch();
-        $totalmoneyexchange = floatval($totalmoneyexchange) * floatval($row['exchange']);
+        $totalmoneyexchange = floatval($totalmoneyexchange) * floatval($row['exchange_to'] / $row['exchange_from']);
     } else {
         $totalmoneyexchange = false;
     }

@@ -32,3 +32,7 @@
 .cfg-msys .cfg-msys-item {
     margin-bottom: 10px;
 }
+
+.exchange-row > .form-group:last-child {
+    margin-bottom: 0;
+}

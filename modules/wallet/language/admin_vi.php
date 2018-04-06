@@ -170,6 +170,7 @@ $lang_module['rate1'] = 'Tỉ giá so với đồng';
 $lang_module['rate'] = 'Tỉ giá';
 $lang_module['getrate'] = 'Xem tỉ giá';
 $lang_module['addnewmoney'] = 'Cập nhật mới tỉ giá';
+$lang_module['exc_applyopposite'] = 'Áp dụng cho cả chiều ngược lại';
 
 $lang_module['historyexchange'] = 'Lịch sử tỉ giá';
 $lang_module['date1'] = 'Giá trị từ ngày';

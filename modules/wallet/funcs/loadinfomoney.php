@@ -40,7 +40,7 @@ if ($nv_Request->get_title('type', 'post,get', 0) == "checkrate") {
     if ($exchange === false) {
         $exchange = $lang_module['norate'];
     } else {
-        $exchange = $lang_module['curentrate'] . ": 1 " . $money1 . " = " . get_display_money($exchange, 9) . " " . $money2;
+        $exchange = $lang_module['curentrate'] . ": " . get_display_money($exchange[0], 9) . " " . $money1 . " = " . get_display_money($exchange[1], 9) . " " . $money2;
     }
     $contents = $exchange;
 } elseif ($nv_Request->get_title('type', 'post,get', 0) == "tinhtoan") {

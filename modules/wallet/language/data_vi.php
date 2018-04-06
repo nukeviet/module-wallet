@@ -19,8 +19,8 @@ if (!defined('NV_ADMIN')) {
  */
 
 $arrSQL = array();
-$arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (id, money_unit, than_unit, exchange, time_update, status) VALUES('1', 'USD', 'VND', '22675', '1312000118', '1')";
-$arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (id, money_unit, than_unit, exchange, time_update, status) VALUES('2', 'VND', 'USD', '0.0000441', '1439725873', '1')";
+$arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (id, money_unit, than_unit, exchange_from, exchange_to, time_update, status) VALUES(1, 'USD', 'VND', 1, 22675, 1312000118, 1)";
+$arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (id, money_unit, than_unit, exchange_from, exchange_to, time_update, status) VALUES(2, 'VND', 'USD', 22675, 1, 1439725873, 1)";
 
 $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_money_sys (id, code, currency) VALUES('704', 'VND', 'Vietnam Dong')";
 $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_money_sys (id, code, currency) VALUES('840', 'USD', 'US Dollar')";

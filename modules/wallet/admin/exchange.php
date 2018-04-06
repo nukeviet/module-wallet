@@ -12,150 +12,158 @@ if (!defined('NV_IS_FILE_ADMIN'))
     die('Stop!!!');
 
 $page_title = $lang_module['exchange'];
-$code = "";
-$data = "";
 
-//view rate
-if ($nv_Request->get_string('code', 'get')) {
-    $code = $nv_Request->get_string('code', 'get');
-}
-if ($nv_Request->get_string('getrate', 'post,get')) {
-    $code = $nv_Request->get_string('code', 'post,get');
+$toMoney = $nv_Request->get_title('m', 'get', '');
+if (empty($toMoney)) {
+    $toMoney = array_keys($global_array_money_sys);
+    $toMoney = current($toMoney);
+} elseif (!isset($global_array_money_sys[$toMoney])) {
+    nv_redirect_location(NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op);
 }
 
-//addnew rate
-if ($nv_Request->get_string('savecat', 'post,get')) {
-    $code = $nv_Request->get_string('codecurent', 'post,get');
-    $arr_currency = $nv_Request->get_array('currency', 'get,post', 'string');
-    $arr_money_code = $nv_Request->get_array('money_code', 'get,post', 'string');
-    $id_i = $nv_Request->get_int('save_rate', 'post,get', 0);
-    if ($id_i > 0) {
-        $sql = "UPDATE " . $db_config['prefix'] . "_" . $module_data . "_exchange SET exchange = " . $arr_currency[0] . ", time_update = " . NV_CURRENTTIME . " WHERE id = " . $id_i . " ";
-        $db->query($sql);
-        $nv_Cache->delMod($module_name);
-    } else {
-        for ($i = 0; $i < count($arr_currency); $i++) {
-            if ($arr_currency[$i] != "") {
-                //kiem tra su ton tai cua tien te
-                $re = $db->query("SELECT id, money_unit, than_unit, exchange, time_update FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE money_unit = '" . $arr_money_code[$i] . "' AND than_unit = '" . $code . "'");
-                $arr_money = array();
-                $row = $re->rowCount();
-                list($id, $money_unit, $than_unit, $exchange, $time_update) = $re->fetch(3);
-                if ($row == 0) {
-                    $query = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (id,money_unit, than_unit, exchange,time_update, status) VALUES (NULL, " . $db->quote($arr_money_code[$i]) . ", " . $db->quote($code) . ", " . $arr_currency[$i] . "," . NV_CURRENTTIME . ",1 )";
-                    $db->query($query);
-                    $nv_Cache->delMod($module_name);
-                } else {
-                    //insert into exchange_log
-                    $query = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange_log (
-                        log_id,money_unit, than_unit, exchange,time_begin, time_end
+// Xác định tỉ giá quy đổi ra các đồng tiền khác
+$arr_rate = array();
+$sql = "SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE than_unit=" . $db->quote($toMoney) . " ORDER BY time_update DESC";
+$result = $db->query($sql);
+while ($row = $result->fetch()) {
+    $arr_rate[$row['money_unit']] = array(
+        'from' => $row['exchange_from'],
+        'to' => $row['exchange_to'],
+        'time_update' => $row['time_update']
+    );
+}
+
+// Lưu mới, cập nhật tỉ giá
+if ($nv_Request->get_title('submit', 'post')) {
+    $applyopposite = $nv_Request->get_int('applyopposite', 'post', 0);
+    $array_exchange_from = $nv_Request->get_typed_array('exchange_from', 'post', 'float', array());
+    $array_exchange_to = $nv_Request->get_typed_array('exchange_to', 'post', 'float', array());
+
+    foreach ($global_array_money_sys as $moneysys) {
+        if ($moneysys['code'] != $toMoney and isset($array_exchange_from[$moneysys['code']]) and isset($array_exchange_to[$moneysys['code']])) {
+            $exchange_from = floatval($array_exchange_from[$moneysys['code']]);
+            $exchange_to = floatval($array_exchange_to[$moneysys['code']]);
+            if ($exchange_from > 0 and $exchange_to) {
+                try {
+                    // Thêm mới nếu chưa có
+                    $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (
+                        money_unit, than_unit, exchange_from, exchange_to, time_update, status
                     ) VALUES (
-                        NULL, " . $db->quote($money_unit) . ", " . $db->quote($than_unit) . ", " . $exchange . "," . $time_update . "," . NV_CURRENTTIME . "
+                        " . $db->quote($moneysys['code']) . ", " . $db->quote($toMoney) . ",
+                        " . $exchange_from . ", " . $exchange_to . ", " . NV_CURRENTTIME . ", 1
                     )";
-                    $db->query($query);
-
-                    //update exchange
-                    $sql = "UPDATE " . $db_config['prefix'] . "_" . $module_data . "_exchange SET exchange = " . $arr_currency[$i] . ", time_update = " . NV_CURRENTTIME . " WHERE id = " . $id . " ";
                     $db->query($sql);
-                    $nv_Cache->delMod($module_name);
+                } catch (Exception $e) {
+                    // Cập nhật tỉ giá cũ
+                    $sql = "UPDATE " . $db_config['prefix'] . "_" . $module_data . "_exchange SET
+                        exchange_from=" . $exchange_from . ",
+                        exchange_to=" . $exchange_to . ",
+                        time_update=" . NV_CURRENTTIME . "
+                    WHERE money_unit=" . $db->quote($moneysys['code']) . " AND than_unit=" . $db->quote($toMoney);
+                    $db->query($sql);
+
+                    // Lịch sử tỉ giá
+                    if (isset($arr_rate[$moneysys['code']])) {
+                        $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange_log (
+                            money_unit, than_unit, exchange_from, exchange_to, time_begin, time_end
+                        ) VALUES (
+                            " . $db->quote($moneysys['code']) . ",
+                            " . $db->quote($toMoney) . ",
+                            " . $arr_rate[$moneysys['code']]['from'] . ",
+                            " . $arr_rate[$moneysys['code']]['to'] . ",
+                            " . $arr_rate[$moneysys['code']]['time_update'] . ",
+                            " . NV_CURRENTTIME . "
+                        )";
+                        $db->query($sql);
+                    }
+                }
+
+                // Áp dụng cho chiều ngược lại
+                if ($applyopposite) {
+                    $exchange_info = $db->query("SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE money_unit=" . $db->quote($toMoney) . " AND than_unit=" . $db->quote($moneysys['code']))->fetch();
+                    if (empty($exchange_info)) {
+                        $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (
+                            money_unit, than_unit, exchange_from, exchange_to, time_update, status
+                        ) VALUES (
+                            " . $db->quote($toMoney) . ", " . $db->quote($moneysys['code']) . ",
+                            " . $exchange_to . ", " . $exchange_from . ", " . NV_CURRENTTIME . ", 1
+                        )";
+                        $db->query($sql);
+                    } else {
+                        // Cập nhật tỉ giá cũ
+                        $sql = "UPDATE " . $db_config['prefix'] . "_" . $module_data . "_exchange SET
+                            exchange_from=" . $exchange_to . ",
+                            exchange_to=" . $exchange_from . ",
+                            time_update=" . NV_CURRENTTIME . "
+                        WHERE money_unit=" . $db->quote($toMoney) . " AND than_unit=" . $db->quote($moneysys['code']);
+                        $db->query($sql);
+
+                        // Lịch sử tỉ giá
+                        $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange_log (
+                            money_unit, than_unit, exchange_from, exchange_to, time_begin, time_end
+                        ) VALUES (
+                            " . $db->quote($toMoney) . ",
+                            " . $db->quote($moneysys['code']) . ",
+                            " . $exchange_info['exchange_from'] . ",
+                            " . $exchange_info['exchange_to'] . ",
+                            " . $exchange_info['time_update'] . ",
+                            " . NV_CURRENTTIME . "
+                        )";
+                        $db->query($sql);
+                    }
                 }
             }
         }
     }
 
+    nv_insert_logs(NV_LANG_DATA, $module_name, 'Exchage rate update', $toMoney, $admin_info['userid']);
+    $nv_Cache->delMod($module_name);
+    nv_redirect_location(NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op . '&m=' . $toMoney);
 }
 
 $xtpl = new XTemplate("exchange.tpl", NV_ROOTDIR . "/themes/" . $global_config['module_theme'] . "/modules/" . $module_file);
 $xtpl->assign('LANG', $lang_module);
+$xtpl->assign('TO_MONEY_CODE', $toMoney);
+$xtpl->assign('TO_MONEY_TITLE', $global_array_money_sys[$toMoney]['currency']);
+$xtpl->assign('FORM_ACTION', NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . '&amp;m=' . $toMoney);
 
-//show for add new
+// Xuất các loại tiền quản lý
+foreach ($global_array_money_sys as $moneysys) {
+    if ($moneysys['code'] != $toMoney) {
+        $arr_money[$moneysys['code']] = $moneysys['currency'];
+        $moneysys['link'] = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . '&amp;m=' . $moneysys['code'];
+        $xtpl->assign('MONEYSYS', $moneysys);
+        $xtpl->parse('main.moneysys');
 
-$re = $db->query("SELECT id, code, currency FROM " . $db_config['prefix'] . "_" . $module_data . "_money_sys ORDER BY id");
-$arr_money = array();
-while ($row = $re->fetch()) {
-    if ($code == "") {
-        $code = $row['code'];
-    }
-    if ($code == $row['code']) {
-        $select = "selected=\"selected\"";
-    } else {
-        $select = "";
-    }
-    $xtpl->assign('selectted', $select);
-    $link_change = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=exchange&id=" . $row['code'];
-    $xtpl->assign('link_change', $link_change);
-    $arr_money[$row['code']] = $row['currency'];
-    $xtpl->assign('DATAMONEY', $row);
-    $xtpl->parse('main.data.money');
-}
-
-unset($arr_money[$code]);
-//parse for edit rate
-if ($data != "" && isset($arr_money[$data['money_unit']])) {
-    if ($data['rate'] < 1) {
-        $data['rate'] = number_format($data['exchange'], 9, '.', ' ');
-    }
-    $xtpl->assign('currency', $data['exchange']);
-    $xtpl->assign('code', $data['money_unit']);
-    $xtpl->assign('money', $data['than_unit']);
-    $xtpl->assign('id_save', $data['id']);
-    $xtpl->parse('main.loopmoney');
-} else {
-    $query_rate = "SELECT money_unit,	than_unit, exchange FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE than_unit ='" . $code . "' AND money_unit != '" . $code . "' ORDER BY time_update DESC";
-    $re = $db->query($query_rate);
-    $arr_rate = array();
-    while ($row = $re->fetch()) {
-        $rate = 1 / $row['exchange'];
-        if ($rate < 1) {
-            $rate = number_format($rate, 9, '.', '');
-        } else {
-            $rate = number_format($rate, 0, '.', '');
-        }
-        $arr_rate[$row['than_unit']] = $rate;
-    }
-
-    $count = 0;
-    foreach ($arr_money as $key => $value) {
-        $valuerate = (!empty($arr_rate[$key])) ? $arr_rate[$key] : "";
-        $xtpl->assign('currency', $valuerate);
-        $class = ($count % 2) ? "" : "second";
-        $xtpl->assign('class', $class);
-        $xtpl->assign('code', $code);
-        $xtpl->assign('money', $key);
-        $xtpl->parse('main.loopmoney');
-        $count++;
+        $loopmoney = array(
+            'key' => $moneysys['code'],
+            'currency' => $moneysys['currency'],
+            'value_from' => isset($arr_rate[$moneysys['code']]) ? $arr_rate[$moneysys['code']]['from'] : '',
+            'value_to' => isset($arr_rate[$moneysys['code']]) ? $arr_rate[$moneysys['code']]['to'] : ''
+        );
+        $xtpl->assign('LOOPMONEY', $loopmoney);
+        $xtpl->parse('main.loopmoney_from');
+        $xtpl->parse('main.loopmoney_to');
     }
 }
 
-//showlist
-
-$stt = 0;
-$re = $db->query("SELECT id, money_unit, than_unit , exchange, time_update FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE than_unit ='" . $code . "' ORDER BY time_update DESC ");
-
-while ($row = $re->fetch()) {
-    if (!empty($row)) {
-        $row['link_del'] = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=delrate&id=" . $row['id'];
-        $row['link_edit'] = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op . "&code=" . $code . "&id=" . $row['id'];
-        $row['time_update'] = date("d/m/Y H:i ", $row['time_update']);
-        $class = ($stt % 2) ? "second" : "";
-        if ($row['exchange'] < 1) {
-            $row['exchange'] = number_format($row['exchange'], 9, '.', ' ');
-        }
-        $xtpl->assign('class', $class);
-        $xtpl->assign('ROW', $row);
-        $xtpl->parse('main.data.row');
-        $stt++;
-    }
+// Danh sách tỷ giá theo loại tiền đã chọn
+$result = $db->query("SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange WHERE than_unit=" . $db->quote($toMoney) . " ORDER BY time_update DESC");
+while ($row = $result->fetch()) {
+    $row['link_del'] = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=delrate&id=" . $row['id'];
+    $row['time_update'] = date("d/m/Y H:i ", $row['time_update']);
+    $row['exchange_from'] = get_display_money($row['exchange_from']);
+    $row['exchange_to'] = get_display_money($row['exchange_to']);
+    $xtpl->assign('ROW', $row);
+    $xtpl->parse('main.row');
 }
 
-$xtpl->assign('code', $code);
 $xtpl->assign('URL_DEL', NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=delrate");
-$xtpl->assign('URL_DEL_BACK', NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op . "&code=" . $code . "");
-$xtpl->assign('action_getrate', NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=exchange&getrate=1");
-$xtpl->parse('main.data');
+$xtpl->assign('URL_DEL_BACK', NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op . "&m=" . $toMoney);
+$xtpl->assign('ACTION_GETRATE', NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=exchange&getrate=1");
 
 $xtpl->parse('main');
-$contents .= $xtpl->text('main');
+$contents = $xtpl->text('main');
 
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_admin_theme($contents);

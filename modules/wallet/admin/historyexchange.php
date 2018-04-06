@@ -19,7 +19,7 @@ $xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
 $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('OP', $op);
 
-$page = $nv_Request->get_int('page', 'get', 0);
+$page = $nv_Request->get_int('page', 'get', 1);
 $per_page = 30;
 $dateview_search = $where = $dateview_search = "";
 $dateview = $nv_Request->get_string('starttime', 'post,get');
@@ -33,11 +33,12 @@ if ($dateview != 0) {
 
 $base_url = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=historyexchange";
 if ($dateview_search != "") {
-    $where = " WHERE time_begin < " . $dateview_search . " AND time_end > " . $dateview_search . "";
+    $where = " WHERE time_begin < " . $dateview_search . " AND time_end > " . $dateview_search;
 }
 
-$sql = "SELECT SQL_CALC_FOUND_ROWS log_id, money_unit, than_unit, exchange, time_begin, time_end FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange_log";
-$order = " ORDER BY time_begin DESC LIMIT " . $page . "," . $per_page . "";
+$sql = "SELECT SQL_CALC_FOUND_ROWS log_id, money_unit, than_unit, exchange_from, exchange_to, time_begin, time_end
+FROM " . $db_config['prefix'] . "_" . $module_data . "_exchange_log";
+$order = " ORDER BY time_begin DESC LIMIT " . (($page - 1) * $per_page) . ", " . $per_page;
 
 $sql .= $where . $order;
 
@@ -47,27 +48,23 @@ $numf = $result_page->fetchColumn();
 $all_page = ($numf) ? $numf : 1;
 
 $arr_list_transaction = array();
-while (list($log_id, $money_unit, $than_unit, $exchange, $time_begin, $time_end) = $result->fetch(3)) {
-    if ($exchange == intval($exchange)) {
-        $exchange = number_format($exchange, 0, '.', ' ');
-    }
-
+while (list($log_id, $money_unit, $than_unit, $exchange_from, $exchange_to, $time_begin, $time_end) = $result->fetch(3)) {
     $arr_list_transaction[$log_id] = array(
         'log_id' => $log_id, //
         'money_unit' => $money_unit, //
         'than_unit' => $than_unit, //
-        'exchange' => $exchange, //
+        'exchange_from' => get_display_money($exchange_from, 9), //
+        'exchange_to' => get_display_money($exchange_to, 9), //
         'time_begin' => date("d/m/Y H:i", $time_begin), //
-        'time_end' => date("d/m/Y H:i", $time_end));
+        'time_end' => date("d/m/Y H:i", $time_end)
+    );
 
 }
 
-$i = $page;
+$i = (($page - 1) * $per_page);
 foreach ($arr_list_transaction as $element) {
     $i++;
-    $class = ($i % 2) ? "class=\"second\"" : "";
-    $xtpl->assign('class', $class);
-    $xtpl->assign('stt', $i);
+    $xtpl->assign('STT', $i);
     $xtpl->assign('CONTENT', $element);
     $xtpl->parse('main.loop');
 }
@@ -88,5 +85,3 @@ $page_title = $lang_module['transaction'];
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_admin_theme($contents);
 include NV_ROOTDIR . '/includes/footer.php';
-
-?>
