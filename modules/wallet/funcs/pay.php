@@ -54,7 +54,8 @@ if (in_array($order_info['paid_status'], array(1, 2, 4))) {
 $url_checkout = array();
 foreach ($global_array_payments as $row) {
     $row['currency_support'] = explode(',', $row['currency_support']);
-    if (file_exists(NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $row['payment'] . ".checkout_url.php") and !empty($row['allowedoptionalmoney']) and in_array($order_info['money_unit'], $row['currency_support'])) {
+    // Có hỗ trợ thanh toán tùy chỉnh mới được tiếp tục, không hỗ trợ thanh toán tùy chỉnh thì chỉ dùng để nạp tiền
+    if (file_exists(NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $row['payment'] . ".checkout_url.php") and !empty($row['allowedoptionalmoney'])) {
         $payment_config = unserialize(nv_base64_decode($row['config']));
         $payment_config['paymentname'] = $row['paymentname'];
         $payment_config['domain'] = $row['domain'];
@@ -66,12 +67,32 @@ foreach ($global_array_payments as $row) {
             $images_button = NV_BASE_SITEURL . NV_UPLOADS_DIR . "/" . $module_name . "/" . $images_button;
         }
 
-        $url_checkout[$row['payment']] = array(
-            "name" => $row['paymentname'],
-            "url" => $url,
-            "images_button" => $images_button,
-            'data' => $row
-        );
+        $payment_type = '';
+        $exchange_info = array();
+        if (in_array($order_info['money_unit'], $row['currency_support'])) {
+            $payment_type = 'direct';
+        } elseif (!empty($module_config[$module_name]['allow_exchange_pay'])) {
+            $currency_exchange = current($row['currency_support']);
+            if (!empty($currency_exchange)) {
+                $money_exchange = nv_wallet_tinhtoan($order_info['money_unit'], $currency_exchange, $order_info['money_amount']);
+                if ($money_exchange > 0) {
+                    $payment_type = 'exchange';
+                    $exchange_info['total'] = $money_exchange;
+                    $exchange_info['currency'] = $currency_exchange;
+                }
+            }
+        }
+
+        if (!empty($payment_type)) {
+            $url_checkout[$row['payment']] = array(
+                "name" => $row['paymentname'],
+                "url" => $url,
+                "images_button" => $images_button,
+                'data' => $row,
+                'exchange_info' => $exchange_info,
+                'payment_type' => $payment_type
+            );
+        }
     }
 }
 
@@ -222,19 +243,26 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $tokenkey = md5($global_config['sitekey'] . $user_info['userid'] . NV_CURRENTTIME . $order_info['money_amount'] . $order_info['money_unit'] . $payment);
 
     // Xác định số tiền và phí
-    $money_net = $money_revenue = get_db_money($order_info['money_amount'], $order_info['money_unit']);
+    if ($url_checkout[$payment]['payment_type'] == 'direct') {
+        $pay_total = $order_info['money_amount'];
+        $pay_money = $order_info['money_unit'];
+    } else {
+        $pay_total = $url_checkout[$payment]['exchange_info']['total'];
+        $pay_money = $url_checkout[$payment]['exchange_info']['currency'];
+    }
+    $money_net = $money_revenue = get_db_money($pay_total, $pay_money);
     $money_discount = 0;
     $money_total = 0; // Thanh toán hóa đơn thì không thay đổi gì vào tài khoản
 
-    $money_discount = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount_transaction'] * $money_net) / 100), $order_info['money_unit']);
-    $money_revenue = get_db_money($money_net - $money_discount, $order_info['money_unit']);
+    $money_discount = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount_transaction'] * $money_net) / 100), $pay_money);
+    $money_revenue = get_db_money($money_net - $money_discount, $pay_money);
 
     $transaction['id'] = $db->insert_id("INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_transaction (
         created_time, status, money_unit, money_total, money_net, money_discount, money_revenue, userid, adminid, order_id, customer_id, customer_name,
         customer_email, customer_phone, customer_address, customer_info, transaction_id, transaction_type, transaction_status, transaction_time,
         transaction_info, transaction_data, payment, provider, tokenkey
     ) VALUES (
-        " . NV_CURRENTTIME . ", -1, " . $db->quote($order_info['money_unit']) . ", " . $money_total . ", " . $money_net . ", " . $money_discount . ",
+        " . NV_CURRENTTIME . ", -1, " . $db->quote($pay_money) . ", " . $money_total . ", " . $money_net . ", " . $money_discount . ",
         " . $money_revenue . ", " . $user_info['userid'] . ", 0, " . $order_info['id'] . ", " . $user_info['userid'] . ", " . $db->quote($user_info['full_name']) . ",
         " . $db->quote($user_info['email']) . ", '', '', '', '', -1, 0, 0, " . $db->quote($transaction_info) . ", '', " . $db->quote($payment) . ",
         '', " . $db->quote($tokenkey) . "
@@ -249,6 +277,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $post['transaction_code'] = vsprintf('WP%010s', $transaction['id']);
     $post['transaction_info'] = sprintf($lang_module['paygate_tranmess_send'], $post['transaction_code'], NV_SERVER_NAME);
     $post['money_net'] = $money_net;
+    $post['money_unit'] = $pay_money;
     $post['customer_phone'] = '';
     $post['customer_email'] = $user_info['email'];
     $post['ReturnURL'] = NV_MY_DOMAIN . nv_url_rewrite($order_info['payurl'] . '&payment=' . $payment . '&wpayportres=true', true);

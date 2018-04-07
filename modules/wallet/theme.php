@@ -414,8 +414,22 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
     $xtpl->assign('ORDER_OBJ', $order_obj);
 
     if (!empty($url_checkout)) {
+        $stt = 0;
         foreach ($url_checkout as $value) {
+            $stt++;
+            $xtpl->assign('STT', $stt);
             $xtpl->assign('DATA_PAYMENT', $value);
+
+            if ($value['payment_type'] == 'direct') {
+                $xtpl->parse('main.payment.paymentloop.link1');
+                $xtpl->parse('main.payment.paymentloop.link2');
+            } else {
+                $xtpl->assign('EXPAY_MSG', sprintf($lang_module['paygate_exchange_pay_msg'], $order_info['money_unit'], get_display_money($value['exchange_info']['total']) . ' ' . $value['exchange_info']['currency']));
+                $xtpl->parse('main.payment.exchange');
+                $xtpl->parse('main.payment.paymentloop.collapse1');
+                $xtpl->parse('main.payment.paymentloop.collapse2');
+            }
+
             $xtpl->parse('main.payment.paymentloop');
         }
 

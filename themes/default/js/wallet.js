@@ -133,4 +133,19 @@ $(document).ready(function() {
             $('#rechargeAmountMin').show();
         }
     });
+    // Thanh toán đơn hàng
+    $('[data-toggle="paycollapse"]').click(function(e) {
+        e.preventDefault();
+        var tg = $(this).attr('href');
+        $('.paycollapse').each(function() {
+            if (!$(this).is(tg)) {
+                $(this).slideUp(200);
+            }
+        });
+        if ($(tg).is(':visible')) {
+            $(tg).slideUp(200);
+        } else {
+            $(tg).slideDown(200);
+        }
+    });
 });

@@ -34,6 +34,7 @@ $lang_module['select_user'] = 'Chọn thành viên';
 $lang_module['creataccount'] = 'Khởi tạo ví tiền';
 $lang_module['confirm'] = 'Xác nhận';
 $lang_module['goback'] = 'Trở lại';
+$lang_module['filterdata'] = 'Lọc dữ liệu';
 
 $lang_module['setup_payment'] = 'Cổng thanh toán';
 $lang_module['setting_stt'] = 'STT';
@@ -298,6 +299,7 @@ $lang_module['transaction_status5'] = 'Sai mã Checksum';
 $lang_module['transaction_created_time'] = 'Giao dịch tạo lúc';
 $lang_module['transaction_payment_no'] = 'Không';
 $lang_module['transaction_id'] = 'ID giao dịch';
+$lang_module['transaction_status_al'] = 'Tất cả trạng thái';
 
 $lang_module['status_sub4'] = 'Mua bài viết';
 $lang_module['status_sub1'] = 'Xử lí số liệu lệch';
@@ -333,9 +335,19 @@ $lang_module['cfg_payment_error_discount_value'] = 'Lỗi: Mức phí không th�
 $lang_module['cfg_payment_error_duplicate'] = 'Lỗi: Bạn nhập có ít nhất hai dòng giống nhau hoàn toàn';
 $lang_module['cfg_payment_add'] = 'Thêm mức doanh thu';
 $lang_module['cfg_payment_remove'] = 'Bỏ';
+$lang_module['cfg_allow_exchange_pay'] = 'Cho phép thanh toán quy đổi';
+$lang_module['cfg_allow_exchange_pay_note'] = 'Bật tùy chọn này sẽ cho phép quy đổi tiền tệ của các loại tiền không được phép sang loại tiền có thể thanh toán tùy theo cổng thanh toán. Ví dụ: Có thể thanh toán tiền USD ở cổng VNPAYQR';
 
 $lang_module['term'] = 'Điều khoản thanh toán';
 $lang_module['recharge_rate'] = 'Tỉ lệ nạp';
 $lang_module['recharge_rateSend'] = 'Nạp';
 $lang_module['recharge_rateReceive'] = 'Nhận';
 $lang_module['recharge_rateGuide'] = 'Nhập theo dạng A:B ví dụ 10:9 khi đó thành viên nạp 100.000 VNĐ thì ví tiền sẽ cập nhật 90.000 VNĐ. Để trống thì tỉ lệ sẽ là 1:1';
+
+$lang_module['order_manager'] = 'Quản lý đơn hàng';
+$lang_module['order_manager_bymod_all'] = 'Tất cả module';
+$lang_module['order_manager_bymod'] = 'Xem theo module';
+$lang_module['order_manager_code'] = 'Mã đơn hàng';
+$lang_module['order_manager_module'] = 'Module';
+$lang_module['order_manager_obj'] = 'Đối tượng';
+$lang_module['order_del_note'] = 'Lưu ý: Xóa đơn hàng sẽ không xóa thông tin thanh toán trước đó nếu như module kết nối có lưu lại trạng thái thanh toán. Dữ liệu sẽ không thể khôi phục sau khi xóa, bạn có chắc chắn không?';

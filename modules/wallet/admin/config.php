@@ -50,6 +50,7 @@ if ($nv_Request->isset_request('submit', 'post')) {
     if (!empty($array_config['payport_content'])) {
         $array_config['payport_content'] = nv_editor_nl2br($array_config['payport_content']);
     }
+    $array_config['allow_exchange_pay'] = ($nv_Request->get_int('allow_exchange_pay', 'post', 0) == 1) ? 1 : 0;
 
     $sth = $db->prepare("UPDATE " . NV_CONFIG_GLOBALTABLE . "
 	SET config_value = :config_value
@@ -78,6 +79,8 @@ if (defined('NV_EDITOR') and nv_function_exists('nv_aleditor')) {
 } else {
     $array_config['payport_content'] = '<textarea class="form-control" style="width:100%;height:300px" name="payport_content">' . $array_config['payport_content'] . '</textarea>';
 }
+
+$array_config['allow_exchange_pay'] = empty($array_config['allow_exchange_pay']) ? '' : ' checked="checked"';
 
 $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
 $xtpl->assign('LANG', $lang_module);

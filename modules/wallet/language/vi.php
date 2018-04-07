@@ -197,6 +197,9 @@ $lang_module['paygate_error_update'] = 'Hệ thống không thể cập nhật t
 $lang_module['paygate_error_order'] = 'Không tìm thấy đơn hàng này';
 $lang_module['paygate_tranmess_send'] = 'Thanh toán đơn hàng mã số %s tại %s';
 $lang_module['paygate_tranmess'] = 'Thanh toán đơn hàng mã số %s';
+$lang_module['paygate_ptitle'] = 'Thanh toán qua các cổng thanh toán sau';
+$lang_module['paygate_exchange_pay_msg'] = 'Cổng thanh toán này không hỗ trợ thanh toán tiền <strong>%s</strong> do đó bạn sẽ phải thanh toán số tiền tương đương là <strong>%s</strong>. Nếu đồng ý bạn hãy nhấp nút bên dưới để tiếp tục, nếu không hãy thử chọn cổng thanh toán khác';
+$lang_module['paygate_exchange_pay_allow'] = 'Đồng ý thanh toán';
 
 $lang_module['payclass_error_money'] = 'Số tiền phải lớn hơn 0';
 $lang_module['payclass_error_save_transaction'] = 'Hệ thống không lưu được thông tin thanh toán';

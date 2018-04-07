@@ -154,4 +154,21 @@ $(document).ready(function() {
         var ctn = $(this).parent().parent();
         ctn.find('[type="text"]').focus();
     });
+    //
+    $('[data-toggle="delorder"]').click(function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        if (confirm($this.data('mgs'))) {
+            $.post(
+                script_name + '?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=order-list&nocache=' + new Date().getTime(),
+                'del=1&id=' + $this.data('id'),
+                function(res) {
+                    if (res == "OK")
+                        window.location.href = window.location.href.replace(/#(.*)/, "");
+                    else
+                        alert(res);
+                }
+            );
+        }
+    });
 });

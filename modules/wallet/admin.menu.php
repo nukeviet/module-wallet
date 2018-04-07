@@ -13,6 +13,7 @@ if (!defined('NV_ADMIN'))
 
 $submenu['transaction'] = $lang_module['transaction'];
 $submenu['add_transaction'] = $lang_module['add_transaction'];
+$submenu['order-list'] = $lang_module['order_manager'];
 $submenu['exchange'] = $lang_module['exchange'];
 $submenu['historyexchange'] = $lang_module['historyexchange'];
 $submenu['money'] = $lang_module['mana_money'];

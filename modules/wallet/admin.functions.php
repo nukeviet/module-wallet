@@ -35,7 +35,8 @@ $allow_func = array(
     'config_sms',
     'statistics',
     'add_transaction',
-    'config_payment'
+    'config_payment',
+    'order-list'
 );
 
 /**

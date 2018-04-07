@@ -76,6 +76,9 @@
 #rechargeMoneyOther {
     margin-top: 10px;
 }
+.paycollapse {
+    display: none;
+}
 
 /* PAY */
 @media (min-width: 768px) {
