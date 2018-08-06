@@ -124,7 +124,7 @@ if ($nv_Request->isset_request('wallet', 'get')) {
     }
     $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
         paid_status=4,
-        paid_id=" . $db->quote(vsprintf('GD%010s', $transaction_id)) . ",
+        paid_id=" . $db->quote(vsprintf('WP%010s', $transaction_id)) . ",
         paid_time=" . NV_CURRENTTIME . "
     WHERE id=" . $order_id);
     if (!$check) {
