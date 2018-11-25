@@ -299,6 +299,16 @@ if ($nv_Request->isset_request('payment', 'get')) {
     die();
 }
 
+if (empty($order_info['order_object']) and empty($order_info['order_name'])) {
+    $order_info['title'] = $lang_module['paygate_objnone'];
+} else {
+    $order_info['title'] = $lang_module['paygate_title'] . ' ' . $order_info['order_object'] . ' ' . $order_info['order_name'];
+}
+$page_title = $order_info['title'];
+$array_mod_title[] = array(
+    'title' => $page_title
+);
+
 $base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name;
 $contents = nv_theme_wallet_pay($url_checkout, $module_config[$module_name]['payport_content'], $order_info, $money_info);
 
