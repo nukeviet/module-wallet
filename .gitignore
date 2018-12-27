@@ -56,3 +56,5 @@
 !/themes/admin_default/modules/wallet
 /error.php
 /.project
+/.buildpath
+/.settings
