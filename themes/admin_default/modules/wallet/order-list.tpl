@@ -52,7 +52,9 @@
                         <strong>{ROW.paid_status}</strong>
                     </td>
                     <td class="text-center">
+                        <!-- BEGIN: delete -->
                         <a href="#" data-toggle="delorder" data-id="{ROW.id}" data-mgs="{LANG.order_del_note}" class="btn btn-danger btn-xs"><i class="fa fa-fw fa-trash"></i>{GLANG.delete}</a>
+                        <!-- END: delete -->
                     </td>
                 </tr>
                 <!-- END: loop -->

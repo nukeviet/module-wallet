@@ -19,12 +19,16 @@ if ($nv_Request->isset_request('del', 'post')) {
         die('Wrong URL!!!');
     }
 
-    $id = $nv_Request->get_int('id', 'post', 0);
+    if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_morder'])) {
+        $id = $nv_Request->get_int('id', 'post', 0);
 
-    $db->query("DELETE FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $id);
-    $nv_Cache->delMod($module_name);
-    nv_insert_logs(NV_LANG_DATA, $module_name, 'Del order', $id, $admin_info['userid']);
-    nv_htmlOutput('OK');
+        $db->query("DELETE FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $id);
+        $nv_Cache->delMod($module_name);
+        nv_insert_logs(NV_LANG_DATA, $module_name, 'Del order', $id, $admin_info['userid']);
+        nv_htmlOutput('OK');
+    }
+
+    nv_htmlOutput('ERROR');
 }
 
 // Danh sách các module kết nối đã gọi đơn hàng đến
@@ -79,7 +83,13 @@ while ($row = $result->fetch()) {
     $row['add_time'] = nv_date('d/m/Y H:i', $row['add_time']);
     $row['update_time'] = !empty($row['update_time']) ? nv_date('d/m/Y H:i', $row['update_time']) : '';
     $row['paid_status'] = isset($global_array_transaction_status[$row['paid_status']]) ? $global_array_transaction_status[$row['paid_status']] : 'N/A';
+
     $xtpl->assign('ROW', $row);
+
+    if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_morder'])) {
+        $xtpl->parse('main.loop.delete');
+    }
+
     $xtpl->parse('main.loop');
 }
 
