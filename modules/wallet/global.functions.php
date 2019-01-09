@@ -67,18 +67,18 @@ $global_array_money_sys = $nv_Cache->db($sql, 'code', $module_name);
 $sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_payment WHERE active = 1 ORDER BY weight ASC';
 $global_array_payments = $nv_Cache->db($sql, 'payment', $module_name);
 
-$global_array_transaction_status = array(
+$global_array_transaction_status = [
     0 => $lang_module['transaction_status0'],
     1 => $lang_module['transaction_status1'],
     2 => $lang_module['transaction_status2'],
     3 => $lang_module['transaction_status3'],
     4 => $lang_module['transaction_status4'],
     5 => $lang_module['transaction_status5']
-);
+];
 
-$global_array_transaction_type = array(
+$global_array_transaction_type = [
     '0' => $lang_module['status_sub0'],
     '1' => $lang_module['status_sub1'],
     '2' => $lang_module['status_sub2'],
     '4' => $lang_module['status_sub4']
-);
+];

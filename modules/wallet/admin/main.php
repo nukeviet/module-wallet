@@ -13,6 +13,31 @@ if (!defined('NV_IS_FILE_ADMIN'))
 
 $page_title = $table_caption = $lang_module['acountuser'];
 
+// Kiểm tra quyền quản lý ví tiền, nếu không có quyền chuyển đến quyền gần nhất có thể
+if (!$IS_FULL_ADMIN and empty($PERMISSION_ADMIN['is_wallet'])) {
+    $show_funcs = [
+        'transaction',
+        'order-list',
+        'exchange',
+        'historyexchange',
+        'money',
+        'payport',
+        'config',
+        'statistics'
+    ];
+    foreach ($allow_func as $op) {
+        if (in_array($op, $show_funcs)) {
+            nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $op);
+        }
+    }
+
+    $contents = nv_theme_alert($lang_module['permission_none'], $lang_module['permission_none_explain'], 'danger');
+
+    include NV_ROOTDIR . '/includes/header.php';
+    echo nv_admin_theme($contents);
+    include NV_ROOTDIR . '/includes/footer.php';
+}
+
 $page = $nv_Request->get_int('page', 'get', 1);
 if ($page < 1 or $page > 9999999999) {
     $page = 1;

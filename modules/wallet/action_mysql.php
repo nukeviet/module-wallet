@@ -26,6 +26,8 @@ if (empty($num_table)) {
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_smslog";
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_transaction";
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_orders";
+    $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admin_groups";
+    $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admins";
 
     $sql_create_module = $sql_drop_module;
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_epay_log(
@@ -42,7 +44,7 @@ if (empty($num_table)) {
       KEY userid (userid),
       KEY time (time),
       KEY telco (telco,code)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_exchange(
       id int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -54,7 +56,7 @@ if (empty($num_table)) {
       status tinyint(4) NOT NULL DEFAULT '0',
       PRIMARY KEY (id),
       UNIQUE KEY type (money_unit,than_unit)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_exchange_log(
       log_id int(11) NOT NULL AUTO_INCREMENT,
@@ -65,7 +67,7 @@ if (empty($num_table)) {
       time_begin int(11) NOT NULL DEFAULT '0',
       time_end int(11) NOT NULL DEFAULT '0',
       PRIMARY KEY (log_id)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_money(
       userid int(11) NOT NULL DEFAULT '0',
@@ -79,14 +81,14 @@ if (empty($num_table)) {
       note text NOT NULL,
       tokenkey varchar(32) NOT NULL DEFAULT '',
       UNIQUE KEY userid (userid,money_unit)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_money_sys(
       id int(10) unsigned NOT NULL AUTO_INCREMENT,
       code char(3) NOT NULL DEFAULT '',
       currency varchar(255) NOT NULL DEFAULT '',
       PRIMARY KEY (id)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_payment(
       payment varchar(100) NOT NULL DEFAULT '',
@@ -103,7 +105,7 @@ if (empty($num_table)) {
       currency_support varchar(255) NOT NULL DEFAULT '' COMMENT 'Các loại tiền tệ hỗ trợ thanh toán',
       allowedoptionalmoney tinyint(4) NOT NULL DEFAULT '0' COMMENT 'Cho phép thanh toán số tiền tùy ý hay không',
       PRIMARY KEY (payment)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_payment_discount(
       payment varchar(100) NOT NULL DEFAULT '' COMMENT 'Cổng thanh toán',
@@ -112,7 +114,7 @@ if (empty($num_table)) {
       provider varchar(10) NOT NULL DEFAULT '0' COMMENT 'Nhà cung cấp',
       discount double NOT NULL DEFAULT '0' COMMENT 'Mức phí %',
       UNIQUE KEY payment (payment,revenue_from,revenue_to,provider)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_smslog(
       id int(12) unsigned NOT NULL AUTO_INCREMENT,
@@ -127,7 +129,7 @@ if (empty($num_table)) {
       PRIMARY KEY (id),
       KEY User_ID (User_ID),
       KEY set_time (set_time)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_transaction(
       id int(11) NOT NULL AUTO_INCREMENT,
@@ -161,10 +163,10 @@ if (empty($num_table)) {
       KEY adminid (adminid),
       KEY customer_id (customer_id),
       KEY created_time (created_time),
-      KEY customer_name (customer_name(250)),
-      KEY customer_email (customer_email(250)),
+      KEY customer_name (customer_name(191)),
+      KEY customer_email (customer_email(191)),
       KEY transaction_type (transaction_type)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
 
     // Các đơn hàng từ module khác
     $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_orders (
@@ -188,7 +190,47 @@ if (empty($num_table)) {
       UNIQUE KEY order_key (order_mod, order_id),
       UNIQUE KEY secret_code (secret_code),
       KEY paid_status(paid_status)
-    ) ENGINE=MyISAM";
+    ) ENGINE=INNODB";
+
+    // Phân quyền theo nhóm đối tượng
+    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_admin_groups (
+      gid smallint(4) NOT NULL AUTO_INCREMENT,
+      group_title varchar(100) NOT NULL DEFAULT '' COMMENT 'Tên nhóm',
+      add_time int(11) NOT NULL DEFAULT '0',
+      update_time int(11) NOT NULL DEFAULT '0',
+      is_wallet tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền xem và cập nhật ví tiền',
+      is_vtransaction tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền xem giao dịch',
+      is_mtransaction tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền xem và xử lý giao dịch',
+      is_vorder tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền xem các đơn hàng kết nối',
+      is_morder tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền xem và xử lý các đơn hàng kết nối',
+      is_exchange tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền quản lý tỷ giá',
+      is_money tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền quản lý tiền tệ',
+      is_payport tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền quản lý các cổng thanh toán',
+      is_configmod tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền thiết lập cấu hình module',
+      is_viewstats tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Quyền xem thống kê',
+      PRIMARY KEY (gid),
+      UNIQUE KEY group_title (group_title),
+      KEY is_wallet (is_wallet),
+      KEY is_vtransaction (is_vtransaction),
+      KEY is_mtransaction (is_mtransaction),
+      KEY is_vorder (is_vorder),
+      KEY is_morder (is_morder),
+      KEY is_exchange (is_exchange),
+      KEY is_money (is_money),
+      KEY is_payport (is_payport),
+      KEY is_configmod (is_configmod),
+      KEY is_viewstats (is_viewstats)
+    ) ENGINE=INNODB";
+
+    // Phân quyền cho từng admin
+    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_admins (
+      admin_id mediumint(8) NOT NULL,
+      gid smallint(4) NOT NULL,
+      add_time int(11) NOT NULL DEFAULT '0',
+      update_time int(11) NOT NULL DEFAULT '0',
+      PRIMARY KEY (admin_id),
+      KEY gid (gid)
+    ) ENGINE=INNODB";
 }
 
 $sql = "SELECT * FROM " . NV_CONFIG_GLOBALTABLE . " WHERE lang ='" . $lang . "' AND module='" . $module_name . "'";

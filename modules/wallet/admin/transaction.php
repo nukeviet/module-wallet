@@ -17,34 +17,37 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
     $new_vid = $nv_Request->get_int('new_vid', 'post', 0);
     $content = 'NO_' . $transactionid;
 
-    $sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_transaction WHERE id=' . $transactionid;
-    $row = $db->query($sql)->fetch();
-    if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4) {
-        $sql = 'UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_transaction SET
+    // Kiểm tra quyền
+    if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction'])) {
+        $sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_transaction WHERE id=' . $transactionid;
+        $row = $db->query($sql)->fetch();
+        if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4) {
+            $sql = 'UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_transaction SET
             transaction_status=' . $new_vid . ',
             transaction_time=' . NV_CURRENTTIME . '
         WHERE id=' . $transactionid;
-        $db->query($sql);
+            $db->query($sql);
 
-        if (!empty($row['order_id'])) {
-            // Cập nhật trạng thái giao dịch nếu thanh toán hóa đơn của các module khác
-            try {
-                $db->query('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_orders SET
+            if (!empty($row['order_id'])) {
+                // Cập nhật trạng thái giao dịch nếu thanh toán hóa đơn của các module khác
+                try {
+                    $db->query('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_orders SET
                     paid_status=' . $new_vid . ',
                     paid_time=' . NV_CURRENTTIME . '
                 WHERE id=' . $row['order_id']);
-            } catch (Exception $ex) {
-                trigger_error($ex->getMessage());
+                } catch (Exception $ex) {
+                    trigger_error($ex->getMessage());
+                }
+            } else {
+                // Cập nhật số tiền nếu giao dịch nạp tiền
+                update_money($row['userid'], $row['money_total'], $row['money_unit'], $new_vid, $row['transaction_status'], $row['status']);
             }
-        } else {
-            // Cập nhật số tiền nếu giao dịch nạp tiền
-            update_money($row['userid'], $row['money_total'], $row['money_unit'], $new_vid, $row['transaction_status'], $row['status']);
-        }
 
-        $content = 'OK_' . $transactionid;
+            $content = 'OK_' . $transactionid;
+        }
+        $nv_Cache->delMod($module_name);
     }
 
-    $nv_Cache->delMod($module_name);
     include NV_ROOTDIR . '/includes/header.php';
     echo $content;
     include NV_ROOTDIR . '/includes/footer.php';
@@ -273,7 +276,7 @@ $i = 1;
 foreach ($arr_list_transaction as $element) {
     $xtpl->assign('stt', $i);
     $xtpl->assign('CONTENT', $element);
-    if ($element['transaction_status'] != 4) {
+    if ($element['transaction_status'] != 4 and ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction']))) {
         unset($global_array_transaction_status['0']);
         foreach ($global_array_transaction_status as $key => $value) {
             $xtpl->assign('OPTION', array(
