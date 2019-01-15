@@ -9,28 +9,41 @@
 <h3 class="margin-bottom">{LANG.paygate_ptitle}:</h3>
 <div class="form-group">
     <div class="row">
-    	<!-- BEGIN: paymentloop -->
+        <!-- BEGIN: paymentloop -->
         <div class="col-sm-12 col-md-8">
             <div class="payport-item">
-                <a title="{DATA_PAYMENT.name}"<!-- BEGIN: link1 --> href="{DATA_PAYMENT.url}"<!-- END: link1 --> class="im"<!-- BEGIN: collapse1 --> data-toggle="paycollapse" href="#paycollapse_{STT}"<!-- END: collapse1 -->><img src="{DATA_PAYMENT.images_button}" alt="{DATA_PAYMENT.name}"/></a>
-                <h3 class="text-center"><a title="{DATA_PAYMENT.name}"<!-- BEGIN: link2 --> href="{DATA_PAYMENT.url}"<!-- END: link2 --><!-- BEGIN: collapse2 --> data-toggle="paycollapse" href="#paycollapse_{STT}"<!-- END: collapse2 -->>{DATA_PAYMENT.name}</a></h3>
+                <a title="{DATA_PAYMENT.name}" class="im" href="#" data-toggle="paymentsel" data-payment="{DATA_PAYMENT.data.payment}"><img src="{DATA_PAYMENT.images_button}" alt="{DATA_PAYMENT.name}"/></a>
+                <h3 class="text-center"><a title="{DATA_PAYMENT.name}" href="#" data-toggle="paymentsel" data-payment="{DATA_PAYMENT.data.payment}">{DATA_PAYMENT.name}</a></h3>
             </div>
         </div>
-    	<!-- END: paymentloop -->
         <!-- BEGIN: clear_sm --><div class="clearfix visible-sm-block"></div><!-- END: clear_sm -->
         <!-- BEGIN: clear_md --><div class="clearfix visible-md-block visible-lg-block"></div><!-- END: clear_md -->
+        <!-- END: paymentloop -->
     </div>
 </div>
-<!-- BEGIN: exchange -->
-<div class="paycollapse clearfix" id="paycollapse_{STT}">
-    <div class="alert alert-warning">
-        {EXPAY_MSG}
-        <div class="text-center">
-            <a href="{DATA_PAYMENT.url}" class="btn btn-primary">{LANG.paygate_exchange_pay_allow}</a>
+<div class="payment-guide-ctn" id="payment-guide-ctn">
+    <!-- BEGIN: paymentguideloop -->
+    <div class="hidden payment-guide-item" id="payment-guide-{DATA_PAYMENT.data.payment}">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h2>{DATA_PAYMENT.name}</h2>
+                <hr>
+                <!-- BEGIN: guide -->
+                <div class="form-group">{DATA_PAYMENT.data.bodytext}</div>
+                <!-- END: guide -->
+                <!-- BEGIN: exchange -->
+                <div class="alert alert-warning">
+                    {EXPAY_MSG}
+                </div>
+                <!-- END: exchange -->
+                <div class="text-center">
+                    <a href="{DATA_PAYMENT.url}" class="btn btn-primary">{LANG.continue}</a>
+                </div>
+            </div>
         </div>
     </div>
+    <!-- END: paymentguideloop -->
 </div>
-<!-- END: exchange -->
 <!-- END: payment -->
 <h3 class="margin-bottom">{LANG.paygate_wpay_title}:</h3>
 <div class="panel panel-default">

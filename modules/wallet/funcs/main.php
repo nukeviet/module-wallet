@@ -8,13 +8,14 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
 $page_title = $module_info['site_title'];
 $key_words = $module_info['keywords'];
 
-$url_checkout = array();
+$url_checkout = [];
 
 foreach ($global_array_payments as $row) {
     if (file_exists(NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $row['payment'] . ".checkout_url.php")) {
@@ -29,11 +30,13 @@ foreach ($global_array_payments as $row) {
             $images_button = NV_BASE_SITEURL . NV_UPLOADS_DIR . "/" . $module_name . "/" . $images_button;
         }
 
-        $url_checkout[] = array(
-            "name" => $row['paymentname'],
-            "url" => $url,
-            "images_button" => $images_button
-        );
+        $url_checkout[] = [
+            'payment' => $row['payment'],
+            'name' => $row['paymentname'],
+            'url' => $url,
+            'images_button' => $images_button,
+            'guide' => $row['bodytext']
+        ];
     }
 }
 

@@ -63,9 +63,22 @@ function nv_theme_wallet_main($url_checkout, $payport_content)
     }
 
     if (!empty($url_checkout)) {
+        $loop_i = 0;
         foreach ($url_checkout as $value) {
+            $loop_i++;
             $xtpl->assign('DATA_PAYMENT', $value);
+            if ($loop_i % 2 == 0) {
+                $xtpl->parse('main.payment.paymentloop.clear_sm');
+            }
+            if ($loop_i % 3 == 0) {
+                $xtpl->parse('main.payment.paymentloop.clear_md');
+            }
             $xtpl->parse('main.payment.paymentloop');
+
+            if (!empty($value['guide'])) {
+                $xtpl->parse('main.payment.paymentguideloop.guide');
+            }
+            $xtpl->parse('main.payment.paymentguideloop');
         }
 
         $flag = true;
@@ -102,11 +115,6 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
     $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
     $xtpl->assign('ROW_PAYMENT', $row_payment);
     $xtpl->assign('FORM_ACTION', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "/" . $row_payment['payment']);
-
-    // Thông tin về cổng
-    if (!empty($row_payment['bodytext'])) {
-        $xtpl->parse('main.bodytext');
-    }
 
     $isOnlyOneMoneyUnit = false;
     $sizeMoneyUnit = sizeof($array_money_unit);
@@ -198,8 +206,29 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 
     $xtpl->assign('DATA', $post);
 
+    // Điều khoản thanh toán
     if (!empty($row_payment['term'])) {
         $xtpl->parse('main.term');
+    }
+
+    // Xuất riêng đối với cổng ATM
+    if ($row_payment['payment'] == 'ATM') {
+        if (!empty($post['atm_filedepute_key'])) {
+            $xtpl->assign('SHOW_ATM_FILEDEPUTE', ' class="hidden"');
+            $xtpl->parse('main.atm.atm_filedepute');
+        } else {
+            $xtpl->assign('SHOW_ATM_FILEDEPUTE', '');
+        }
+
+        if (!empty($post['atm_filebill_key'])) {
+            $xtpl->assign('SHOW_ATM_FILEBILL', ' class="hidden"');
+            $xtpl->parse('main.atm.atm_filebill');
+        } else {
+            $xtpl->assign('SHOW_ATM_FILEBILL', '');
+        }
+
+        $xtpl->parse('main.atm');
+        $xtpl->parse('main.atm_form');
     }
 
     if ($global_config['captcha_type'] == 2) {
@@ -414,23 +443,28 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
     $xtpl->assign('ORDER_OBJ', $order_obj);
 
     if (!empty($url_checkout)) {
-        $stt = 0;
+        $loop_i = 0;
         foreach ($url_checkout as $value) {
-            $stt++;
-            $xtpl->assign('STT', $stt);
+            $loop_i++;
             $xtpl->assign('DATA_PAYMENT', $value);
-
-            if ($value['payment_type'] == 'direct') {
-                $xtpl->parse('main.payment.paymentloop.link1');
-                $xtpl->parse('main.payment.paymentloop.link2');
-            } else {
-                $xtpl->assign('EXPAY_MSG', sprintf($lang_module['paygate_exchange_pay_msg'], $order_info['money_unit'], get_display_money($value['exchange_info']['total']) . ' ' . $value['exchange_info']['currency']));
-                $xtpl->parse('main.payment.exchange');
-                $xtpl->parse('main.payment.paymentloop.collapse1');
-                $xtpl->parse('main.payment.paymentloop.collapse2');
+            if ($loop_i % 2 == 0) {
+                $xtpl->parse('main.payment.paymentloop.clear_sm');
+            }
+            if ($loop_i % 3 == 0) {
+                $xtpl->parse('main.payment.paymentloop.clear_md');
             }
 
             $xtpl->parse('main.payment.paymentloop');
+
+            if (!empty($value['data']['bodytext'])) {
+                $xtpl->parse('main.payment.paymentguideloop.guide');
+            }
+            if ($value['payment_type'] != 'direct') {
+                // Thanh toán quy đổi bằng ngoại tệ khác
+                $xtpl->assign('EXPAY_MSG', sprintf($lang_module['paygate_exchange_pay_msg'], $order_info['money_unit'], get_display_money($value['exchange_info']['total']) . ' ' . $value['exchange_info']['currency']));
+                $xtpl->parse('main.payment.paymentguideloop.exchange');
+            }
+            $xtpl->parse('main.payment.paymentguideloop');
         }
 
         $xtpl->parse('main.payment');

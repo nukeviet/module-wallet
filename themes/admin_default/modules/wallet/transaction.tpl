@@ -192,7 +192,7 @@
                         <!-- BEGIN: transaction_status -->
                         <select class="form-control" id="id_status_{CONTENT.id}" onchange="nv_change_status('{CONTENT.id}');">
                             <!-- BEGIN: loops -->
-                            <option value="{OPTION.key}" {OPTION.selected}>{OPTION.title}</option>
+                            <option value="{OPTION.key}"{OPTION.selected}{OPTION.disabled}>{OPTION.title}</option>
                             <!-- END: loops -->
                         </select>
                         <!-- END: transaction_status -->

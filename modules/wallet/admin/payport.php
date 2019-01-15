@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_FILE_ADMIN'))
+if (!defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
+}
 
 $page_title = $lang_module['setup_payment'];
 
@@ -80,16 +81,16 @@ foreach ($payment_funcs as $payment) {
             $array_config_title[$key] = $lang;
         }
 
-        $array_payment_other[$payment] = array(
+        $array_payment_other[$payment] = [
             'payment' => $payment,
             'paymentname' => trim($xml->name),
             'domain' => trim($xml->domain),
-            'images_button' => trim($xml->images_button),
+            'images_button' => str_replace('[NV_BASE_SITEURL]', NV_BASE_SITEURL, trim($xml->images_button)),
             'config' => $array_config,
             'titlekey' => $array_config_title,
             'currency_support' => trim($xml->currency),
             'allowedoptionalmoney' => intval($xml->optional) ? 1 : 0
-        );
+        ];
 
         unset($config, $xmlconfig, $xml);
     }
@@ -147,19 +148,17 @@ if ($nv_Request->isset_request('saveconfigpaymentedit', 'post')) {
         $discount = 0;
     }
 
-    if (!nv_is_url($images_button) and file_exists(NV_DOCUMENT_ROOT . $images_button)) {
+    if (!empty($images_button) and preg_match('/^' . nv_preg_quote(NV_BASE_SITEURL . NV_UPLOADS_DIR . '/') . '/', $images_button)) {
         $lu = strlen(NV_BASE_SITEURL . NV_UPLOADS_DIR . "/" . $module_name . "/");
         $images_button = substr($images_button, $lu);
-    } elseif (!nv_is_url($images_button)) {
-        $images_button = "";
     }
 
     $sql = "UPDATE " . $db_config['prefix'] . "_" . $module_data . "_payment
-			SET paymentname = " . $db->quote($paymentname) . ", domain = " . $db->quote($domain) . ",
-			active=" . $active . ", config = '" . nv_base64_encode(serialize($array_config)) . "',
-			images_button=" . $db->quote($images_button) . ", bodytext=" . $db->quote($bodytext) . ", term=" . $db->quote($term) . ",
-			discount = " . $discount . ", discount_transaction= " . $discount_transaction . "
-			WHERE payment = " . $db->quote($payment) . " LIMIT 1";
+            SET paymentname = " . $db->quote($paymentname) . ", domain = " . $db->quote($domain) . ",
+            active=" . $active . ", config = '" . nv_base64_encode(serialize($array_config)) . "',
+            images_button=" . $db->quote($images_button) . ", bodytext=" . $db->quote($bodytext) . ", term=" . $db->quote($term) . ",
+            discount = " . $discount . ", discount_transaction= " . $discount_transaction . "
+            WHERE payment = " . $db->quote($payment) . " LIMIT 1";
     $db->query($sql);
 
     nv_insert_logs(NV_LANG_DATA, $module_name, 'log_edit_product', "edit " . $paymentname, $admin_info['userid']);

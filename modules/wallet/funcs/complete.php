@@ -8,11 +8,13 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
 $page_title = $lang_module['transaction1'];
 $nv_redirect = nv_url_rewrite(NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=money");
+$nv_redirect_his = nv_url_rewrite(NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=historyexchange");
 
 $payment = $nv_Request->get_title('payment', 'get', '');
 
@@ -36,14 +38,14 @@ $payment_config['domain'] = $row_payment['domain'];
 $error = '';
 
 // Dữ liệu trả về đặt vào biến này
-$responseData = array(
+$responseData = [
     'ordertype' => '', // Kiểu giao dịch: pay là thanh toán các đơn hàng khác, recharge là nạp tiền vào ví
     'orderid' => '', // Kiểu text, ID của giao dịch được lưu trước vào CSDL dùng để cập nhật thanh toán
     'transaction_id' => '', // Kiểu text, ID giao dịch trên cổng thanh toán
     'transaction_status' => 0, // Kiểu số, trạng thái giao dịch quy chuẩn
     'transaction_time' => 0, // Kiểu số, thời gian giao dịch
     'transaction_data' => '' // Kiểu text, có thể là serialize array
-);
+];
 
 // Gọi file xử lý dữ liệu trả về
 require_once NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $payment . ".complete.php";
@@ -115,5 +117,14 @@ if ($responseData['transaction_status'] == 4) {
 }
 
 // Thông báo trạng thái hiện tại
-$transaction_status = isset($global_array_transaction_status[$responseData['transaction_status']]) ? $global_array_transaction_status[$responseData['transaction_status']] : 'N/A';
-redict_link($lang_module['pay_info_response'] . ' ' . $transaction_status, $lang_module['cart_back'], $nv_redirect);
+if ($responseData['transaction_status'] != 4) {
+    // Giao dịch chưa thành công thì chuyển về trang lịch sử thanh toán để xem
+    $nv_redirect = $nv_redirect_his;
+}
+if ($payment == 'manual') {
+    $message = $payment_config['completemessage'];
+} else {
+    $transaction_status = isset($global_array_transaction_status[$responseData['transaction_status']]) ? $global_array_transaction_status[$responseData['transaction_status']] : 'N/A';
+    $message = $lang_module['pay_info_response'] . ' ' . $transaction_status;
+}
+redict_link($message, $lang_module['cart_back'], $nv_redirect);

@@ -21,20 +21,20 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
     if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction'])) {
         $sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_transaction WHERE id=' . $transactionid;
         $row = $db->query($sql)->fetch();
-        if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4) {
+        if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4 and $new_vid != 0) {
             $sql = 'UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_transaction SET
-            transaction_status=' . $new_vid . ',
-            transaction_time=' . NV_CURRENTTIME . '
-        WHERE id=' . $transactionid;
+                transaction_status=' . $new_vid . ',
+                transaction_time=' . NV_CURRENTTIME . '
+            WHERE id=' . $transactionid;
             $db->query($sql);
 
             if (!empty($row['order_id'])) {
                 // Cập nhật trạng thái giao dịch nếu thanh toán hóa đơn của các module khác
                 try {
                     $db->query('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_orders SET
-                    paid_status=' . $new_vid . ',
-                    paid_time=' . NV_CURRENTTIME . '
-                WHERE id=' . $row['order_id']);
+                        paid_status=' . $new_vid . ',
+                        paid_time=' . NV_CURRENTTIME . '
+                    WHERE id=' . $row['order_id']);
                 } catch (Exception $ex) {
                     trigger_error($ex->getMessage());
                 }
@@ -63,16 +63,16 @@ $xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
 $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('OP', $op);
 
-$array_fields_search = array(
+$array_fields_search = [
     'customer_name' => $lang_module['customer_name'],
     'customer_email' => $lang_module['customer_email'],
     'customer_phone' => $lang_module['customer_phone'],
     'customer_address' => $lang_module['customer_address'],
     'customer_info' => $lang_module['customer_info'],
-);
+];
 
 $isSearchSubmit = false;
-$array_search = array();
+$array_search = [];
 $array_search['q'] = $nv_Request->get_title('q', 'get', '');
 $array_search['are'] = $nv_Request->get_title('are', 'get', ''); // Các field tìm theo khóa
 $array_search['crf'] = $nv_Request->get_title('crf', 'get', ''); // Tạo từ
@@ -88,7 +88,7 @@ $array_search['tpa'] = $nv_Request->get_title('tpa', 'get', ''); // Cổng thanh
 $array_search['per_page'] = $nv_Request->get_int('per_page', 'get', 0); // Số bản ghi
 
 $view_userid = $nv_Request->get_int('userid', 'get', 0);
-$view_user_info = array();
+$view_user_info = [];
 if ($view_userid) {
     $sql = "SELECT userid, username FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $view_userid;
     $view_user_info = $db->query($sql)->fetch();
@@ -277,12 +277,12 @@ foreach ($arr_list_transaction as $element) {
     $xtpl->assign('stt', $i);
     $xtpl->assign('CONTENT', $element);
     if ($element['transaction_status'] != 4 and ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction']))) {
-        unset($global_array_transaction_status['0']);
         foreach ($global_array_transaction_status as $key => $value) {
             $xtpl->assign('OPTION', array(
                 'key' => $key,
                 'title' => $value,
-                'selected' => ($key == $element['transaction_status']) ? ' selected="selected"' : ''
+                'selected' => ($key == $element['transaction_status']) ? ' selected="selected"' : '',
+                'disabled' => ($key == 0) ? ' disabled="disabled"' : ''
             ));
             $xtpl->parse('main.loop.transaction_status.loops');
         }
