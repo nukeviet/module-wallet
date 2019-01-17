@@ -204,10 +204,10 @@
                 <div class="col-md-16">
                     <div id="{RECAPTCHA_ELEMENT}"></div>
                     <script type="text/javascript">
-                    //nv_recaptcha_elements.push({
-                    //    id: "{RECAPTCHA_ELEMENT}",
-                    //    btn: $('[type="submit"]', $('#{RECAPTCHA_ELEMENT}').parent().parent().parent())
-                    //});
+                    nv_recaptcha_elements.push({
+                        id: "{RECAPTCHA_ELEMENT}",
+                        btn: $('[type="submit"]', $('#{RECAPTCHA_ELEMENT}').parent().parent().parent())
+                    });
                     </script>
                 </div>
             </div>

@@ -188,6 +188,11 @@ if (isset($global_array_payments[$payment])) {
                         $post['transaction_info'] = sprintf($lang_module['note_pay_gate'], $payment);
                     }
 
+                    // Xử lý trước khi lưu CSDL
+                    if ($payment == 'ATM') {
+                        require NV_ROOTDIR . '/modules/' . $module_file . '/payment/ATM.presave.php';
+                    }
+
                     // Lưu vào giao dịch (Giao dịch này là chưa thanh toán, sau này thanh toán nếu thành công hay thất bại sẽ cập nhật lại chỗ này)
                     $post['id'] = $db->insert_id("INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_transaction (
                         created_time, status, money_unit, money_total, money_net, money_discount, money_revenue, userid, adminid, customer_id, customer_name,
@@ -197,8 +202,8 @@ if (isset($global_array_payments[$payment])) {
                         " . NV_CURRENTTIME . ", 1, " . $db->quote($post['money_unit']) . ", " . $post['money_total'] . ", " . $post['money_net'] . ", " . $post['money_discount'] . ",
                         " . $post['money_revenue'] . ", " . $post['userid'] . ", 0, " . $post['customer_id'] . ", " . $db->quote($post['customer_name']) . ",
                         " . $db->quote($post['customer_email']) . ", " . $db->quote($post['customer_phone']) . ", " . $db->quote($post['customer_address']) . ",
-                        " . $db->quote($post['customer_info']) . ", '', -1, 0, 0, " . $db->quote($post['transaction_info']) . ", '', " . $db->quote($payment) . ",
-                        '', " . $db->quote($post['tokenkey']) . "
+                        " . $db->quote($post['customer_info']) . ", '', -1, 0, 0, " . $db->quote($post['transaction_info']) . ", " . $db->quote($post['transaction_data']) . ",
+                        " . $db->quote($payment) . ", '', " . $db->quote($post['tokenkey']) . "
                     )", 'id');
 
                     if (empty($post['id'])) {

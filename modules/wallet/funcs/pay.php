@@ -235,11 +235,18 @@ if ($nv_Request->isset_request('payment', 'get')) {
         $link_redirect .= '&worderid=' . $order_info['order_id'];
         $link_redirect .= '&wchecksum=' . $wallet->getResponseChecksum($order_info, $responseData['transaction_status'], $responseData['transaction_time']);
         $link_redirect = nv_url_rewrite($link_redirect, true);
+
+        // Đối với cổng thanh toán ATM và manual thì hiển thị thông báo trước khi chuyển về module kết nối
+        if ($payment == 'manual' or $payment == 'ATM') {
+            redict_link($payment_config['completemessage'], $lang_module['cart_back_pay'], $link_redirect);
+        }
+
+        // Đối với cổng thanh toán khác thì chuyển luôn về module kết nối
         nv_redirect_location($link_redirect);
     }
 
     // Lưu mới phiên thanh toán
-    $transaction = array();
+    $transaction = [];
     $transaction_info = sprintf($lang_module['paygate_tranmess'], vsprintf('DH%010s', $order_info['id']));
     // Tạo ngẫu nhiên một khóa xem như là Private key để tính checksum
     $tokenkey = md5($global_config['sitekey'] . $user_info['userid'] . NV_CURRENTTIME . $order_info['money_amount'] . $order_info['money_unit'] . $payment . nv_genpass());
@@ -258,6 +265,38 @@ if ($nv_Request->isset_request('payment', 'get')) {
 
     $money_discount = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount_transaction'] * $money_net) / 100), $pay_money);
     $money_revenue = get_db_money($money_net - $money_discount, $pay_money);
+
+    // Đối với cổng thanh toán ATM tại đây cần lấy thông tin của khách
+    $post = [];
+    $post['atm_sendbank'] = '';
+    $post['atm_fracc'] = '';
+    $post['atm_time'] = '';
+    $post['atm_toacc'] = '';
+    $post['atm_heading'] = '';
+    $post['atm_recvbank'] = '';
+    $post['atm_filedepute'] = ''; // Tên file hiện tại
+    $post['atm_filedepute_key'] = ''; // Khóa file hiện tại
+    $post['atm_filebill'] = ''; // Tên file hiện tại
+    $post['atm_filebill_key'] = ''; // Khóa file hiện tại
+
+    if ($payment == 'ATM') {
+        $isSubmit = false;
+        $error = '';
+
+        if ($nv_Request->isset_request('submit', 'post')) {
+            $isSubmit = true;
+        } else {
+            //
+        }
+
+        if (!$isSubmit or !empty($error)) {
+            $contents = nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error);
+
+            include NV_ROOTDIR . '/includes/header.php';
+            echo nv_site_theme($contents);
+            include NV_ROOTDIR . '/includes/footer.php';
+        }
+    }
 
     $transaction['id'] = $db->insert_id("INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_transaction (
         created_time, status, money_unit, money_total, money_net, money_discount, money_revenue, userid, adminid, order_id, customer_id, customer_name,

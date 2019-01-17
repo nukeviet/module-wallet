@@ -379,3 +379,11 @@ $lang_module['permission_list_admin'] = 'Danh sách các tài khoản quản lý
 $lang_module['permission_selper'] = 'Chọn quyền';
 $lang_module['permission_none'] = 'Không có quyền gì';
 $lang_module['permission_none_explain'] = 'Bạn chưa được cấp quyền thao tác trong module này';
+
+$lang_module['atm_sendbank'] = 'Tên ngân hàng gửi';
+$lang_module['atm_fracc'] = 'Số tài khoản gửi';
+$lang_module['atm_time'] = 'Ngày, giờ gửi';
+$lang_module['atm_toacc'] = 'Số tài khoản nhận';
+$lang_module['atm_recvbank'] = 'Tên ngân hàng nhận';
+$lang_module['atm_filedepute'] = 'Bản scan giấy ủy nhiệm chi';
+$lang_module['atm_filebill'] = 'File hóa đơn';

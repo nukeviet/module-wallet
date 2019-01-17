@@ -130,6 +130,7 @@ $lang_module['titleSmsNap'] = 'Nhắn tin SMS nạp tiền vào tài khoản';
 $lang_module['sms'] = '<span style="font-weight:bold;font-size:14px;">Để nạp tiền vào tài khoản</span> ! Soạn tin theo mẫu : <span style="font-weight:bold; color:red">%s %s</span> trong đó : <span style="font-weight:bold; color:red">%s</span> là Từ khóa của chương trình, <span style="font-weight:bold; color:red">%s</span> là email của bạn rồi gửi đến số <span style="font-weight:bold; color:red">%s</span>';
 $lang_module['nosms'] = 'Dịch vụ này chưa được kích hoạt';
 $lang_module['cart_back'] = 'Quay lại';
+$lang_module['cart_back_pay'] = 'Bạn vui lòng đợi. Hệ thống sẽ tự chuyển trang trong giây lát!';
 
 $lang_module['pay_save_error_title'] = 'Thất bại';
 $lang_module['pay_save_error_body'] = 'Nạp tiền thất bại';
@@ -201,6 +202,7 @@ $lang_module['paygate_tranmess'] = 'Thanh toán đơn hàng mã số %s';
 $lang_module['paygate_ptitle'] = 'Thanh toán qua các cổng thanh toán sau';
 $lang_module['paygate_exchange_pay_msg'] = 'Cổng thanh toán này không hỗ trợ thanh toán tiền <strong>%s</strong> do đó bạn sẽ phải thanh toán số tiền tương đương là <strong>%s</strong>. Nếu đồng ý bạn hãy nhấp nút bên dưới để tiếp tục, nếu không hãy thử chọn cổng thanh toán khác';
 $lang_module['paygate_exchange_pay_allow'] = 'Đồng ý thanh toán';
+$lang_module['paygate_atm'] = 'Thanh toán đơn hàng bằng hình thức';
 
 $lang_module['payclass_error_money'] = 'Số tiền phải lớn hơn 0';
 $lang_module['payclass_error_save_transaction'] = 'Hệ thống không lưu được thông tin thanh toán';

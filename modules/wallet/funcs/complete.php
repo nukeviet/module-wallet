@@ -121,7 +121,7 @@ if ($responseData['transaction_status'] != 4) {
     // Giao dịch chưa thành công thì chuyển về trang lịch sử thanh toán để xem
     $nv_redirect = $nv_redirect_his;
 }
-if ($payment == 'manual') {
+if ($payment == 'manual' or $payment == 'ATM') {
     $message = $payment_config['completemessage'];
 } else {
     $transaction_status = isset($global_array_transaction_status[$responseData['transaction_status']]) ? $global_array_transaction_status[$responseData['transaction_status']] : 'N/A';

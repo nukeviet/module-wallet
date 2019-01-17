@@ -484,3 +484,60 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
     $xtpl->parse('main');
     return $xtpl->text('main');
 }
+
+/**
+ * @param array $order_info
+ * @param array $row_payment
+ * @param array $post
+ * @param string $error
+ * @return string
+ */
+function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
+{
+    global $global_config, $lang_module, $lang_global, $module_info;
+
+    $xtpl = new XTemplate('atm_pay.tpl', NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl->assign('LANG', $lang_module);
+    $xtpl->assign('SRC_CAPTCHA', NV_BASE_SITEURL . "index.php?scaptcha=captcha&t=" . NV_CURRENTTIME);
+    $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
+    $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+    $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
+    $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
+    $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
+    $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
+    $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
+    $xtpl->assign('ROW_PAYMENT', $row_payment);
+    $xtpl->assign('FORM_ACTION', $order_info['payurl'] . '&amp;payment=' . $row_payment['payment']);
+
+    $xtpl->assign('DATA', $post);
+
+    if (!empty($post['atm_filedepute_key'])) {
+        $xtpl->assign('SHOW_ATM_FILEDEPUTE', ' class="hidden"');
+        $xtpl->parse('main.atm_filedepute');
+    } else {
+        $xtpl->assign('SHOW_ATM_FILEDEPUTE', '');
+    }
+
+    if (!empty($post['atm_filebill_key'])) {
+        $xtpl->assign('SHOW_ATM_FILEBILL', ' class="hidden"');
+        $xtpl->parse('main.atm_filebill');
+    } else {
+        $xtpl->assign('SHOW_ATM_FILEBILL', '');
+    }
+
+    if ($global_config['captcha_type'] == 2) {
+        $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
+        $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
+        $xtpl->parse('main.recaptcha');
+    } else {
+        $xtpl->parse('main.captcha');
+    }
+
+    if (!empty($error)) {
+        $xtpl->assign('ERROR', $error);
+        $xtpl->parse('main.error');
+    }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}

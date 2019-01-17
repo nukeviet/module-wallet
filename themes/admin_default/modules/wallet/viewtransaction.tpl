@@ -95,7 +95,14 @@
             <!-- BEGIN: loop -->
             <tr>
                 <td class="w200">{OTHER_KEY}</td>
-                <td>{OTHER_VAL}</td>
+                <td>
+                    <!-- BEGIN: link -->
+                    <a href="{OTHER_LINK}">{OTHER_VAL}</a>
+                    <!-- END: link -->
+                    <!-- BEGIN: text -->
+                    {OTHER_VAL}
+                    <!-- END: text -->
+                </td>
             </tr>
             <!-- END: loop -->
         </tbody>

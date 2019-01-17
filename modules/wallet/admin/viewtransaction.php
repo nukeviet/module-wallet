@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_FILE_ADMIN'))
+if (!defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
+}
 
 $id = $nv_Request->get_int('id', 'get', 0);
 $set_active_op = 'transaction';
@@ -63,14 +64,49 @@ $row['transaction_info'] = $row['transaction_info'] ? $row['transaction_info'] :
 
 $xtpl->assign('CONTENT', $row);
 
+$array_files = [];
+$array_files_key = 0;
+
 if (!empty($row['transaction_data'])) {
     $transaction_data = unserialize($row['transaction_data']);
+    $transaction_data_size = 0;
     foreach ($transaction_data as $key => $value) {
-        $xtpl->assign('OTHER_KEY', $key);
-        $xtpl->assign('OTHER_VAL', $value);
-        $xtpl->parse('main.transaction_data.loop');
+        if (!empty($value)) {
+            $transaction_data_size++;
+            $xtpl->assign('OTHER_KEY', isset($lang_module[$key]) ? $lang_module[$key] : $key);
+
+            if ($key == 'atm_filedepute' or $key == 'atm_filebill') {
+                $files = explode('|', $value);
+                if (isset($files[1])) {
+                    $array_files_key++;
+                    $array_files[$array_files_key] = [
+                        'filename' => $files[0],
+                        'filepath' => $files[1]
+                    ];
+                    $xtpl->assign('OTHER_VAL', $files[0]);
+                    $xtpl->assign('OTHER_LINK', NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "&amp;id=" . $id . '&amp;file=' . $array_files_key);
+                    $xtpl->parse('main.transaction_data.loop.link');
+                }
+            } else {
+                $xtpl->assign('OTHER_VAL', $value);
+                $xtpl->parse('main.transaction_data.loop.text');
+            }
+
+            $xtpl->parse('main.transaction_data.loop');
+        }
     }
-    $xtpl->parse('main.transaction_data');
+    if ($transaction_data_size > 0) {
+        $xtpl->parse('main.transaction_data');
+    }
+}
+
+// Tải file về: Đường dẫn file này bí mật
+$file_key = $nv_Request->get_int('file', 'get', '');
+if (isset($array_files[$file_key])) {
+    $file_src = NV_UPLOADS_REAL_DIR . '/' . $module_upload . '/' . $array_files[$file_key]['filepath'];
+    $download = new NukeViet\Files\Download($file_src, NV_UPLOADS_REAL_DIR . '/' . $module_upload, $array_files[$file_key]['filename'], true);
+    $download->download_file();
+    die();
 }
 
 $xtpl->parse('main');
