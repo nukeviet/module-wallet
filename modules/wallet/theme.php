@@ -432,15 +432,10 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
         $xtpl->assign('PAYPORT_CONTENT', $payport_content);
         $xtpl->parse('main.payport_content');
     }
-
-    if (empty($order_info['order_object']) and empty($order_info['order_name'])) {
-        $order_obj = $lang_module['paygate_objnone'];
-    } else {
-        $order_obj = $order_info['order_object'] . ' ' . $order_info['order_name'];
-    }
+    
     $order_info['money_amountdisplay'] = get_display_money($order_info['money_amount']);
     $xtpl->assign('ORDER', $order_info);
-    $xtpl->assign('ORDER_OBJ', $order_obj);
+    $xtpl->assign('ORDER_OBJ', $order_info['title']);
 
     if (!empty($url_checkout)) {
         $loop_i = 0;
