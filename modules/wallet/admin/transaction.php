@@ -29,6 +29,9 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
             $db->query($sql);
 
             if (!empty($row['order_id'])) {
+                // Xác định thông tin đơn hàng
+                $order_info = $db->query("SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $row['order_id']);
+
                 // Cập nhật trạng thái giao dịch nếu thanh toán hóa đơn của các module khác
                 try {
                     $db->query('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_orders SET
@@ -37,6 +40,42 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
                     WHERE id=' . $row['order_id']);
                 } catch (Exception $ex) {
                     trigger_error($ex->getMessage());
+                }
+
+                // Gọi về module để cập nhật đơn hàng của module
+                if (!empty($order_info) and isset($sys_mods[$order_info['order_mod']])) {
+                    $order_info['paid_status'] = $new_vid;
+                    $order_info['paid_time'] = NV_CURRENTTIME;
+
+                    // Backup lại các biến của module wallet
+                    $_module_name = $module_name;
+                    $_module_info = $module_info;
+                    $_module_file = $module_file;
+                    $_module_data = $module_data;
+                    $_module_upload = $module_upload;
+
+                    $module_name = $order_info['order_mod'];
+                    $module_info = $sys_mods[$order_info['order_mod']];
+                    $module_file = $module_info['module_file'];
+                    $module_data = $module_info['module_data'];
+                    $module_upload = $module_info['module_upload'];
+
+                    // Gọi ra file cập nhật giao dịch
+                    try {
+                        if (file_exists(NV_ROOTDIR . '/modules/' . $module_file . '/wallet.admin.php')) {
+                            define('NV_IS_WALLET_ADMIN', true);
+                            require NV_ROOTDIR . '/modules/' . $module_file . '/wallet.admin.php';
+                        }
+                    } catch (Exception $ex) {
+                        trigger_error($ex->getMessage());
+                    }
+
+                    // Trả lại các biến backup
+                    $module_name = $_module_name;
+                    $module_info = $_module_info;
+                    $module_file = $_module_file;
+                    $module_data = $_module_data;
+                    $module_upload = $_module_upload;
                 }
             } else {
                 // Cập nhật số tiền nếu giao dịch nạp tiền

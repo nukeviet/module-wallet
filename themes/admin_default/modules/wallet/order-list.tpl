@@ -24,6 +24,11 @@
     </select>
     <input type="submit" value="{LANG.filterdata}" class="btn btn-primary"/>
 </form>
+
+<div class="alert alert-info">
+    {VIEW_TRANSCTION_NOTE}
+</div>
+
 <form class="form-inline" action="{NV_BASE_ADMINURL}index.php" method="post">
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">

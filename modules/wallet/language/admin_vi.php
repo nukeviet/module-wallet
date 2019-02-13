@@ -353,6 +353,7 @@ $lang_module['order_manager_code'] = 'Mã đơn hàng';
 $lang_module['order_manager_module'] = 'Module';
 $lang_module['order_manager_obj'] = 'Đối tượng';
 $lang_module['order_del_note'] = 'Lưu ý: Xóa đơn hàng sẽ không xóa thông tin thanh toán trước đó nếu như module kết nối có lưu lại trạng thái thanh toán. Dữ liệu sẽ không thể khôi phục sau khi xóa, bạn có chắc chắn không?';
+$lang_module['order_update_status_note'] = 'Để cập nhật trạng thái đơn hàng, bạn cần cập nhật trạng thái giao dịch của các giao dịch <a href="%s">tại đây</a>';
 
 $lang_module['permission'] = 'Thiết lập quyền hạn';
 $lang_module['permission_group_empty'] = 'Bạn chưa tạo các nhóm đối tượng quản trị nào. Nhấp vào đây để tạo các nhóm đối tượng quản trị trước';

@@ -66,6 +66,9 @@ $xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
 $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('OP', $op);
 
+$link_transctions = NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=transaction';
+$xtpl->assign('VIEW_TRANSCTION_NOTE', sprintf($lang_module['order_update_status_note'], $link_transctions));
+
 $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . "_" . $module_data . "_orders");
 if ($where) {
     $db->where(implode(' AND ', $where));
