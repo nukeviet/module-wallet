@@ -30,7 +30,7 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
 
             if (!empty($row['order_id'])) {
                 // Xác định thông tin đơn hàng
-                $order_info = $db->query("SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $row['order_id']);
+                $order_info = $db->query("SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $row['order_id'])->fetch();
 
                 // Cập nhật trạng thái giao dịch nếu thanh toán hóa đơn của các module khác
                 try {
