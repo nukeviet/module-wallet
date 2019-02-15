@@ -89,6 +89,19 @@ while ($row = $result->fetch()) {
 
     $xtpl->assign('ROW', $row);
 
+    // Link đến chi tiết đơn hàng trong admin
+    if (empty($row['url_admin'])) {
+        $xtpl->parse('main.loop.obj_text');
+    } else {
+        $row['url_admin'] = unserialize($row['url_admin']);
+        $link_obj = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $row['order_mod'] . '&amp;' . NV_OP_VARIABLE . '=' . $row['url_admin']['op'];
+        if (!empty($row['url_admin']['querystr'])) {
+            $link_obj .= '&amp;' . $row['url_admin']['querystr'];
+        }
+        $xtpl->assign('LINK_OBJ', $link_obj);
+        $xtpl->parse('main.loop.obj_link');
+    }
+
     if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_morder'])) {
         $xtpl->parse('main.loop.delete');
     }

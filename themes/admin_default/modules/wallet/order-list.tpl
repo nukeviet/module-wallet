@@ -49,7 +49,14 @@
                 <tr>
                     <td>{ROW.code}</td>
                     <td><a href="{ROW.module_link}">{ROW.module_title}</a></td>
-                    <td>{ROW.order_object} {ROW.order_name}</td>
+                    <td>
+                        <!-- BEGIN: obj_text -->
+                        {ROW.order_object} {ROW.order_name}
+                        <!-- END: obj_text -->
+                        <!-- BEGIN: obj_link -->
+                        <a href="{LINK_OBJ}">{ROW.order_object} {ROW.order_name}</a>
+                        <!-- END: obj_link -->
+                    </td>
                     <td class="text-right"><strong class="text-danger">{ROW.money_amount}&nbsp;{ROW.money_unit}</strong></td>
                     <td>{ROW.add_time}</td>
                     <td>{ROW.update_time}</td>
