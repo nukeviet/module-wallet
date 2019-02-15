@@ -51,15 +51,26 @@ if ($nv_Request->isset_request('submit', 'post')) {
         $array_config['payport_content'] = nv_editor_nl2br($array_config['payport_content']);
     }
     $array_config['allow_exchange_pay'] = ($nv_Request->get_int('allow_exchange_pay', 'post', 0) == 1) ? 1 : 0;
+    $array_config['transaction_expiration_time'] = $nv_Request->get_int('transaction_expiration_time', 'post', 0);
+
+    if ($array_config['transaction_expiration_time'] < 0) {
+        $array_config['transaction_expiration_time'] = 0;
+    }
 
     $sth = $db->prepare("UPDATE " . NV_CONFIG_GLOBALTABLE . "
-	SET config_value = :config_value
-	WHERE lang = '" . NV_LANG_DATA . "' AND module = '" . $module_name . "' AND config_name = :config_name");
+    SET config_value = :config_value
+    WHERE lang = '" . NV_LANG_DATA . "' AND module = '" . $module_name . "' AND config_name = :config_name");
 
     foreach ($array_config as $key => $value) {
         $sth->bindParam(':config_name', $key, PDO::PARAM_STR);
         $sth->bindParam(':config_value', $value, PDO::PARAM_INT);
         $exc = $sth->execute();
+    }
+
+    // Cập nhật ngay các giao dịch
+    $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_transaction SET is_expired=0");
+    if ($array_config['transaction_expiration_time'] > 0) {
+        $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_transaction SET is_expired=1 WHERE (transaction_status=0 OR transaction_status=1) AND created_time<=" . (NV_CURRENTTIME - ($array_config['transaction_expiration_time'] * 3600)));
     }
 
     nv_insert_logs(NV_LANG_DATA, $module_name, 'Change config module', ' ', $admin_info['userid']);

@@ -11,6 +11,8 @@
 if (!defined('NV_IS_FILE_ADMIN'))
     die('Stop!!!');
 
+nvUpdateTransactionExpired();
+
 // Thay đổi trạng thái giao dịch
 if ($nv_Request->isset_request('ajax_action', 'post')) {
     $transactionid = $nv_Request->get_int('transactionid', 'post', 0);
@@ -21,7 +23,7 @@ if ($nv_Request->isset_request('ajax_action', 'post')) {
     if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction'])) {
         $sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_transaction WHERE id=' . $transactionid;
         $row = $db->query($sql)->fetch();
-        if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4 and $new_vid != 0) {
+        if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4 and $new_vid != 0 and empty($row['is_expired'])) {
             $sql = 'UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_transaction SET
                 transaction_status=' . $new_vid . ',
                 transaction_time=' . NV_CURRENTTIME . '
@@ -283,7 +285,7 @@ if (!empty($where)) {
 
 $all_page = $db->query($db->sql())->fetchColumn();
 
-$db->order('IF(transaction_time=0,created_time,transaction_time) DESC');
+$db->order('is_expired ASC, IF(transaction_time=0,created_time,transaction_time) DESC');
 $db->limit($per_page);
 $db->offset(($page - 1) * $per_page);
 $db->select('tb1.*, tb2.username admin_transaction, tb3.username accounttran, tb4.username customer_transaction');
@@ -319,6 +321,7 @@ while ($row = $result->fetch()) {
         'transaction_time' => $row['transaction_time'], //
         'transaction_data' => $row['transaction_data'], //
         'payment' => $row['payment'], //
+        'is_expired' => $row['is_expired'], //
         'view_user' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "&amp;userid=" . $row['userid'], //
         'view_transaction' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=viewtransaction&amp;id=" . $row['id'], //
     );
@@ -331,7 +334,10 @@ $i = 1;
 foreach ($arr_list_transaction as $element) {
     $xtpl->assign('stt', $i);
     $xtpl->assign('CONTENT', $element);
-    if ($element['transaction_status'] != 4 and ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction']))) {
+    if (!empty($element['is_expired'])) {
+        $xtpl->assign('TRANSACTION_STATUS', $lang_module['transaction_expired']);
+        $xtpl->parse('main.loop.transaction_status1');
+    } elseif ($element['transaction_status'] != 4 and ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction']))) {
         foreach ($global_array_transaction_status as $key => $value) {
             $xtpl->assign('OPTION', array(
                 'key' => $key,

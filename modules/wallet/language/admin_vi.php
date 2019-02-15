@@ -302,6 +302,7 @@ $lang_module['transaction_created_time'] = 'Giao dịch tạo lúc';
 $lang_module['transaction_payment_no'] = 'Không';
 $lang_module['transaction_id'] = 'ID giao dịch';
 $lang_module['transaction_status_al'] = 'Tất cả trạng thái';
+$lang_module['transaction_expired'] = 'Hết hạn';
 
 $lang_module['status_sub4'] = 'Mua bài viết';
 $lang_module['status_sub1'] = 'Xử lí số liệu lệch';
@@ -339,6 +340,8 @@ $lang_module['cfg_payment_add'] = 'Thêm mức doanh thu';
 $lang_module['cfg_payment_remove'] = 'Bỏ';
 $lang_module['cfg_allow_exchange_pay'] = 'Cho phép thanh toán quy đổi';
 $lang_module['cfg_allow_exchange_pay_note'] = 'Bật tùy chọn này sẽ cho phép quy đổi tiền tệ của các loại tiền không được phép sang loại tiền có thể thanh toán tùy theo cổng thanh toán. Ví dụ: Có thể thanh toán tiền USD ở cổng VNPAYQR';
+$lang_module['cfg_transaction_expiration_time'] = 'Thời gian hết hạn giao dịch';
+$lang_module['cfg_transaction_expiration_time_help'] = 'Đơn vị: Giờ. Nếu = 0 thì các giao dịch sẽ không hết hạn';
 
 $lang_module['term'] = 'Điều khoản thanh toán';
 $lang_module['recharge_rate'] = 'Tỉ lệ nạp';

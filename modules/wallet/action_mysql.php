@@ -158,6 +158,7 @@ if (empty($num_table)) {
       payment varchar(50) NOT NULL DEFAULT '' COMMENT 'Cổng thanh toán sử dụng',
       provider varchar(50) NOT NULL DEFAULT '' COMMENT 'Nhà cung cấp thẻ sử dụng nếu như đây là cổng thanh toán nạp thẻ, nếu không cần bỏ trống',
       tokenkey varchar(32) NOT NULL DEFAULT '',
+      is_expired tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0: Chưa hết hạn, 1: Hết hạn',
       PRIMARY KEY (id),
       KEY userid (userid),
       KEY adminid (adminid),
@@ -165,7 +166,8 @@ if (empty($num_table)) {
       KEY created_time (created_time),
       KEY customer_name (customer_name(191)),
       KEY customer_email (customer_email(191)),
-      KEY transaction_type (transaction_type)
+      KEY transaction_type (transaction_type),
+      KEY is_expired (is_expired)
     ) ENGINE=INNODB";
 
     // Các đơn hàng từ module khác
@@ -245,4 +247,6 @@ if ($result->rowCount() == 0) {
     $sql_create_module[] = "INSERT INTO " . NV_CONFIG_GLOBALTABLE . "(lang, module, config_name, config_value) VALUES ('" . $lang . "', '" . $module_name . "', 'payport_content', '')";
     $sql_create_module[] = "INSERT INTO " . NV_CONFIG_GLOBALTABLE . "(lang, module, config_name, config_value) VALUES ('" . $lang . "', '" . $module_name . "', 'recharge_rate', '')";
     $sql_create_module[] = "INSERT INTO " . NV_CONFIG_GLOBALTABLE . "(lang, module, config_name, config_value) VALUES ('" . $lang . "', '" . $module_name . "', 'allow_exchange_pay', '1')";
+    $sql_create_module[] = "INSERT INTO " . NV_CONFIG_GLOBALTABLE . "(lang, module, config_name, config_value) VALUES ('" . $lang . "', '" . $module_name . "', 'transaction_expiration_time', '0')";
+    $sql_create_module[] = "INSERT INTO " . NV_CONFIG_GLOBALTABLE . "(lang, module, config_name, config_value) VALUES ('" . $lang . "', '" . $module_name . "', 'next_update_transaction_time', '0')";
 }
