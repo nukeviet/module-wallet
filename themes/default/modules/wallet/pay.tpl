@@ -3,7 +3,7 @@
     <!-- BEGIN: payport_content -->
     <div class="clearfix margin-bottom">{PAYPORT_CONTENT}</div>
     <!-- END: payport_content -->
-    <h1 class="margin-bottom">{LANG.paygate_title} {ORDER_OBJ}</h1>
+    <h1 class="margin-bottom">{ORDER_OBJ}</h1>
     <p>{LANG.paygate_amount} <strong class="text-danger">{ORDER.money_amountdisplay} {ORDER.money_unit}</strong></p>
     <p><i>{LANG.paygate_select}</i></p>
     <!-- BEGIN: payment -->
