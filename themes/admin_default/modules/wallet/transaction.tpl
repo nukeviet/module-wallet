@@ -21,6 +21,11 @@
         </div>
         <div class="col-sm-12 col-md-15 col-lg-18">
             <div class="text-right">
+                <!-- BEGIN: view_order_info -->
+                <span class="form-group visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block">
+                    <a class="btn btn-success visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" href="{VIEW_ORDER_CANCEL}">{VIEW_ORDER_NAME}&nbsp;<i class="fa fa-times-circle-o"></i></a>
+                </span>
+                <!-- END: view_order_info -->
                 <!-- BEGIN: view_user_info -->
                 <span class="form-group visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block">
                     <a class="btn btn-success visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" href="{VIEW_USER_CANCEL}">{VIEW_USER_NAME}&nbsp;<i class="fa fa-times-circle-o"></i></a>

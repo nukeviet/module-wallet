@@ -126,12 +126,24 @@ $array_search['tst'] = $nv_Request->get_int('tst', 'get', -1); // Trạng thái 
 $array_search['tpa'] = $nv_Request->get_title('tpa', 'get', ''); // Cổng thanh toán
 $array_search['per_page'] = $nv_Request->get_int('per_page', 'get', 0); // Số bản ghi
 
+// Xem theo thành viên
 $view_userid = $nv_Request->get_int('userid', 'get', 0);
 $view_user_info = [];
 if ($view_userid) {
     $sql = "SELECT userid, username FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $view_userid;
     $view_user_info = $db->query($sql)->fetch();
     if (empty($view_user_info)) {
+        nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
+    }
+}
+
+// Xem theo đơn hàng
+$view_orderid = $nv_Request->get_int('orderid', 'get', 0);
+$view_order_info = [];
+if ($view_orderid) {
+    $sql = "SELECT * FROM " . $db_config['prefix'] . '_' . $module_data . "_orders WHERE id=" . $view_orderid;
+    $view_order_info = $db->query($sql)->fetch();
+    if (empty($view_order_info)) {
         nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
     }
 }
@@ -183,6 +195,10 @@ $where = array();
 if (!empty($view_user_info)) {
     $base_url .= '&amp;userid=' . $view_user_info['userid'];
     $where[] = 'tb1.userid=' . $view_user_info['userid'];
+}
+if (!empty($view_order_info)) {
+    $base_url .= '&amp;orderid=' . $view_order_info['id'];
+    $where[] = 'tb1.order_id=' . $view_order_info['id'];
 }
 if (!empty($array_search['q'])) {
     $isSearchSubmit = true;
@@ -353,6 +369,12 @@ if (!empty($view_user_info)) {
     $xtpl->assign('VIEW_USER_NAME', $view_user_info['username']);
     $xtpl->assign('VIEW_USER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op);
     $xtpl->parse('main.view_user_info');
+}
+
+if (!empty($view_order_info)) {
+    $xtpl->assign('VIEW_ORDER_NAME', vsprintf('DH%010s', $view_order_info['id']));
+    $xtpl->assign('VIEW_ORDER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op);
+    $xtpl->parse('main.view_order_info');
 }
 
 if ($isSearchSubmit) {
