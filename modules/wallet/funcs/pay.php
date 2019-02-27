@@ -12,6 +12,16 @@ if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
 }
 
+/*
+ * Bảng trạng thái của đơn hàng
+ * 0 => Chưa thanh toán (đơn hàng mới tạo chưa có thông tin gì về thanh toán)
+ * 1 => Đang chờ xử lý
+ * 2 => Đang tạm giữ (cổng thanh toán trả về trạng thái tạm giữ)
+ * 3 => Thất bại (cổng thanh toán trả về trạng thái thất bại)
+ * 4 => Thành công (thanh toán thành công, tiền đã được chuyển vào bên nhận)
+ * 5 => Sai checksum - thanh toán không thành công tương tự như 3
+ */
+
 require_once NV_ROOTDIR . '/modules/wallet/wallet.class.php';
 $wallet = new nukeviet_wallet();
 
@@ -35,8 +45,13 @@ if (!defined('NV_IS_USER')) {
     nv_redirect_location(NV_BASE_SITEURL . "index.php?" . NV_NAME_VARIABLE . "=users&" . NV_OP_VARIABLE . "=login&nv_redirect=" . nv_redirect_encrypt($redirect));
 }
 
-// Đơn hàng có giao dịch đang chờ xử lý, đang bị tạm giữ, đã hoàn thành thì không thể tiếp tục thanh toán nữa.
-if (in_array($order_info['paid_status'], array(1, 2, 4))) {
+/*
+ * Đơn hàng phải ở trạng thái chưa thanh toán thì mới được thanh toán
+ * Vì quy định của các cổng thanh toán là chỉ xử lý mỗi ID đơn hàng một lần.
+ * Do đó các trạng thái khác tức là có chuyển về từ cổng thanh toán rồi.
+ * gửi thông tin thanh toán tiếp sẽ không chấp nhận
+ */
+if ($order_info['paid_status'] != 0) {
     // Chuyển trả về trang xử lý kết quả của module được kết nối
     $url_back = unserialize($order_info['url_back']);
     $url_back['querystr'] = trim(str_replace('&amp;', '&', $url_back['querystr']), '&');
