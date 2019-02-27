@@ -27,6 +27,9 @@
 .mb0 {
     margin-bottom: 0;
 }
+a.btn-default {
+    color: #333;
+}
 
 .payport-item {
     border: 1px #ddd solid;

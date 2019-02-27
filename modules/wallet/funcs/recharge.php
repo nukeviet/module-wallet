@@ -238,12 +238,43 @@ if (isset($global_array_payments[$payment])) {
                 $post['customer_address'] = '';
                 $post['money_amount'] = 0;
                 $post['money_other'] = 0;
+                $post['money_unit'] = '';
                 $post['check_term'] = 0;
-                reset($array_money_unit);
-                $post['money_unit'] = current($array_money_unit);
-                if (!empty($module_config[$module_name]['minimum_amount'][$post['money_unit']])) {
-                    $list_money = explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]);
-                    $post['money_amount'] = $list_money[0];
+
+                /*
+                 * Xử lý khi có số tiền nạp vào từ URL dạng ?amount=100000-VND
+                 * Check xem cổng thanh toán nạp được loại tiền đó không
+                 * Check xem có cấu hình giá trị nhỏ nhất nạp không
+                 */
+                $pay_amount = $nv_Request->get_title('amount', 'get', '');
+                $pay_money = '';
+                if (preg_match('/^([0-9\.]+)\-([A-Z]{3})$/', $pay_amount, $m)) {
+                    if (!isset($global_array_money_sys[$m[2]])) {
+                        $pay_amount = 0;
+                    } else {
+                        $pay_money = $m[2];
+                        $pay_amount = $m[1];
+                    }
+                } else {
+                    $pay_amount = 0;
+                }
+                if (!empty($pay_amount) and in_array($pay_money, $row_payment['currency_support'])) {
+                    $post['money_unit'] = $pay_money;
+                    $list_money = array_filter(explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]));
+                    if (in_array($pay_amount, $list_money)) {
+                        $post['money_amount'] = $pay_amount;
+                    } elseif (empty($list_money) or min($list_money) <= $pay_amount) {
+                        $post['money_other'] = $pay_amount;
+                    }
+                }
+
+                if (empty($post['money_amount']) and empty($post['money_other'])) {
+                    reset($array_money_unit);
+                    $post['money_unit'] = current($array_money_unit);
+                    if (!empty($module_config[$module_name]['minimum_amount'][$post['money_unit']])) {
+                        $list_money = explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]);
+                        $post['money_amount'] = $list_money[0];
+                    }
                 }
 
                 // Thêm một số dữ liệu của kiểu thanh toán ATM

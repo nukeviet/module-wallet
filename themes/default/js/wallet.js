@@ -149,4 +149,9 @@ $(document).ready(function() {
         $('[name="' + $(this).data('file') + '"]').removeClass('hidden');
         $(this).parent().hide();
     });
+    // Reload lại trang
+    $('[data-toggle="locreload"]').on('click', function(e) {
+        e.preventDefault();
+        location.reload();
+    });
 });

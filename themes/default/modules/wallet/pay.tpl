@@ -63,8 +63,12 @@
             </div>
             <!-- END: wpay_submit -->
             <!-- BEGIN: wpay_cant -->
-            <div class="alert alert-info mb0">
+            <div class="alert alert-info">
                 {LANG.paygate_wpay_notenought}
+            </div>
+            <div class="text-center">
+                <a href="#" class="btn btn-default" data-toggle="locreload">{LANG.pay_recheck}</a>
+                <a href="{LINK_RECHARGE}" class="btn btn-info" target="_blank">{LANG.pay_recharge}</a>
             </div>
             <!-- END: wpay_cant -->
         </div>

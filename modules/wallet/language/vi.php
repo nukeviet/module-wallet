@@ -145,6 +145,8 @@ $lang_module['pay_error_tranisprocessed'] = 'Hệ thống từ chối. Giao dị
 $lang_module['pay_error_update_account'] = 'Thanh toán thành công, tuy nhiên hệ thống không thể cập nhật số dư tài khoản. Vui lòng liên hệ với quản trị về sự cố này';
 $lang_module['pay_info_response'] = 'Giao dịch của bạn đang ở trạng thái:';
 $lang_module['pay_user_cancel'] = 'Giao dịch đã bị hủy bỏ';
+$lang_module['pay_recheck'] = 'Kiểm tra lại';
+$lang_module['pay_recharge'] = 'Nạp thêm tiền';
 
 $lang_module['vnpt_title'] = 'Nạp tiền qua thẻ cào';
 $lang_module['vnpt_pin'] = 'Mã thẻ';

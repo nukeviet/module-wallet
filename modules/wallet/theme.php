@@ -432,7 +432,7 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
         $xtpl->assign('PAYPORT_CONTENT', $payport_content);
         $xtpl->parse('main.payport_content');
     }
-    
+
     $order_info['money_amountdisplay'] = get_display_money($order_info['money_amount']);
     $xtpl->assign('ORDER', $order_info);
     $xtpl->assign('ORDER_OBJ', $order_info['title']);
@@ -470,6 +470,7 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
     $xtpl->assign('WPAYMSG', sprintf($lang_module['paygate_wpay_msg'], $order_info['money_amountdisplay'] . ' ' . $order_info['money_unit']));
 
     if ($money_info['moneytotalnotformat'] < $order_info['money_amount']) {
+        $xtpl->assign('LINK_RECHARGE', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . '&amp;amount=' . ($order_info['money_amount'] - $money_info['moneytotalnotformat']) . '-' . $order_info['money_unit']);
         $xtpl->parse('main.wpay_cant');
     } else {
         $xtpl->parse('main.wpay_detail');
