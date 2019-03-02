@@ -189,3 +189,6 @@ $lang_module['payclass_error_money'] = 'The amount must be greater than 0';
 $lang_module['payclass_error_save_transaction'] = 'The system does not save payment information';
 $lang_module['payclass_error_update_account'] = 'The system can not update your account';
 $lang_module['payclass_error_money_unit'] = 'Invalid currency';
+$lang_module['email_notice_transaction0'] = 'Notice of new transactions';
+$lang_module['email_notice_transaction1'] = '<ul><li>Code: <strong>%s</strong></li><li>Creat Time: <strong>%s</strong></li><li>The person performing the transaction: <strong>%s</strong></li><li>Amount of money: <strong>%s</strong></li><li>Status: <strong>%s</strong></li></ul>Others info:<ul><li>Full name: <strong>%s</strong></li><li>Email: <strong>%s</strong></li><li>Phone: <strong>%s</strong></li><li>Address: <strong>%s</strong></li><li>Note: <strong>%s</strong></li><li>Payport: <strong>%s</strong></li></ul>To see the invitation details click here: <a href="%s">%s</a>';
+$lang_module['email_notice_visitor'] = 'Customers pay';

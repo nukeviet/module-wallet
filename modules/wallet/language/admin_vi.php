@@ -70,6 +70,8 @@ $lang_module['payport_discount1_note'] = 'Đây là mức phí tính theo phần
 $lang_module['payport_discount_transaction'] = 'Phí giao dịch';
 $lang_module['payport_discount_transaction_note'] = 'Đây là mức phí cố định của mỗi giao dịch. Ví dụ PayPal thu cố định mỗi lần giao dịch 0.3 USD';
 $lang_module['payport_discount_note'] = '<strong>Lưu ý:</strong> giá trị <strong><em>%s</em></strong> và <strong><em>%s</em></strong> dùng để làm cơ sở thống kê doanh thu, không có tác dụng thay đổi số tiền cập nhật vào ví của thành viên so với mức mà thành viên nạp.<br />Nếu muốn thay đổi tỉ lệ nạp bạn hãy thay đổi ở phần <strong>%s</strong> tại trang <strong><a target="_blank" href="%s">%s</a></strong>';
+$lang_module['payport_active_completed_email'] = 'Gửi email các giao dịch chưa hoàn thành';
+$lang_module['payport_active_incomplete_email'] = 'Gửi email các giao dịch đã hoàn thành';
 
 $lang_module['history_payment_wait'] = 'Chờ duyệt đơn hàng';
 $lang_module['history_payment_no'] = 'Chưa thanh toán';
@@ -342,6 +344,8 @@ $lang_module['cfg_allow_exchange_pay'] = 'Cho phép thanh toán quy đổi';
 $lang_module['cfg_allow_exchange_pay_note'] = 'Bật tùy chọn này sẽ cho phép quy đổi tiền tệ của các loại tiền không được phép sang loại tiền có thể thanh toán tùy theo cổng thanh toán. Ví dụ: Có thể thanh toán tiền USD ở cổng VNPAYQR';
 $lang_module['cfg_transaction_expiration_time'] = 'Thời gian hết hạn giao dịch';
 $lang_module['cfg_transaction_expiration_time_help'] = 'Đơn vị: Giờ. Nếu = 0 thì các giao dịch sẽ không hết hạn';
+$lang_module['cfg_accountants_emails'] = 'Email nhận thông báo giao dịch';
+$lang_module['cfg_accountants_emails_help'] = 'Các email sẽ nhận thông tin mỗi khi có giao dịch mới từ các cổng thanh toán có kích hoạt chức năng thông báo. Có thể nhập nhiều email, mỗi email cách nhau bởi dấu phảy';
 
 $lang_module['term'] = 'Điều khoản thanh toán';
 $lang_module['recharge_rate'] = 'Tỉ lệ nạp';

@@ -68,6 +68,8 @@ $lang_module['payport_discount1_note'] = 'This is a fee calculated by the percen
 $lang_module['payport_discount_transaction'] = 'Transaction fee';
 $lang_module['payport_discount_transaction_note'] = 'This is a fixed fee of each transaction. Example PayPal fixed collector per transaction 0.3 USD';
 $lang_module['payport_discount_note'] = '<strong>Note:</strong> value <strong><em>%s</em></strong> và <strong><em>%s</em></strong>  Used to make a sales statistical basis, there is no effect to change the amount of updates to a member\'s wallet compared to the extent that the member is charging.<br  />If you want to change the load rate you change in the <strong>%s</strong> at <strong><a target="_blank" href="%s">%s</a></strong>';
+$lang_module['payport_active_completed_email'] = 'Send emails for unfinished transactions';
+$lang_module['payport_active_incomplete_email'] = 'Email the completed transactions';
 $lang_module['history_payment_wait'] = 'Wait for order browsing';
 $lang_module['history_payment_no'] = 'Unpaid';
 $lang_module['history_payment_send'] = 'Sent payment';
@@ -305,6 +307,8 @@ $lang_module['cfg_payment_add'] = 'Add Revenue level';
 $lang_module['cfg_payment_remove'] = 'Remove';
 $lang_module['cfg_allow_exchange_pay'] = 'Allow conversion payments';
 $lang_module['cfg_allow_exchange_pay_note'] = 'Enabling this option will allow currency conversion of currencies that are not allowed to be paid for depending on the payment gateway. For example, can pay USD in VNPAYQR port';
+$lang_module['cfg_accountants_emails'] = 'Email receives transaction notification';
+$lang_module['cfg_accountants_emails_help'] = 'The email will receive information every time a new transaction from the payment gateway has enabled notification function. You can enter multiple emails, each separated by commas';
 $lang_module['term'] = 'Payment Terms';
 $lang_module['recharge_rate'] = 'Load Rate';
 $lang_module['recharge_rateSend'] = 'Recharge';

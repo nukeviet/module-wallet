@@ -64,6 +64,18 @@
             </td>
         </tr>
         <tr>
+            <td>{LANG.payport_active_completed_email}</td>
+            <td>
+                <input type="checkbox" name="active_completed_email" value="1"{DATA.active_completed_email}>
+            </td>
+        </tr>
+        <tr>
+            <td>{LANG.payport_active_incomplete_email}</td>
+            <td>
+                <input type="checkbox" name="active_incomplete_email" value="1"{DATA.active_incomplete_email}>
+            </td>
+        </tr>
+        <tr>
             <td><input name="payment" value="{DATA.payment}" type="hidden"></td>
             <td><input class="btn btn-primary" type="submit" value="{LANG.save}" name="saveconfigpaymentedit"></td>
         <tr>

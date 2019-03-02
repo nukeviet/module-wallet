@@ -58,6 +58,13 @@
             <i class="help-block help-block-wallet">{LANG.cfg_transaction_expiration_time_help}</i>
         </div>
     </div>
+    <div class="form-group">
+        <label class="control-label col-sm-10 col-md-8 col-lg-5"><strong>{LANG.cfg_accountants_emails}</strong></label>
+        <div class="col-sm-14 col-md-16 col-lg-19">
+            <input type="text" class="form-control" name="accountants_emails" value="{DATA.accountants_emails}">
+            <i class="help-block help-block-wallet">{LANG.cfg_accountants_emails_help}</i>
+        </div>
+    </div>
     <div class="row">
         <div class="col-sm-14 col-md-16 col-lg-19 col-sm-push-10 col-md-push-8 col-lg-push-5">
             <input class="btn btn-primary" type="submit" value="{LANG.save}" name="submit"/>

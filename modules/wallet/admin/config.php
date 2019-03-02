@@ -57,13 +57,27 @@ if ($nv_Request->isset_request('submit', 'post')) {
         $array_config['transaction_expiration_time'] = 0;
     }
 
+    $array_config['accountants_emails'] = $nv_Request->get_string('accountants_emails', 'post', '');
+    $accountants_emails = array_filter(array_unique(array_map('trim', explode(',', $array_config['accountants_emails']))));
+    if (!empty($accountants_emails)) {
+        $array_config['accountants_emails'] = [];
+        foreach ($accountants_emails as $email) {
+            if (nv_check_valid_email($email) == '') {
+                $array_config['accountants_emails'][] = $email;
+            }
+        }
+        $array_config['accountants_emails'] = implode(', ', $array_config['accountants_emails']);
+    } else {
+        $array_config['accountants_emails'] = '';
+    }
+
     $sth = $db->prepare("UPDATE " . NV_CONFIG_GLOBALTABLE . "
     SET config_value = :config_value
     WHERE lang = '" . NV_LANG_DATA . "' AND module = '" . $module_name . "' AND config_name = :config_name");
 
     foreach ($array_config as $key => $value) {
         $sth->bindParam(':config_name', $key, PDO::PARAM_STR);
-        $sth->bindParam(':config_value', $value, PDO::PARAM_INT);
+        $sth->bindParam(':config_value', $value, PDO::PARAM_STR);
         $exc = $sth->execute();
     }
 

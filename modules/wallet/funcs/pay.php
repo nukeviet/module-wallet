@@ -240,6 +240,31 @@ if ($nv_Request->isset_request('payment', 'get')) {
             $responseData['transaction_time'] = $order_info['paid_time'];
         }
 
+        // Gửi email thông báo trạng thái giao dịch
+        if (!empty($module_config[$module_name]['accountants_emails']) and (
+            (!empty($row_payment['active_completed_email']) and $responseData['transaction_status'] == 4) or (!empty($row_payment['active_incomplete_email']) and $responseData['transaction_status'] != 4)
+        )) {
+            $accountants_emails = array_filter(array_unique(array_map("trim", explode(',', $module_config[$module_name]['accountants_emails']))));
+
+            $email_order_code = empty($transaction['order_id']) ? vsprintf('GD%010s', $transaction['id']) : vsprintf('WP%010s', $transaction['id']);
+            $email_created_time = nv_date('H:i d/m/Y', $transaction['created_time']);
+            $email_customer_name = $lang_module['email_notice_visitor'];
+            if (!empty($transaction['customer_id'])) {
+                $customer_db = $db->query("SELECT username, first_name, last_name FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $transaction['customer_id'])->fetch();
+                if (!empty($customer_db)) {
+                    $email_customer_name = nv_show_name_user($customer_db['first_name'], $customer_db['last_name'], $customer_db['username']) . ' (' . $customer_db['username'] . ')';
+                }
+            }
+            $email_money = get_display_money($transaction['money_net']) . ' ' . $transaction['money_unit'];
+            $email_status = isset($global_array_transaction_status[$responseData['transaction_status']]) ? $global_array_transaction_status[$responseData['transaction_status']] : 'N/A';
+            $email_url_admin = NV_MY_DOMAIN . NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=viewtransaction&amp;id=" . $transaction['id'];
+
+            $messages = sprintf($lang_module['email_notice_transaction1'], $email_order_code, $email_created_time, $email_customer_name, $email_money, $email_status, $transaction['customer_name'], $transaction['customer_email'], $transaction['customer_phone'], $transaction['customer_address'], $transaction['customer_info'], $payment, $email_url_admin, $email_url_admin);
+            foreach ($accountants_emails as $email) {
+                nv_sendmail([$global_config['site_email'], $global_config['site_name']], $email, $lang_module['email_notice_transaction0'], $messages);
+            }
+        }
+
         // Chuyển trả về trang xử lý kết quả của module được kết nối
         $url_back = unserialize($order_info['url_back']);
         $url_back['querystr'] = trim(str_replace('&amp;', '&', $url_back['querystr']), '&');
