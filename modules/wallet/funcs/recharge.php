@@ -240,6 +240,7 @@ if (isset($global_array_payments[$payment])) {
                 $post['money_other'] = 0;
                 $post['money_unit'] = '';
                 $post['check_term'] = 0;
+                $post['transaction_info'] = nv_substr($nv_Request->get_title('info', 'get', ''), 0, 250);
 
                 /*
                  * Xử lý khi có số tiền nạp vào từ URL dạng ?amount=100000-VND

@@ -19,6 +19,7 @@ $url_checkout = [];
 
 // Nạp đúng số tiền nào đó
 $pay_amount = $nv_Request->get_title('amount', 'get', '');
+$pay_info = nv_substr($nv_Request->get_title('info', 'get', ''), 0, 250);
 $pay_money = '';
 if (preg_match('/^([0-9\.]+)\-([A-Z]{3})$/', $pay_amount, $m)) {
     if (!isset($global_array_money_sys[$m[2]])) {
@@ -41,6 +42,9 @@ foreach ($global_array_payments as $row) {
         $url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=recharge/" . $row['payment'];
         if (!empty($pay_amount)) {
             $url .= '&amp;amount=' . $pay_amount;
+        }
+        if (!empty($pay_info)) {
+            $url .= '&amp;info=' . urlencode($pay_info);
         }
 
         if (!empty($images_button) and file_exists(NV_UPLOADS_REAL_DIR . "/" . $module_name . "/" . $images_button)) {
