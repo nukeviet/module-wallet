@@ -147,7 +147,7 @@ if ($nv_Request->isset_request('submit', 'post')) {
                 $subject = $lang_module['email_transaction_title'] . nv_date('h:s d/m/Y', NV_CURRENTTIME);
 
                 if (!empty($row['customer_email'])) {
-                    $send = nv_sendmail($global_config['site_email'], $row['customer_email'], $subject, $message);
+                    $send = nv_sendmail([$global_config['site_name'], $global_config['site_email']], $row['customer_email'], $subject, $message);
                     if ($send) {
                         $info = $lang_module['send_mail_success'] . "<br /><br />\n";
                     } else {
