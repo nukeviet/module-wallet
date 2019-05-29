@@ -9,8 +9,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_MAINFILE'))
+if (!defined('NV_MAINFILE')) {
     die('Stop!!!');
+}
 
 $lang_translator['author'] = 'VINADES.,JSC (contact@vinades.vn)';
 $lang_translator['createdate'] = '04/04/2011, 06:38';
@@ -199,6 +200,8 @@ $lang_module['paygate_wpay_msg'] = 'Bạn có chắc chắn đồng ý sử dụ
 $lang_module['paygate_submit'] = 'Thanh toán';
 $lang_module['paygate_error_update'] = 'Hệ thống không thể cập nhật trạng thái thanh toán của đơn hàng, vui lòng liên hệ với quản trị site về vấn đề này';
 $lang_module['paygate_error_order'] = 'Không tìm thấy đơn hàng này';
+$lang_module['paygate_error_resetsuccess'] = 'Không thể thanh toán lại đơn hàng đã hoàn tất';
+$lang_module['paygate_error_reset'] = 'Lỗi cập nhật trạng thái đơn hàng, vui lòng thử lại';
 $lang_module['paygate_tranmess_send'] = 'Thanh toán đơn hàng mã số %s tại %s';
 $lang_module['paygate_tranmess'] = 'Thanh toán đơn hàng mã số %s';
 $lang_module['paygate_ptitle'] = 'Thanh toán qua các cổng thanh toán sau';
