@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_FILE_ADMIN'))
+if (!defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
+}
 
 $page_title = $lang_module['setup_payment'];
 
@@ -38,7 +39,7 @@ function drawselect_number($select_name = "", $number_start = 0, $number_end = 1
 }
 
 // Các cổng thanh toán trong CSDL
-$array_setting_payment = array();
+$array_setting_payment = [];
 $sql = "SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_payment ORDER BY weight ASC";
 $result = $db->query($sql);
 $all_page = $result->rowCount();
@@ -55,7 +56,7 @@ if (!empty($payment_funcs)) {
 }
 
 $array_setting_payment_key = array_keys($array_setting_payment);
-$array_payment_other = array();
+$array_payment_other = [];
 
 foreach ($payment_funcs as $payment) {
     $xml = simplexml_load_file(NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.config.ini');
@@ -64,8 +65,8 @@ foreach ($payment_funcs as $payment) {
         $xmlconfig = $xml->xpath('config');
 
         $config = $xmlconfig[0];
-        $array_config = array();
-        $array_config_title = array();
+        $array_config = [];
+        $array_config_title = [];
 
         foreach ($config as $key => $value) {
             $config_lang = $value->attributes();
@@ -80,22 +81,22 @@ foreach ($payment_funcs as $payment) {
             $array_config_title[$key] = $lang;
         }
 
-        $array_payment_other[$payment] = array(
+        $array_payment_other[$payment] = [
             'payment' => $payment,
             'paymentname' => trim($xml->name),
             'domain' => trim($xml->domain),
-            'images_button' => trim($xml->images_button),
+            'images_button' => str_replace('[NV_BASE_SITEURL]', NV_BASE_SITEURL, trim($xml->images_button)),
             'config' => $array_config,
             'titlekey' => $array_config_title,
             'currency_support' => trim($xml->currency),
             'allowedoptionalmoney' => intval($xml->optional) ? 1 : 0
-        );
+        ];
 
         unset($config, $xmlconfig, $xml);
     }
 }
 
-$data_pay = array();
+$data_pay = [];
 
 // Lấy dữ liệu khi tích hợp cổng thanh toán mới
 $payment = $nv_Request->get_string('payment', 'get', '');
@@ -135,7 +136,7 @@ if ($nv_Request->isset_request('saveconfigpaymentedit', 'post')) {
     $domain = $nv_Request->get_title('domain', 'post', '', 0);
     $images_button = $nv_Request->get_title('images_button', 'post', '', 0);
     $active = $nv_Request->get_int('active', 'post', 0);
-    $array_config = $nv_Request->get_array('config', 'post', array());
+    $array_config = $nv_Request->get_array('config', 'post', []);
     $bodytext = $nv_Request->get_editor('bodytext', '', NV_ALLOWED_HTML_TAGS);
     $bodytext = nv_editor_nl2br($bodytext);
     $term = $nv_Request->get_editor('term', '', NV_ALLOWED_HTML_TAGS);
@@ -147,22 +148,24 @@ if ($nv_Request->isset_request('saveconfigpaymentedit', 'post')) {
         $discount = 0;
     }
 
-    if (!nv_is_url($images_button) and file_exists(NV_DOCUMENT_ROOT . $images_button)) {
+    $active_completed_email = (int)$nv_Request->get_bool('active_completed_email', 'post', false);
+    $active_incomplete_email = (int)$nv_Request->get_bool('active_incomplete_email', 'post', false);
+
+    if (!empty($images_button) and preg_match('/^' . nv_preg_quote(NV_BASE_SITEURL . NV_UPLOADS_DIR . '/') . '/', $images_button)) {
         $lu = strlen(NV_BASE_SITEURL . NV_UPLOADS_DIR . "/" . $module_name . "/");
         $images_button = substr($images_button, $lu);
-    } elseif (!nv_is_url($images_button)) {
-        $images_button = "";
     }
 
     $sql = "UPDATE " . $db_config['prefix'] . "_" . $module_data . "_payment
-			SET paymentname = " . $db->quote($paymentname) . ", domain = " . $db->quote($domain) . ",
-			active=" . $active . ", config = '" . nv_base64_encode(serialize($array_config)) . "',
-			images_button=" . $db->quote($images_button) . ", bodytext=" . $db->quote($bodytext) . ", term=" . $db->quote($term) . ",
-			discount = " . $discount . ", discount_transaction= " . $discount_transaction . "
-			WHERE payment = " . $db->quote($payment) . " LIMIT 1";
+        SET paymentname = " . $db->quote($paymentname) . ", domain = " . $db->quote($domain) . ",
+        active=" . $active . ", config = '" . nv_base64_encode(serialize($array_config)) . "',
+        images_button=" . $db->quote($images_button) . ", bodytext=" . $db->quote($bodytext) . ", term=" . $db->quote($term) . ",
+        discount = " . $discount . ", discount_transaction= " . $discount_transaction . ",
+        active_completed_email=" . $active_completed_email . ", active_incomplete_email=" . $active_incomplete_email . "
+    WHERE payment = " . $db->quote($payment);
     $db->query($sql);
 
-    nv_insert_logs(NV_LANG_DATA, $module_name, 'log_edit_product', "edit " . $paymentname, $admin_info['userid']);
+    nv_insert_logs(NV_LANG_DATA, $module_name, 'log_edit_payment', "edit " . $paymentname, $admin_info['userid']);
     $nv_Cache->delMod($module_name);
 
     nv_redirect_location(NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=" . $op);
@@ -242,7 +245,7 @@ if (!empty($data_pay)) {
 
     $array_config = unserialize(nv_base64_decode($data_pay['config']));
 
-    $arkey_title = array();
+    $arkey_title = [];
 
     if (!empty($array_payment_other[$data_pay['payment']]['titlekey'])) {
         $arkey_title = $array_payment_other[$data_pay['payment']]['titlekey'];
@@ -264,6 +267,8 @@ if (!empty($data_pay)) {
     }
 
     $data_pay['active'] = ($data_pay['active'] == "1") ? "checked=\"checked\"" : "";
+    $data_pay['active_completed_email'] = ($data_pay['active_completed_email'] == "1") ? "checked=\"checked\"" : "";
+    $data_pay['active_incomplete_email'] = ($data_pay['active_incomplete_email'] == "1") ? "checked=\"checked\"" : "";
 
     $xtpl->assign('MODULE_NAME', $module_name);
     $xtpl->assign('DATA', $data_pay);

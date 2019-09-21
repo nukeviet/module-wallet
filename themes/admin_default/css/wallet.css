@@ -12,6 +12,7 @@
 .help-block-wallet {
     margin-bottom: 0;
     margin-top: 5px;
+    display: block;
 }
 .alert-inline {
     margin-bottom: 0;

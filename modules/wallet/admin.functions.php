@@ -13,32 +13,6 @@ if (!defined('NV_ADMIN') or !defined('NV_MAINFILE') or !defined('NV_IS_MODADMIN'
 
 require NV_ROOTDIR . '/modules/' . $module_file . '/global.functions.php';
 
-$allow_func = array(
-    'main',
-    'config',
-    'transaction',
-    'historyexchange',
-    'usercontent',
-    'money',
-    'delmoney',
-    'delrate',
-    'addacount',
-    'exchange',
-    'payport',
-    'actpay',
-    'viewtransaction',
-    'users',
-    'changepay',
-    'sms',
-    'epay',
-    'nganluong',
-    'config_sms',
-    'statistics',
-    'add_transaction',
-    'config_payment',
-    'order-list'
-);
-
 /**
  * getInfoUser()
  *

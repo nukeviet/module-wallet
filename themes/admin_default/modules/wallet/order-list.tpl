@@ -24,6 +24,11 @@
     </select>
     <input type="submit" value="{LANG.filterdata}" class="btn btn-primary"/>
 </form>
+
+<div class="alert alert-info">
+    {VIEW_TRANSCTION_NOTE}
+</div>
+
 <form class="form-inline" action="{NV_BASE_ADMINURL}index.php" method="post">
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">
@@ -44,7 +49,14 @@
                 <tr>
                     <td>{ROW.code}</td>
                     <td><a href="{ROW.module_link}">{ROW.module_title}</a></td>
-                    <td>{ROW.order_object} {ROW.order_name}</td>
+                    <td>
+                        <!-- BEGIN: obj_text -->
+                        {ROW.order_object} {ROW.order_name}
+                        <!-- END: obj_text -->
+                        <!-- BEGIN: obj_link -->
+                        <a href="{LINK_OBJ}">{ROW.order_object} {ROW.order_name}</a>
+                        <!-- END: obj_link -->
+                    </td>
                     <td class="text-right"><strong class="text-danger">{ROW.money_amount}&nbsp;{ROW.money_unit}</strong></td>
                     <td>{ROW.add_time}</td>
                     <td>{ROW.update_time}</td>
@@ -52,7 +64,9 @@
                         <strong>{ROW.paid_status}</strong>
                     </td>
                     <td class="text-center">
+                        <!-- BEGIN: delete -->
                         <a href="#" data-toggle="delorder" data-id="{ROW.id}" data-mgs="{LANG.order_del_note}" class="btn btn-danger btn-xs"><i class="fa fa-fw fa-trash"></i>{GLANG.delete}</a>
+                        <!-- END: delete -->
                     </td>
                 </tr>
                 <!-- END: loop -->

@@ -11,40 +11,84 @@
 if (!defined('NV_IS_FILE_ADMIN'))
     die('Stop!!!');
 
+nvUpdateTransactionExpired();
+
 // Thay đổi trạng thái giao dịch
 if ($nv_Request->isset_request('ajax_action', 'post')) {
     $transactionid = $nv_Request->get_int('transactionid', 'post', 0);
     $new_vid = $nv_Request->get_int('new_vid', 'post', 0);
     $content = 'NO_' . $transactionid;
 
-    $sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_transaction WHERE id=' . $transactionid;
-    $row = $db->query($sql)->fetch();
-    if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4) {
-        $sql = 'UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_transaction SET
-            transaction_status=' . $new_vid . ',
-            transaction_time=' . NV_CURRENTTIME . '
-        WHERE id=' . $transactionid;
-        $db->query($sql);
+    // Kiểm tra quyền
+    if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction'])) {
+        $sql = 'SELECT * FROM ' . $db_config['prefix'] . '_' . $module_data . '_transaction WHERE id=' . $transactionid;
+        $row = $db->query($sql)->fetch();
+        if (isset($row['transaction_status']) and $row['transaction_status'] != $new_vid and $row['transaction_status'] != 4 and $new_vid != 0 and empty($row['is_expired'])) {
+            $sql = 'UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_transaction SET
+                transaction_status=' . $new_vid . ',
+                transaction_time=' . NV_CURRENTTIME . '
+            WHERE id=' . $transactionid;
+            $db->query($sql);
 
-        if (!empty($row['order_id'])) {
-            // Cập nhật trạng thái giao dịch nếu thanh toán hóa đơn của các module khác
-            try {
-                $db->query('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_orders SET
-                    paid_status=' . $new_vid . ',
-                    paid_time=' . NV_CURRENTTIME . '
-                WHERE id=' . $row['order_id']);
-            } catch (Exception $ex) {
-                trigger_error($ex->getMessage());
+            if (!empty($row['order_id'])) {
+                // Xác định thông tin đơn hàng
+                $order_info = $db->query("SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $row['order_id'])->fetch();
+
+                // Cập nhật trạng thái giao dịch nếu thanh toán hóa đơn của các module khác
+                try {
+                    $db->query('UPDATE ' . $db_config['prefix'] . '_' . $module_data . '_orders SET
+                        paid_status=' . $new_vid . ',
+                        paid_time=' . NV_CURRENTTIME . '
+                    WHERE id=' . $row['order_id']);
+                } catch (Exception $ex) {
+                    trigger_error($ex->getMessage());
+                }
+
+                // Gọi về module để cập nhật đơn hàng của module
+                if (!empty($order_info) and isset($sys_mods[$order_info['order_mod']])) {
+                    $order_info['paid_status'] = $new_vid;
+                    $order_info['paid_time'] = NV_CURRENTTIME;
+
+                    // Backup lại các biến của module wallet
+                    $_module_name = $module_name;
+                    $_module_info = $module_info;
+                    $_module_file = $module_file;
+                    $_module_data = $module_data;
+                    $_module_upload = $module_upload;
+
+                    $module_name = $order_info['order_mod'];
+                    $module_info = $sys_mods[$order_info['order_mod']];
+                    $module_file = $module_info['module_file'];
+                    $module_data = $module_info['module_data'];
+                    $module_upload = $module_info['module_upload'];
+
+                    // Gọi ra file cập nhật giao dịch
+                    try {
+                        if (file_exists(NV_ROOTDIR . '/modules/' . $module_file . '/wallet.admin.php')) {
+                            define('NV_IS_WALLET_ADMIN', true);
+                            require NV_ROOTDIR . '/modules/' . $module_file . '/wallet.admin.php';
+                        }
+                    } catch (Exception $ex) {
+                        trigger_error($ex->getMessage());
+                    }
+
+                    // Trả lại các biến backup
+                    $module_name = $_module_name;
+                    $module_info = $_module_info;
+                    $module_file = $_module_file;
+                    $module_data = $_module_data;
+                    $module_upload = $_module_upload;
+                }
+            } else {
+                // Cập nhật số tiền nếu giao dịch nạp tiền
+                update_money($row['userid'], $row['money_total'], $row['money_unit'], $new_vid, $row['transaction_status'], $row['status']);
             }
-        } else {
-            // Cập nhật số tiền nếu giao dịch nạp tiền
-            update_money($row['userid'], $row['money_total'], $row['money_unit'], $new_vid, $row['transaction_status'], $row['status']);
-        }
 
-        $content = 'OK_' . $transactionid;
+            $content = 'OK_' . $transactionid;
+        }
+        $nv_Cache->delMod($module_name);
     }
 
-    $nv_Cache->delMod($module_name);
     include NV_ROOTDIR . '/includes/header.php';
     echo $content;
     include NV_ROOTDIR . '/includes/footer.php';
@@ -60,16 +104,16 @@ $xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
 $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('OP', $op);
 
-$array_fields_search = array(
+$array_fields_search = [
     'customer_name' => $lang_module['customer_name'],
     'customer_email' => $lang_module['customer_email'],
     'customer_phone' => $lang_module['customer_phone'],
     'customer_address' => $lang_module['customer_address'],
     'customer_info' => $lang_module['customer_info'],
-);
+];
 
 $isSearchSubmit = false;
-$array_search = array();
+$array_search = [];
 $array_search['q'] = $nv_Request->get_title('q', 'get', '');
 $array_search['are'] = $nv_Request->get_title('are', 'get', ''); // Các field tìm theo khóa
 $array_search['crf'] = $nv_Request->get_title('crf', 'get', ''); // Tạo từ
@@ -84,12 +128,24 @@ $array_search['tst'] = $nv_Request->get_int('tst', 'get', -1); // Trạng thái 
 $array_search['tpa'] = $nv_Request->get_title('tpa', 'get', ''); // Cổng thanh toán
 $array_search['per_page'] = $nv_Request->get_int('per_page', 'get', 0); // Số bản ghi
 
+// Xem theo thành viên
 $view_userid = $nv_Request->get_int('userid', 'get', 0);
-$view_user_info = array();
+$view_user_info = [];
 if ($view_userid) {
     $sql = "SELECT userid, username FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $view_userid;
     $view_user_info = $db->query($sql)->fetch();
     if (empty($view_user_info)) {
+        nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
+    }
+}
+
+// Xem theo đơn hàng
+$view_orderid = $nv_Request->get_int('orderid', 'get', 0);
+$view_order_info = [];
+if ($view_orderid) {
+    $sql = "SELECT * FROM " . $db_config['prefix'] . '_' . $module_data . "_orders WHERE id=" . $view_orderid;
+    $view_order_info = $db->query($sql)->fetch();
+    if (empty($view_order_info)) {
         nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
     }
 }
@@ -141,6 +197,10 @@ $where = array();
 if (!empty($view_user_info)) {
     $base_url .= '&amp;userid=' . $view_user_info['userid'];
     $where[] = 'tb1.userid=' . $view_user_info['userid'];
+}
+if (!empty($view_order_info)) {
+    $base_url .= '&amp;orderid=' . $view_order_info['id'];
+    $where[] = 'tb1.order_id=' . $view_order_info['id'];
 }
 if (!empty($array_search['q'])) {
     $isSearchSubmit = true;
@@ -225,7 +285,7 @@ if (!empty($where)) {
 
 $all_page = $db->query($db->sql())->fetchColumn();
 
-$db->order('IF(transaction_time=0,created_time,transaction_time) DESC');
+$db->order('is_expired ASC, IF(transaction_time=0,created_time,transaction_time) DESC');
 $db->limit($per_page);
 $db->offset(($page - 1) * $per_page);
 $db->select('tb1.*, tb2.username admin_transaction, tb3.username accounttran, tb4.username customer_transaction');
@@ -261,6 +321,7 @@ while ($row = $result->fetch()) {
         'transaction_time' => $row['transaction_time'], //
         'transaction_data' => $row['transaction_data'], //
         'payment' => $row['payment'], //
+        'is_expired' => $row['is_expired'], //
         'view_user' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "&amp;userid=" . $row['userid'], //
         'view_transaction' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=viewtransaction&amp;id=" . $row['id'], //
     );
@@ -273,13 +334,16 @@ $i = 1;
 foreach ($arr_list_transaction as $element) {
     $xtpl->assign('stt', $i);
     $xtpl->assign('CONTENT', $element);
-    if ($element['transaction_status'] != 4) {
-        unset($global_array_transaction_status['0']);
+    if (!empty($element['is_expired'])) {
+        $xtpl->assign('TRANSACTION_STATUS', $lang_module['transaction_expired']);
+        $xtpl->parse('main.loop.transaction_status1');
+    } elseif ($element['transaction_status'] != 4 and ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction']))) {
         foreach ($global_array_transaction_status as $key => $value) {
             $xtpl->assign('OPTION', array(
                 'key' => $key,
                 'title' => $value,
-                'selected' => ($key == $element['transaction_status']) ? ' selected="selected"' : ''
+                'selected' => ($key == $element['transaction_status']) ? ' selected="selected"' : '',
+                'disabled' => ($key == 0) ? ' disabled="disabled"' : ''
             ));
             $xtpl->parse('main.loop.transaction_status.loops');
         }
@@ -311,6 +375,12 @@ if (!empty($view_user_info)) {
     $xtpl->assign('VIEW_USER_NAME', $view_user_info['username']);
     $xtpl->assign('VIEW_USER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op);
     $xtpl->parse('main.view_user_info');
+}
+
+if (!empty($view_order_info)) {
+    $xtpl->assign('VIEW_ORDER_NAME', vsprintf('DH%010s', $view_order_info['id']));
+    $xtpl->assign('VIEW_ORDER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op);
+    $xtpl->parse('main.view_order_info');
 }
 
 if ($isSearchSubmit) {

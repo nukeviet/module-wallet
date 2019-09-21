@@ -19,13 +19,16 @@
     width: 250px;
 }
 .form-control-fullwidth{
-	width: 100%!important;
+    width: 100%!important;
 }
 .margin-bottom {
     margin-bottom: 10px;
 }
 .mb0 {
     margin-bottom: 0;
+}
+a.btn-default {
+    color: #333;
 }
 
 .payport-item {
@@ -82,7 +85,26 @@
 
 /* PAY */
 @media (min-width: 768px) {
-.wpay_submit {
-    margin-left: 180px;
+    .wpay_submit {
+        margin-left: 180px;
+    }
 }
+
+.visible-sm-block,
+.visible-md-block,
+.visible-md-block {
+    display: none !important;
+}
+
+/* Fix Chủ động các lỗi CSS NukeViet */
+@media (min-width: 1200px) {
+    .visible-lg-block {
+        display: block !important;
+    }
+}
+
+@media (max-width: 991px) and (min-width: 768px) {
+    .visible-sm-block {
+        display: block !important;
+    }
 }

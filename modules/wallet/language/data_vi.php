@@ -37,7 +37,7 @@ $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_payme
 ) VALUES(
     'vnptepay', 'VNPT EBAY', 'http://vnptepay.com.vn/', '1', '2',
     'YTo2OntzOjExOiJtX1BhcnRuZXJJRCI7czoxMDoiY2hhcmdpbmcwMSI7czo2OiJtX01QSU4iO3M6OToicGFqd3RsemNiIjtzOjEwOiJtX1VzZXJOYW1lIjtzOjEwOiJjaGFyZ2luZzAxIjtzOjY6Im1fUGFzcyI7czo5OiJnbXd0d2pmd3MiO3M6MTM6Im1fUGFydG5lckNvZGUiO3M6NToiMDA0NzciO3M6MTA6IndlYnNlcnZpY2UiO3M6ODQ6Imh0dHA6Ly9jaGFyZ2luZy10ZXN0Lm1lZ2FwYXkubmV0LnZuOjEwMDAxL0NhcmRDaGFyZ2luZ0dXX1YyLjAvc2VydmljZXMvU2VydmljZXM_d3NkbCI7fQ,,',
-    '0', '0', 'http://vnptepay.com.vn/home/img/logo.png', '', '', 'VND', 0
+    '0', '0', 'http://vnptepay.com.vn/public/theme/images/logo.png', '', '', 'VND', 0
 )";
 
 $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_payment_discount (payment, revenue_from, revenue_to, provider, discount) VALUES('vnptepay', '1', '1000000', 'VNP', '10')";

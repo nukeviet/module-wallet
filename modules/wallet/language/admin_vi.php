@@ -35,6 +35,7 @@ $lang_module['creataccount'] = 'Khởi tạo ví tiền';
 $lang_module['confirm'] = 'Xác nhận';
 $lang_module['goback'] = 'Trở lại';
 $lang_module['filterdata'] = 'Lọc dữ liệu';
+$lang_module['copy'] = 'Sao chép';
 
 $lang_module['setup_payment'] = 'Cổng thanh toán';
 $lang_module['setting_stt'] = 'STT';
@@ -69,6 +70,8 @@ $lang_module['payport_discount1_note'] = 'Đây là mức phí tính theo phần
 $lang_module['payport_discount_transaction'] = 'Phí giao dịch';
 $lang_module['payport_discount_transaction_note'] = 'Đây là mức phí cố định của mỗi giao dịch. Ví dụ PayPal thu cố định mỗi lần giao dịch 0.3 USD';
 $lang_module['payport_discount_note'] = '<strong>Lưu ý:</strong> giá trị <strong><em>%s</em></strong> và <strong><em>%s</em></strong> dùng để làm cơ sở thống kê doanh thu, không có tác dụng thay đổi số tiền cập nhật vào ví của thành viên so với mức mà thành viên nạp.<br />Nếu muốn thay đổi tỉ lệ nạp bạn hãy thay đổi ở phần <strong>%s</strong> tại trang <strong><a target="_blank" href="%s">%s</a></strong>';
+$lang_module['payport_active_completed_email'] = 'Gửi email các giao dịch chưa hoàn thành';
+$lang_module['payport_active_incomplete_email'] = 'Gửi email các giao dịch đã hoàn thành';
 
 $lang_module['history_payment_wait'] = 'Chờ duyệt đơn hàng';
 $lang_module['history_payment_no'] = 'Chưa thanh toán';
@@ -103,6 +106,7 @@ $lang_module['money_total_in'] = 'Tổng số tiền chuyển vào tài khoản'
 $lang_module['money_total_out'] = 'Tổng số tiền đã mua hàng';
 $lang_module['whocreate'] = 'Người tạo';
 $lang_module['datecreate'] = 'Ngày tạo';
+$lang_module['updatetime'] = 'Cập nhật';
 $lang_module['createinfo'] = 'Nạp tiền vào tài khoản';
 
 $lang_module['search'] = 'Tìm kiếm';
@@ -300,6 +304,7 @@ $lang_module['transaction_created_time'] = 'Giao dịch tạo lúc';
 $lang_module['transaction_payment_no'] = 'Không';
 $lang_module['transaction_id'] = 'ID giao dịch';
 $lang_module['transaction_status_al'] = 'Tất cả trạng thái';
+$lang_module['transaction_expired'] = 'Hết hạn';
 
 $lang_module['status_sub4'] = 'Mua bài viết';
 $lang_module['status_sub1'] = 'Xử lí số liệu lệch';
@@ -337,6 +342,10 @@ $lang_module['cfg_payment_add'] = 'Thêm mức doanh thu';
 $lang_module['cfg_payment_remove'] = 'Bỏ';
 $lang_module['cfg_allow_exchange_pay'] = 'Cho phép thanh toán quy đổi';
 $lang_module['cfg_allow_exchange_pay_note'] = 'Bật tùy chọn này sẽ cho phép quy đổi tiền tệ của các loại tiền không được phép sang loại tiền có thể thanh toán tùy theo cổng thanh toán. Ví dụ: Có thể thanh toán tiền USD ở cổng VNPAYQR';
+$lang_module['cfg_transaction_expiration_time'] = 'Thời gian hết hạn giao dịch';
+$lang_module['cfg_transaction_expiration_time_help'] = 'Đơn vị: Giờ. Nếu = 0 thì các giao dịch sẽ không hết hạn';
+$lang_module['cfg_accountants_emails'] = 'Email nhận thông báo giao dịch';
+$lang_module['cfg_accountants_emails_help'] = 'Các email sẽ nhận thông tin mỗi khi có giao dịch mới từ các cổng thanh toán có kích hoạt chức năng thông báo. Có thể nhập nhiều email, mỗi email cách nhau bởi dấu phảy';
 
 $lang_module['term'] = 'Điều khoản thanh toán';
 $lang_module['recharge_rate'] = 'Tỉ lệ nạp';
@@ -351,3 +360,38 @@ $lang_module['order_manager_code'] = 'Mã đơn hàng';
 $lang_module['order_manager_module'] = 'Module';
 $lang_module['order_manager_obj'] = 'Đối tượng';
 $lang_module['order_del_note'] = 'Lưu ý: Xóa đơn hàng sẽ không xóa thông tin thanh toán trước đó nếu như module kết nối có lưu lại trạng thái thanh toán. Dữ liệu sẽ không thể khôi phục sau khi xóa, bạn có chắc chắn không?';
+$lang_module['order_update_status_note'] = 'Để cập nhật trạng thái đơn hàng, bạn cần cập nhật trạng thái giao dịch của các giao dịch <a href="%s">tại đây</a>';
+
+$lang_module['permission'] = 'Thiết lập quyền hạn';
+$lang_module['permission_group_empty'] = 'Bạn chưa tạo các nhóm đối tượng quản trị nào. Nhấp vào đây để tạo các nhóm đối tượng quản trị trước';
+$lang_module['permission_group_name'] = 'Quản lý các nhóm (quản lý quyền)';
+$lang_module['permission_group'] = 'Các nhóm đối tượng quản trị';
+$lang_module['permission_group_add'] = 'Thêm nhóm đối tượng quản trị';
+$lang_module['permission_group_edit'] = 'Sửa nhóm đối tượng quản trị';
+$lang_module['permission_group_title'] = 'Tên nhóm';
+$lang_module['permission_group_selp'] = 'Lựa chọn các quyền';
+$lang_module['permission_is_wallet'] = 'Xem và cập nhật ví tiền';
+$lang_module['permission_is_vtransaction'] = 'Xem giao dịch';
+$lang_module['permission_is_mtransaction'] = 'Xem và xử lý giao dịch';
+$lang_module['permission_is_vorder'] = 'Xem các đơn hàng kết nối';
+$lang_module['permission_is_morder'] = 'Xem và xử lý các đơn hàng kết nối';
+$lang_module['permission_is_exchange'] = 'Quản lý tỷ giá';
+$lang_module['permission_is_money'] = 'Quản lý tiền tệ';
+$lang_module['permission_is_payport'] = 'Quản lý các cổng thanh toán';
+$lang_module['permission_is_configmod'] = 'Thiết lập cấu hình module';
+$lang_module['permission_is_viewstats'] = 'Xem thống kê';
+$lang_module['permission_error_title'] = 'Lỗi: Chưa nhập tên nhóm';
+$lang_module['permission_error_exists'] = 'Lỗi: Tên này đã được sử dụng, mời nhập tên khác';
+$lang_module['permission_no_admin'] = 'Chưa có người quản lý module, hãy thêm người quản lý module để thiết lập quyền. Điều hành chung và quản trị tối cao có đầy đủ các quyền';
+$lang_module['permission_list_admin'] = 'Danh sách các tài khoản quản lý module';
+$lang_module['permission_selper'] = 'Chọn quyền';
+$lang_module['permission_none'] = 'Không có quyền gì';
+$lang_module['permission_none_explain'] = 'Bạn chưa được cấp quyền thao tác trong module này';
+
+$lang_module['atm_sendbank'] = 'Tên ngân hàng gửi';
+$lang_module['atm_fracc'] = 'Số tài khoản gửi';
+$lang_module['atm_time'] = 'Ngày, giờ gửi';
+$lang_module['atm_toacc'] = 'Số tài khoản nhận';
+$lang_module['atm_recvbank'] = 'Tên ngân hàng nhận';
+$lang_module['atm_filedepute'] = 'Bản scan giấy ủy nhiệm chi';
+$lang_module['atm_filebill'] = 'File hóa đơn';

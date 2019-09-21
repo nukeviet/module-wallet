@@ -9,8 +9,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_MAINFILE'))
+if (!defined('NV_MAINFILE')) {
     die('Stop!!!');
+}
 
 $lang_translator['author'] = 'VINADES.,JSC (contact@vinades.vn)';
 $lang_translator['createdate'] = '04/04/2011, 06:38';
@@ -26,6 +27,7 @@ $lang_module['no_account'] = 'Thông báo';
 $lang_module['no_account1'] = 'Tài khoản của bạn chưa được khởi tạo ví tiền. Hệ thống sẽ tự động chuyển đến trang nạp tiền vào ví trong giây lát';
 $lang_module['back'] = 'Quay lại';
 $lang_module['transaction_code'] = 'Mã giao dịch';
+$lang_module['continue'] = 'Tiếp tục';
 
 $lang_module['customer_fullname'] = 'Họ tên';
 $lang_module['customer_email'] = 'Email';
@@ -33,7 +35,7 @@ $lang_module['customer_address'] = 'Địa chỉ';
 $lang_module['customer_phone'] = 'Điện thoại';
 $lang_module['customer_content'] = 'Nội dung thanh toán';
 $lang_module['input_capchar'] = 'Nhập mã bảo vệ';
-$lang_module['customer_submit'] = 'Gửi thông tin và thanh toán';
+$lang_module['customer_submit'] = 'Chấp nhận';
 $lang_module['customer_money'] = 'Số tiền';
 $lang_module['recharge_voucher_code'] = 'Voucher (Nếu có)';
 $lang_module['recharge_voucher_error'] = 'Không tìm thấy khuyến mãi Voucher nào phù hợp';
@@ -129,6 +131,7 @@ $lang_module['titleSmsNap'] = 'Nhắn tin SMS nạp tiền vào tài khoản';
 $lang_module['sms'] = '<span style="font-weight:bold;font-size:14px;">Để nạp tiền vào tài khoản</span> ! Soạn tin theo mẫu : <span style="font-weight:bold; color:red">%s %s</span> trong đó : <span style="font-weight:bold; color:red">%s</span> là Từ khóa của chương trình, <span style="font-weight:bold; color:red">%s</span> là email của bạn rồi gửi đến số <span style="font-weight:bold; color:red">%s</span>';
 $lang_module['nosms'] = 'Dịch vụ này chưa được kích hoạt';
 $lang_module['cart_back'] = 'Quay lại';
+$lang_module['cart_back_pay'] = 'Bạn vui lòng đợi. Hệ thống sẽ tự chuyển trang trong giây lát!';
 
 $lang_module['pay_save_error_title'] = 'Thất bại';
 $lang_module['pay_save_error_body'] = 'Nạp tiền thất bại';
@@ -143,6 +146,8 @@ $lang_module['pay_error_tranisprocessed'] = 'Hệ thống từ chối. Giao dị
 $lang_module['pay_error_update_account'] = 'Thanh toán thành công, tuy nhiên hệ thống không thể cập nhật số dư tài khoản. Vui lòng liên hệ với quản trị về sự cố này';
 $lang_module['pay_info_response'] = 'Giao dịch của bạn đang ở trạng thái:';
 $lang_module['pay_user_cancel'] = 'Giao dịch đã bị hủy bỏ';
+$lang_module['pay_recheck'] = 'Kiểm tra lại';
+$lang_module['pay_recharge'] = 'Nạp thêm tiền';
 
 $lang_module['vnpt_title'] = 'Nạp tiền qua thẻ cào';
 $lang_module['vnpt_pin'] = 'Mã thẻ';
@@ -195,13 +200,34 @@ $lang_module['paygate_wpay_msg'] = 'Bạn có chắc chắn đồng ý sử dụ
 $lang_module['paygate_submit'] = 'Thanh toán';
 $lang_module['paygate_error_update'] = 'Hệ thống không thể cập nhật trạng thái thanh toán của đơn hàng, vui lòng liên hệ với quản trị site về vấn đề này';
 $lang_module['paygate_error_order'] = 'Không tìm thấy đơn hàng này';
+$lang_module['paygate_error_resetsuccess'] = 'Không thể thanh toán lại đơn hàng đã hoàn tất';
+$lang_module['paygate_error_reset'] = 'Lỗi cập nhật trạng thái đơn hàng, vui lòng thử lại';
 $lang_module['paygate_tranmess_send'] = 'Thanh toán đơn hàng mã số %s tại %s';
 $lang_module['paygate_tranmess'] = 'Thanh toán đơn hàng mã số %s';
 $lang_module['paygate_ptitle'] = 'Thanh toán qua các cổng thanh toán sau';
 $lang_module['paygate_exchange_pay_msg'] = 'Cổng thanh toán này không hỗ trợ thanh toán tiền <strong>%s</strong> do đó bạn sẽ phải thanh toán số tiền tương đương là <strong>%s</strong>. Nếu đồng ý bạn hãy nhấp nút bên dưới để tiếp tục, nếu không hãy thử chọn cổng thanh toán khác';
 $lang_module['paygate_exchange_pay_allow'] = 'Đồng ý thanh toán';
+$lang_module['paygate_atm'] = 'Thanh toán đơn hàng bằng hình thức';
 
 $lang_module['payclass_error_money'] = 'Số tiền phải lớn hơn 0';
 $lang_module['payclass_error_save_transaction'] = 'Hệ thống không lưu được thông tin thanh toán';
 $lang_module['payclass_error_update_account'] = 'Hệ thống không cập nhật tài khoản được';
 $lang_module['payclass_error_money_unit'] = 'Loại tiền tệ không hợp lệ';
+
+$lang_module['atm_heading'] = 'Thông tin chuyển khoản ATM';
+$lang_module['atm_sendbank'] = 'Tên ngân hàng gửi';
+$lang_module['atm_fracc'] = 'Số tài khoản gửi';
+$lang_module['atm_time'] = 'Ngày, giờ gửi';
+$lang_module['atm_toacc'] = 'Số tài khoản nhận';
+$lang_module['atm_recvbank'] = 'Tên ngân hàng nhận';
+$lang_module['atm_filedepute'] = 'Bản scan giấy ủy nhiệm chi';
+$lang_module['atm_filebill'] = 'File hóa đơn';
+$lang_module['atm_error_sendbank'] = 'Lỗi: Chưa nhập ngân hàng gửi';
+$lang_module['atm_error_fracc'] = 'Lỗi: Chưa nhập số tài khoản gửi';
+$lang_module['atm_error_toacc'] = 'Lỗi: Chưa nhập số tài khoản nhận';
+$lang_module['atm_error_recvbank'] = 'Lỗi: Chưa nhập ngân hàng nhận';
+$lang_module['atm_changefile'] = 'Đổi file';
+
+$lang_module['email_notice_transaction0'] = 'Thông báo có giao dịch mới';
+$lang_module['email_notice_transaction1'] = '<ul><li>Mã giao dịch: <strong>%s</strong></li><li>Thời điểm khởi tạo: <strong>%s</strong></li><li>Người thực hiện giao dịch: <strong>%s</strong></li><li>Số tiền: <strong>%s</strong></li><li>Trạng thái: <strong>%s</strong></li></ul>Các thông tin khác:<ul><li>Họ và tên: <strong>%s</strong></li><li>Email: <strong>%s</strong></li><li>Điện thoại: <strong>%s</strong></li><li>Địa chỉ: <strong>%s</strong></li><li>Ghi chú: <strong>%s</strong></li><li>Cổng thanh toán: <strong>%s</strong></li></ul>Để xem chi tiết mời nhấp vào đây: <a href="%s">%s</a>';
+$lang_module['email_notice_visitor'] = 'Khách hàng thanh toán';

@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
 $page_title = $lang_module['titleSmsNap'];
 $payment = isset($array_op[1]) ? $array_op[1] : "";
@@ -61,7 +62,7 @@ if (isset($global_array_payments[$payment])) {
          * Xác định loại tiền mà cổng này hỗ trợ nạp
          * Nếu cổng này không cho nạp tùy ý thì chỉ lấy ra những loại tiền có cấu hình mốc nạp
          */
-        $array_money_unit = array();
+        $array_money_unit = [];
         foreach ($row_payment['currency_support'] as $currency) {
             if (isset($global_array_money_sys[$currency]) and (!empty($row_payment['allowedoptionalmoney']) or !empty($module_config[$module_name]['minimum_amount'][$currency]))) {
                 $array_money_unit[$currency] = $currency;
@@ -72,11 +73,14 @@ if (isset($global_array_payments[$payment])) {
             redict_link($lang_module['recharge_error_message'], $lang_module['recharge_error_message_back'], $redict_link);
         }
 
-        if ($payment == "epay") {
+        if ($payment == 'epay') {
+            // Nạp qua Ebay xử lý riêng
             require_once (NV_ROOTDIR . "/modules/" . $module_file . "/payment/epay.complete.php");
-        } elseif ($payment == "gamebank") {
+        } elseif ($payment == 'gamebank') {
+            // Nạp qua Gamebank xử lý riêng
             require_once (NV_ROOTDIR . "/modules/" . $module_file . "/payment/gamebank.checkout_url.php");
-        } elseif ($payment == "vnptepay") {
+        } elseif ($payment == 'vnptepay') {
+            // Nạp qua VNPT Epay xử lý riêng
             require_once (NV_ROOTDIR . "/modules/" . $module_file . "/payment/vnptepay.checkout_url.php");
         } else {
             $error = "";
@@ -133,6 +137,15 @@ if (isset($global_array_payments[$payment])) {
                 $minimum_amount = !empty($module_config[$module_name]['minimum_amount'][$post['money_unit']]) ? explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]) : array();
                 $minimum_amount = empty($minimum_amount) ? 0 : $minimum_amount[0];
 
+                // Xử lý form và lỗi đối với cổng thanh toán ATM
+                $atm_error = '';
+                if ($payment == 'ATM') {
+                    define('NV_IS_ATM_FORM', true);
+                    require NV_ROOTDIR . '/modules/' . $module_file . '/payment/ATM.form.php';
+                } else {
+                    $post['transaction_data'] = '';
+                }
+
                 if (!empty($post['customer_email']) and !empty($check_valid_email)) {
                     $error = $check_valid_email;
                 } elseif (empty($post['money_unit'])) {
@@ -143,6 +156,8 @@ if (isset($global_array_payments[$payment])) {
                     } else {
                         $error = $lang_module['error_money_recharge'];
                     }
+                } elseif (!empty($atm_error)) {
+                    $error = $atm_error;
                 } elseif ($post['check_term'] != 1 and !empty($row_payment['term'])) {
                     $error = $lang_module['error_check_term'];
                 } elseif (!nv_capcha_txt($fcode)) {
@@ -165,11 +180,17 @@ if (isset($global_array_payments[$payment])) {
                         $post['money_total'] = get_db_money($post['money_total'], $post['money_unit']);
                     }
 
-                    $post['tokenkey'] = md5($global_config['sitekey'] . $post['userid'] . NV_CURRENTTIME . $post['customer_id'] . $post['money_net'] . $post['money_unit'] . $payment);
+                    // Tạo ngẫu nhiên một khóa xem như là Private key để tính checksum
+                    $post['tokenkey'] = md5($global_config['sitekey'] . $post['userid'] . NV_CURRENTTIME . $post['customer_id'] . $post['money_net'] . $post['money_unit'] . $payment . nv_genpass());
 
                     // Thông tin giao dịch mặc định nếu khách không nhập
                     if (empty($post['transaction_info'])) {
                         $post['transaction_info'] = sprintf($lang_module['note_pay_gate'], $payment);
+                    }
+
+                    // Xử lý trước khi lưu CSDL
+                    if ($payment == 'ATM') {
+                        require NV_ROOTDIR . '/modules/' . $module_file . '/payment/ATM.presave.php';
                     }
 
                     // Lưu vào giao dịch (Giao dịch này là chưa thanh toán, sau này thanh toán nếu thành công hay thất bại sẽ cập nhật lại chỗ này)
@@ -181,8 +202,8 @@ if (isset($global_array_payments[$payment])) {
                         " . NV_CURRENTTIME . ", 1, " . $db->quote($post['money_unit']) . ", " . $post['money_total'] . ", " . $post['money_net'] . ", " . $post['money_discount'] . ",
                         " . $post['money_revenue'] . ", " . $post['userid'] . ", 0, " . $post['customer_id'] . ", " . $db->quote($post['customer_name']) . ",
                         " . $db->quote($post['customer_email']) . ", " . $db->quote($post['customer_phone']) . ", " . $db->quote($post['customer_address']) . ",
-                        " . $db->quote($post['customer_info']) . ", '', -1, 0, 0, " . $db->quote($post['transaction_info']) . ", '', " . $db->quote($payment) . ",
-                        '', " . $db->quote($post['tokenkey']) . "
+                        " . $db->quote($post['customer_info']) . ", '', -1, 0, 0, " . $db->quote($post['transaction_info']) . ", " . $db->quote($post['transaction_data']) . ",
+                        " . $db->quote($payment) . ", '', " . $db->quote($post['tokenkey']) . "
                     )", 'id');
 
                     if (empty($post['id'])) {
@@ -217,12 +238,58 @@ if (isset($global_array_payments[$payment])) {
                 $post['customer_address'] = '';
                 $post['money_amount'] = 0;
                 $post['money_other'] = 0;
+                $post['money_unit'] = '';
                 $post['check_term'] = 0;
-                reset($array_money_unit);
-                $post['money_unit'] = current($array_money_unit);
-                if (!empty($module_config[$module_name]['minimum_amount'][$post['money_unit']])) {
-                    $list_money = explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]);
-                    $post['money_amount'] = $list_money[0];
+                $post['transaction_info'] = nv_substr($nv_Request->get_title('info', 'get', ''), 0, 250);
+
+                /*
+                 * Xử lý khi có số tiền nạp vào từ URL dạng ?amount=100000-VND
+                 * Check xem cổng thanh toán nạp được loại tiền đó không
+                 * Check xem có cấu hình giá trị nhỏ nhất nạp không
+                 */
+                $pay_amount = $nv_Request->get_title('amount', 'get', '');
+                $pay_money = '';
+                if (preg_match('/^([0-9\.]+)\-([A-Z]{3})$/', $pay_amount, $m)) {
+                    if (!isset($global_array_money_sys[$m[2]])) {
+                        $pay_amount = 0;
+                    } else {
+                        $pay_money = $m[2];
+                        $pay_amount = $m[1];
+                    }
+                } else {
+                    $pay_amount = 0;
+                }
+                if (!empty($pay_amount) and in_array($pay_money, $row_payment['currency_support'])) {
+                    $post['money_unit'] = $pay_money;
+                    $list_money = array_filter(explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]));
+                    if (in_array($pay_amount, $list_money)) {
+                        $post['money_amount'] = $pay_amount;
+                    } elseif (empty($list_money) or min($list_money) <= $pay_amount) {
+                        $post['money_other'] = $pay_amount;
+                    }
+                }
+
+                if (empty($post['money_amount']) and empty($post['money_other'])) {
+                    reset($array_money_unit);
+                    $post['money_unit'] = current($array_money_unit);
+                    if (!empty($module_config[$module_name]['minimum_amount'][$post['money_unit']])) {
+                        $list_money = explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]);
+                        $post['money_amount'] = $list_money[0];
+                    }
+                }
+
+                // Thêm một số dữ liệu của kiểu thanh toán ATM
+                if ($payment == 'ATM') {
+                    $post['atm_sendbank'] = '';
+                    $post['atm_fracc'] = '';
+                    $post['atm_time'] = '';
+                    $post['atm_toacc'] = '';
+                    $post['atm_heading'] = '';
+                    $post['atm_recvbank'] = '';
+                    $post['atm_filedepute'] = ''; // Tên file hiện tại
+                    $post['atm_filedepute_key'] = ''; // Khóa file hiện tại
+                    $post['atm_filebill'] = ''; // Tên file hiện tại
+                    $post['atm_filebill_key'] = ''; // Khóa file hiện tại
                 }
             }
 

@@ -8,16 +8,19 @@
 
 function FormatNumber(str) {
     var strTemp = GetNumber(str);
-    if (strTemp.length <= 3)
+    if (strTemp.length <= 3) {
         return strTemp;
+    }
     strResult = "";
-    for (var i = 0; i < strTemp.length; i++)
+    for (var i = 0; i < strTemp.length; i++) {
         strTemp = strTemp.replace(",", "");
+    }
     var m = strTemp.lastIndexOf(".");
     if (m == -1) {
         for (var i = strTemp.length; i >= 0; i--) {
-            if (strResult.length > 0 && (strTemp.length - i - 1) % 3 == 0)
+            if (strResult.length > 0 && (strTemp.length - i - 1) % 3 == 0) {
                 strResult = "," + strResult;
+            }
             strResult = strTemp.substring(i, i + 1) + strResult;
         }
     } else {
@@ -30,7 +33,6 @@ function FormatNumber(str) {
                 strResult = "," + strResult;
                 tam = 1;
             }
-
 
             strResult = strphannguyen.substring(i, i + 1) + strResult;
             tam = tam + 1;
@@ -48,11 +50,13 @@ function GetNumber(str) {
             alert(inputnumber);
             return str.substring(0, i);
         }
-        if (temp == " ")
+        if (temp == " ") {
             return str.substring(0, i);
+        }
         if (temp == ".") {
-            if (count > 0)
+            if (count > 0) {
                 return str.substring(0, i);
+            }
             count++;
         }
     }
@@ -99,11 +103,11 @@ function nv_check_form_add(OForm) {
             script_name + '?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=addacount&nocache=' + new Date().getTime(),
             'money=' + money + '&typemoney=' + typemoney + '&typeadd=' + encodeURIComponent(typeadd) + '&notice=' + encodeURIComponent(notice) + '&userid=' + userid + '&trantype=' + trantype,
             function(res) {
-                if (res == "OK")
-                    //window.location.href = window.location.href.replace(/#(.*)/, "");
+                if (res == "OK") {
                     window.location = script_name + '?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=' + nv_module_name
-                else
+                } else {
                     alert(res);
+                }
                 return;
             }
         );
@@ -154,7 +158,7 @@ $(document).ready(function() {
         var ctn = $(this).parent().parent();
         ctn.find('[type="text"]').focus();
     });
-    //
+    // Xóa đơn hàng
     $('[data-toggle="delorder"]').click(function(e) {
         e.preventDefault();
         var $this = $(this);
@@ -163,10 +167,29 @@ $(document).ready(function() {
                 script_name + '?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=order-list&nocache=' + new Date().getTime(),
                 'del=1&id=' + $this.data('id'),
                 function(res) {
-                    if (res == "OK")
-                        window.location.href = window.location.href.replace(/#(.*)/, "");
-                    else
+                    if (res == "OK") {
+                        location.reload();
+                    } else {
                         alert(res);
+                    }
+                }
+            );
+        }
+    });
+    // Xóa nhóm quản trị
+    $('[data-toggle="deladmpgrp"]').click(function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        if (confirm($this.data('mgs'))) {
+            $.post(
+                script_name + '?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=permission-groups&nocache=' + new Date().getTime(),
+                'del=1&id=' + $this.data('id'),
+                function(res) {
+                    if (res == "OK") {
+                        location.reload();
+                    } else {
+                        alert(res);
+                    }
                 }
             );
         }

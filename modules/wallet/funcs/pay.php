@@ -8,8 +8,19 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
+
+/*
+ * Bảng trạng thái của đơn hàng
+ * 0 => Chưa thanh toán (đơn hàng mới tạo chưa có thông tin gì về thanh toán)
+ * 1 => Đang chờ xử lý
+ * 2 => Đang tạm giữ (cổng thanh toán trả về trạng thái tạm giữ)
+ * 3 => Thất bại (cổng thanh toán trả về trạng thái thất bại)
+ * 4 => Thành công (thanh toán thành công, tiền đã được chuyển vào bên nhận)
+ * 5 => Sai checksum - thanh toán không thành công tương tự như 3
+ */
 
 require_once NV_ROOTDIR . '/modules/wallet/wallet.class.php';
 $wallet = new nukeviet_wallet();
@@ -34,8 +45,13 @@ if (!defined('NV_IS_USER')) {
     nv_redirect_location(NV_BASE_SITEURL . "index.php?" . NV_NAME_VARIABLE . "=users&" . NV_OP_VARIABLE . "=login&nv_redirect=" . nv_redirect_encrypt($redirect));
 }
 
-// Đơn hàng có giao dịch đang chờ xử lý, đang bị tạm giữ, đã hoàn thành thì không thể tiếp tục thanh toán nữa.
-if (in_array($order_info['paid_status'], array(1, 2, 4))) {
+/*
+ * Đơn hàng phải ở trạng thái chưa thanh toán thì mới được thanh toán
+ * Vì quy định của các cổng thanh toán là chỉ xử lý mỗi ID đơn hàng một lần.
+ * Do đó các trạng thái khác tức là có chuyển về từ cổng thanh toán rồi.
+ * gửi thông tin thanh toán tiếp sẽ không chấp nhận
+ */
+if ($order_info['paid_status'] != 0) {
     // Chuyển trả về trang xử lý kết quả của module được kết nối
     $url_back = unserialize($order_info['url_back']);
     $url_back['querystr'] = trim(str_replace('&amp;', '&', $url_back['querystr']), '&');
@@ -51,7 +67,7 @@ if (in_array($order_info['paid_status'], array(1, 2, 4))) {
 
 // Xác định các cổng thanh toán
 // Các cổng thanh toán này cần hỗ trợ thanh toán loại tiền tương ứng
-$url_checkout = array();
+$url_checkout = [];
 foreach ($global_array_payments as $row) {
     $row['currency_support'] = explode(',', $row['currency_support']);
     // Có hỗ trợ thanh toán tùy chỉnh mới được tiếp tục, không hỗ trợ thanh toán tùy chỉnh thì chỉ dùng để nạp tiền
@@ -84,14 +100,14 @@ foreach ($global_array_payments as $row) {
         }
 
         if (!empty($payment_type)) {
-            $url_checkout[$row['payment']] = array(
+            $url_checkout[$row['payment']] = [
                 "name" => $row['paymentname'],
                 "url" => $url,
                 "images_button" => $images_button,
                 'data' => $row,
                 'exchange_info' => $exchange_info,
                 'payment_type' => $payment_type
-            );
+            ];
         }
     }
 }
@@ -161,14 +177,14 @@ if ($nv_Request->isset_request('payment', 'get')) {
         $error = '';
 
         // Dữ liệu trả về đặt vào biến này
-        $responseData = array(
+        $responseData = [
             'ordertype' => '', // Kiểu giao dịch: pay là thanh toán các đơn hàng khác, recharge là nạp tiền vào ví
             'orderid' => '', // Kiểu text, ID của giao dịch được lưu trước vào CSDL dùng để cập nhật thanh toán
             'transaction_id' => '', // Kiểu text, ID giao dịch trên cổng thanh toán
             'transaction_status' => 0, // Kiểu số, trạng thái giao dịch quy chuẩn
             'transaction_time' => 0, // Kiểu số, thời gian giao dịch
             'transaction_data' => '' // Kiểu text, có thể là serialize array
-        );
+        ];
 
         // Gọi file xử lý dữ liệu trả về
         require_once NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $payment . ".complete.php";
@@ -206,12 +222,12 @@ if ($nv_Request->isset_request('payment', 'get')) {
                 transaction_time = ' . $responseData['transaction_time'] . ', transaction_data = ' . $db->quote($responseData['transaction_data']) . '
             WHERE id = ' . $transaction['id'];
 
-            if (!$db->exec($sql)) {
+            if (!$db->query($sql)) {
                 redict_link($lang_module['payclass_error_save_transaction'], $lang_module['cart_back'], $order_info['payurl']);
             }
 
             // Cập nhật lại đơn hàng
-            $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
+            $check = $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
                 paid_status=" . $responseData['transaction_status'] . ",
                 paid_id=" . $db->quote(vsprintf('WP%010s', $transaction['id'])) . ",
                 paid_time=" . $responseData['transaction_time'] . "
@@ -224,6 +240,31 @@ if ($nv_Request->isset_request('payment', 'get')) {
             $responseData['transaction_time'] = $order_info['paid_time'];
         }
 
+        // Gửi email thông báo trạng thái giao dịch
+        if (!empty($module_config[$module_name]['accountants_emails']) and (
+            (!empty($row_payment['active_completed_email']) and $responseData['transaction_status'] == 4) or (!empty($row_payment['active_incomplete_email']) and $responseData['transaction_status'] != 4)
+        )) {
+            $accountants_emails = array_filter(array_unique(array_map("trim", explode(',', $module_config[$module_name]['accountants_emails']))));
+
+            $email_order_code = empty($transaction['order_id']) ? vsprintf('GD%010s', $transaction['id']) : vsprintf('WP%010s', $transaction['id']);
+            $email_created_time = nv_date('H:i d/m/Y', $transaction['created_time']);
+            $email_customer_name = $lang_module['email_notice_visitor'];
+            if (!empty($transaction['customer_id'])) {
+                $customer_db = $db->query("SELECT username, first_name, last_name FROM " . NV_USERS_GLOBALTABLE . " WHERE userid=" . $transaction['customer_id'])->fetch();
+                if (!empty($customer_db)) {
+                    $email_customer_name = nv_show_name_user($customer_db['first_name'], $customer_db['last_name'], $customer_db['username']) . ' (' . $customer_db['username'] . ')';
+                }
+            }
+            $email_money = get_display_money($transaction['money_net']) . ' ' . $transaction['money_unit'];
+            $email_status = isset($global_array_transaction_status[$responseData['transaction_status']]) ? $global_array_transaction_status[$responseData['transaction_status']] : 'N/A';
+            $email_url_admin = NV_MY_DOMAIN . NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=viewtransaction&amp;id=" . $transaction['id'];
+
+            $messages = sprintf($lang_module['email_notice_transaction1'], $email_order_code, $email_created_time, $email_customer_name, $email_money, $email_status, $transaction['customer_name'], $transaction['customer_email'], $transaction['customer_phone'], $transaction['customer_address'], $transaction['customer_info'], $payment, $email_url_admin, $email_url_admin);
+            foreach ($accountants_emails as $email) {
+                nv_sendmail([$global_config['site_email'], $global_config['site_name']], $email, $lang_module['email_notice_transaction0'], $messages);
+            }
+        }
+
         // Chuyển trả về trang xử lý kết quả của module được kết nối
         $url_back = unserialize($order_info['url_back']);
         $url_back['querystr'] = trim(str_replace('&amp;', '&', $url_back['querystr']), '&');
@@ -234,13 +275,21 @@ if ($nv_Request->isset_request('payment', 'get')) {
         $link_redirect .= '&worderid=' . $order_info['order_id'];
         $link_redirect .= '&wchecksum=' . $wallet->getResponseChecksum($order_info, $responseData['transaction_status'], $responseData['transaction_time']);
         $link_redirect = nv_url_rewrite($link_redirect, true);
+
+        // Đối với cổng thanh toán ATM và manual thì hiển thị thông báo trước khi chuyển về module kết nối
+        if ($payment == 'manual' or $payment == 'ATM') {
+            redict_link($payment_config['completemessage'], $lang_module['cart_back_pay'], $link_redirect);
+        }
+
+        // Đối với cổng thanh toán khác thì chuyển luôn về module kết nối
         nv_redirect_location($link_redirect);
     }
 
     // Lưu mới phiên thanh toán
-    $transaction = array();
+    $transaction = [];
     $transaction_info = sprintf($lang_module['paygate_tranmess'], vsprintf('DH%010s', $order_info['id']));
-    $tokenkey = md5($global_config['sitekey'] . $user_info['userid'] . NV_CURRENTTIME . $order_info['money_amount'] . $order_info['money_unit'] . $payment);
+    // Tạo ngẫu nhiên một khóa xem như là Private key để tính checksum
+    $tokenkey = md5($global_config['sitekey'] . $user_info['userid'] . NV_CURRENTTIME . $order_info['money_amount'] . $order_info['money_unit'] . $payment . nv_genpass());
 
     // Xác định số tiền và phí
     if ($url_checkout[$payment]['payment_type'] == 'direct') {
@@ -256,6 +305,38 @@ if ($nv_Request->isset_request('payment', 'get')) {
 
     $money_discount = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount_transaction'] * $money_net) / 100), $pay_money);
     $money_revenue = get_db_money($money_net - $money_discount, $pay_money);
+
+    // Đối với cổng thanh toán ATM tại đây cần lấy thông tin của khách
+    $post = [];
+    $post['atm_sendbank'] = '';
+    $post['atm_fracc'] = '';
+    $post['atm_time'] = '';
+    $post['atm_toacc'] = '';
+    $post['atm_heading'] = '';
+    $post['atm_recvbank'] = '';
+    $post['atm_filedepute'] = ''; // Tên file hiện tại
+    $post['atm_filedepute_key'] = ''; // Khóa file hiện tại
+    $post['atm_filebill'] = ''; // Tên file hiện tại
+    $post['atm_filebill_key'] = ''; // Khóa file hiện tại
+
+    if ($payment == 'ATM') {
+        $isSubmit = false;
+        $error = '';
+
+        if ($nv_Request->isset_request('submit', 'post')) {
+            $isSubmit = true;
+        } else {
+            //
+        }
+
+        if (!$isSubmit or !empty($error)) {
+            $contents = nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error);
+
+            include NV_ROOTDIR . '/includes/header.php';
+            echo nv_site_theme($contents);
+            include NV_ROOTDIR . '/includes/footer.php';
+        }
+    }
 
     $transaction['id'] = $db->insert_id("INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_transaction (
         created_time, status, money_unit, money_total, money_net, money_discount, money_revenue, userid, adminid, order_id, customer_id, customer_name,
@@ -273,7 +354,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
     }
 
     // Tạo dữ liệu cổng thanh toán
-    $post = array();
+    $post = [];
     $post['transaction_code'] = vsprintf('WP%010s', $transaction['id']);
     $post['transaction_info'] = sprintf($lang_module['paygate_tranmess_send'], $post['transaction_code'], NV_SERVER_NAME);
     $post['money_net'] = $money_net;
@@ -281,6 +362,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $post['customer_phone'] = '';
     $post['customer_email'] = $user_info['email'];
     $post['ReturnURL'] = NV_MY_DOMAIN . nv_url_rewrite($order_info['payurl'] . '&payment=' . $payment . '&wpayportres=true', true);
+    $post['tokenkey'] = $tokenkey;
 
     $url = '';
     $error = '';

@@ -133,19 +133,25 @@ $(document).ready(function() {
             $('#rechargeAmountMin').show();
         }
     });
-    // Thanh toán đơn hàng
-    $('[data-toggle="paycollapse"]').click(function(e) {
+    // Chọn cổng thanh toán => Xem hướng dẫn thực hiện
+    $('[data-toggle="paymentsel"]').on('click', function(e) {
         e.preventDefault();
-        var tg = $(this).attr('href');
-        $('.paycollapse').each(function() {
-            if (!$(this).is(tg)) {
-                $(this).slideUp(200);
-            }
-        });
-        if ($(tg).is(':visible')) {
-            $(tg).slideUp(200);
-        } else {
-            $(tg).slideDown(200);
-        }
+        $('.payment-guide-item').addClass('hidden');
+        $('#payment-guide-' + $(this).data('payment')).removeClass('hidden');
+        $('html, body').animate({
+            scrollTop: ($('#payment-guide-ctn').offset().top) - 10
+        }, 200);
+    });
+    // Đổi các file đính kèm cổng thanh toán ATM
+    $('[data-toggle="changeAtmFile"]').on('click', function(e) {
+        e.preventDefault();
+        $('[name="' + $(this).data('ipt') + '"]').val('');
+        $('[name="' + $(this).data('file') + '"]').removeClass('hidden');
+        $(this).parent().hide();
+    });
+    // Reload lại trang
+    $('[data-toggle="locreload"]').on('click', function(e) {
+        e.preventDefault();
+        location.reload();
     });
 });

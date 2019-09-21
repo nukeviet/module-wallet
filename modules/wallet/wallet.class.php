@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_MAINFILE'))
+if (!defined('NV_MAINFILE')) {
     die('Stop!!!');
+}
 
 global $db_config;
 
@@ -433,6 +434,48 @@ class nukeviet_wallet
 
         $return['status'] = 'SUCCESS';
         $return['data'] = array($order['paid_status'], $order['paid_time'], $order['paid_id']);
+
+        return $return;
+    }
+
+    public function resetPayment($data)
+    {
+        $return = [
+            'status' => 'ERROR',
+            'message' => '',
+            'data' => []
+        ];
+        $check = $this->verifyPaymentData($data, false);
+        if ($check !== true) {
+            return $check;
+        }
+
+        $order = $this->getOrder($data['modname'], $data['id']);
+
+        if (empty($order)) {
+            $return['message'] = $this->lang('paygate_error_order');
+            return $return;
+        }
+
+        // Không reset thanh toán của đơn hàng đã hoàn tất
+        if ($order['paid_status'] == 4) {
+            $return['message'] = $this->lang('paygate_error_resetsuccess');
+            return $return;
+        }
+
+        // Cập nhật lại trạng thái thanh toán về 0 để tiếp tục thanh toán lại
+        $sql = "UPDATE " . NV_WALLET_TABLE . "_orders SET
+            update_time = " . NV_CURRENTTIME . ",
+            paid_status = '0',
+            paid_id = '0',
+            paid_time = 0
+        WHERE id=" . $order['id'];
+        if (!$this->db->exec($sql)) {
+            $return['message'] = $this->lang('paygate_error_reset');
+            return $return;
+        }
+
+        $return['status'] = 'SUCCESS';
 
         return $return;
     }

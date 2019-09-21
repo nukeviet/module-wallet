@@ -19,12 +19,16 @@ if ($nv_Request->isset_request('del', 'post')) {
         die('Wrong URL!!!');
     }
 
-    $id = $nv_Request->get_int('id', 'post', 0);
+    if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_morder'])) {
+        $id = $nv_Request->get_int('id', 'post', 0);
 
-    $db->query("DELETE FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $id);
-    $nv_Cache->delMod($module_name);
-    nv_insert_logs(NV_LANG_DATA, $module_name, 'Del order', $id, $admin_info['userid']);
-    nv_htmlOutput('OK');
+        $db->query("DELETE FROM " . $db_config['prefix'] . "_" . $module_data . "_orders WHERE id=" . $id);
+        $nv_Cache->delMod($module_name);
+        nv_insert_logs(NV_LANG_DATA, $module_name, 'Del order', $id, $admin_info['userid']);
+        nv_htmlOutput('OK');
+    }
+
+    nv_htmlOutput('ERROR');
 }
 
 // Danh sách các module kết nối đã gọi đơn hàng đến
@@ -62,6 +66,9 @@ $xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
 $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('OP', $op);
 
+$link_transctions = NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=transaction';
+$xtpl->assign('VIEW_TRANSCTION_NOTE', sprintf($lang_module['order_update_status_note'], $link_transctions));
+
 $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . "_" . $module_data . "_orders");
 if ($where) {
     $db->where(implode(' AND ', $where));
@@ -79,7 +86,26 @@ while ($row = $result->fetch()) {
     $row['add_time'] = nv_date('d/m/Y H:i', $row['add_time']);
     $row['update_time'] = !empty($row['update_time']) ? nv_date('d/m/Y H:i', $row['update_time']) : '';
     $row['paid_status'] = isset($global_array_transaction_status[$row['paid_status']]) ? $global_array_transaction_status[$row['paid_status']] : 'N/A';
+
     $xtpl->assign('ROW', $row);
+
+    // Link đến chi tiết đơn hàng trong admin
+    if (empty($row['url_admin'])) {
+        $xtpl->parse('main.loop.obj_text');
+    } else {
+        $row['url_admin'] = unserialize($row['url_admin']);
+        $link_obj = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $row['order_mod'] . '&amp;' . NV_OP_VARIABLE . '=' . $row['url_admin']['op'];
+        if (!empty($row['url_admin']['querystr'])) {
+            $link_obj .= '&amp;' . $row['url_admin']['querystr'];
+        }
+        $xtpl->assign('LINK_OBJ', $link_obj);
+        $xtpl->parse('main.loop.obj_link');
+    }
+
+    if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_morder'])) {
+        $xtpl->parse('main.loop.delete');
+    }
+
     $xtpl->parse('main.loop');
 }
 
