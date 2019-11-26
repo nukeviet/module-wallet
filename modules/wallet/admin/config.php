@@ -7,9 +7,7 @@
  * @License GNU/GPL version 2 or any later version
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
-
-if (!defined('NV_IS_FILE_ADMIN'))
-    die('Stop!!!');
+if (!defined('NV_IS_FILE_ADMIN')) die('Stop!!!');
 
 $page_title = $lang_module['config_module'];
 $array_config = $module_config[$module_name];
@@ -107,6 +105,16 @@ if (defined('NV_EDITOR') and nv_function_exists('nv_aleditor')) {
 
 $array_config['allow_exchange_pay'] = empty($array_config['allow_exchange_pay']) ? '' : ' checked="checked"';
 
+$array_replace = array(
+    'SITE_NAME' => $lang_module['site_name'],
+    'SITE_DES' => $lang_module['site_description'],
+    'SITE_EMAIL' => $lang_module['site_email'],
+    'SITE_PHONE' => $lang_module['site_phone'],
+    'USER_NAME' => $lang_module['user_name'],
+    'USER_EMAIL' => $lang_module['user_email'],
+    'USER_FULLNAME' => $lang_module['user_fullname'],
+);
+
 $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
 $xtpl->assign('LANG', $lang_module);
 $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
@@ -132,6 +140,14 @@ foreach ($global_array_money_sys as $money_sys) {
     $xtpl->assign('RECHARGE_RATE_R', !empty($recharge_rate['r']) ? $recharge_rate['r'] : '');
 
     $xtpl->parse('main.recharge_rate');
+}
+
+foreach ($array_replace as $index => $value) {
+    $xtpl->assign('NOTE', array(
+        'index' => $index,
+        'value' => $value
+    ));
+    $xtpl->parse('main.note');
 }
 
 $xtpl->parse('main');
