@@ -7,7 +7,6 @@
  * @License GNU/GPL version 2 or any later version
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
-
 if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
 }
@@ -67,8 +66,23 @@ if (sizeof($url_checkout) == 1) {
     nv_redirect_location(str_replace('&amp;', '&', $url['url']));
 }
 
+$array_replace = array(
+    'SITE_NAME' => $global_config['site_name'],
+    'SITE_DES' => $global_config['site_description'],
+    'SITE_EMAIL' => $global_config['site_email'],
+    'SITE_PHONE' => $global_config['site_phone'],
+    'USER_NAME' => $user_info['username'],
+    'USER_EMAIL' => $user_info['email'],
+    'USER_FULLNAME' => $user_info['full_name']
+);
+
+$payport_content = nv_unhtmlspecialchars($module_config[$module_name]['payport_content']);
+foreach ($array_replace as $index => $value) {
+    $payport_content = str_replace('[' . $index . ']', $value, $payport_content);
+}
+
 $base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name;
-$contents = nv_theme_wallet_main($url_checkout, $module_config[$module_name]['payport_content']);
+$contents = nv_theme_wallet_main($url_checkout, $payport_content);
 
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_site_theme($contents);

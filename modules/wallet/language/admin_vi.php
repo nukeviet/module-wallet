@@ -36,6 +36,13 @@ $lang_module['confirm'] = 'Xác nhận';
 $lang_module['goback'] = 'Trở lại';
 $lang_module['filterdata'] = 'Lọc dữ liệu';
 $lang_module['copy'] = 'Sao chép';
+$lang_module['site_name'] = 'Tên gọi của site';
+$lang_module['site_description'] = 'Mô tả của site';
+$lang_module['site_email'] = 'Email của site';
+$lang_module['site_phone'] = 'Số điện thoại của site';
+$lang_module['user_name'] = 'Tên truy cập thành viên';
+$lang_module['user_email'] = 'Email thành viên';
+$lang_module['user_fullname'] = 'Tên thành viên';
 
 $lang_module['setup_payment'] = 'Cổng thanh toán';
 $lang_module['setting_stt'] = 'STT';
