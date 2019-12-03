@@ -3,10 +3,10 @@
 /**
 * @Project NUKEVIET 4.x
 * @Author VINADES.,JSC <contact@vinades.vn>
-* @Copyright (C) 2018 VINADES.,JSC. All rights reserved
+* @Copyright (C) 2019 VINADES.,JSC. All rights reserved
 * @Language English
 * @License CC BY-SA (http://creativecommons.org/licenses/by-sa/4.0/)
-* @Createdate Nov 27, 2018, 09:10:29 AM
+* @Createdate Dec 03, 2019, 12:51:48 AM
 */
 
 if (!defined('NV_MAINFILE')) {
@@ -27,6 +27,7 @@ $lang_module['no_account'] = 'Notification';
 $lang_module['no_account1'] = 'Your account has not been initialized for money. The system will automatically go to the Recharge page for a momentarily';
 $lang_module['back'] = 'Back';
 $lang_module['transaction_code'] = 'Trading Code';
+$lang_module['continue'] = 'Continue';
 $lang_module['customer_fullname'] = 'Full Name';
 $lang_module['customer_email'] = 'Email';
 $lang_module['customer_address'] = 'Address';
@@ -120,6 +121,7 @@ $lang_module['titleSmsNap'] = 'Recharge SMS Message to your account';
 $lang_module['sms'] = '<span style="">to recharge your money</span> ! Write form: <span style="" color:red"="\'">% s% s</span> where: <span style="" color:red"="\'">% s</span> is the program keyword, <span style="" color:red"="\'"> %s</span> is your email, and then send to <span style="" color:red"="\'"> %s</span> number';
 $lang_module['nosms'] = 'This service has not been activated';
 $lang_module['cart_back'] = 'Back';
+$lang_module['cart_back_pay'] = 'Please wait. The system will automatically redirect momentarily!';
 $lang_module['pay_save_error_title'] = 'Failed';
 $lang_module['pay_save_error_body'] = 'Recharge failed';
 $lang_module['pay_save_ok_title'] = 'Successful Recharge';
@@ -168,8 +170,6 @@ $lang_module['paygate_error_money_unit1'] = 'Error: The system does not support 
 $lang_module['paygate_error_urlback'] = 'Error: The path returned after the payment was not specified';
 $lang_module['paygate_error_saveorders'] = 'Error: Unable to save the order, please make the test again';
 $lang_module['paygate_error_savetransaction'] = 'Error: Unable to save transaction, please make the retry try again';
-$lang_module['paygate_error_resetsuccess'] = 'Unable to repay the completed order';
-$lang_module['paygate_error_reset'] = 'Error updating order status, please try again';
 $lang_module['paygate_title'] = 'Payment';
 $lang_module['paygate_select'] = 'Choose one of the forms below to pay';
 $lang_module['paygate_amount'] = 'Payment Amount';
@@ -182,15 +182,31 @@ $lang_module['paygate_wpay_msg'] = 'Are you sure you agree to use %s in your acc
 $lang_module['paygate_submit'] = 'Payment';
 $lang_module['paygate_error_update'] = 'The system could not update the billing status bar, please contact your web administrator administrator for this problem';
 $lang_module['paygate_error_order'] = 'This order cannot be found';
+$lang_module['paygate_error_resetsuccess'] = 'Unable to repay the completed order';
+$lang_module['paygate_error_reset'] = 'Error updating order status, please try again';
 $lang_module['paygate_tranmess_send'] = 'Payment order code% s at %s';
 $lang_module['paygate_tranmess'] = 'Payment Order code %s';
 $lang_module['paygate_ptitle'] = 'Payment through the  payment gateways';
 $lang_module['paygate_exchange_pay_msg'] = 'This payment gateway does not support the payment of money <strong> %s </strong> so you will have to pay the equivalent amount of <strong> %s </strong>. If you agree to click the button below to continue, if you do not try to choose a different payment port';
 $lang_module['paygate_exchange_pay_allow'] = 'Agree to pay';
+$lang_module['paygate_atm'] = 'Payment of orders by';
 $lang_module['payclass_error_money'] = 'The amount must be greater than 0';
 $lang_module['payclass_error_save_transaction'] = 'The system does not save payment information';
 $lang_module['payclass_error_update_account'] = 'The system can not update your account';
 $lang_module['payclass_error_money_unit'] = 'Invalid currency';
+$lang_module['atm_heading'] = 'ATM transfer information';
+$lang_module['atm_sendbank'] = 'Sending bank';
+$lang_module['atm_fracc'] = 'Sending account';
+$lang_module['atm_time'] = 'Time';
+$lang_module['atm_toacc'] = 'Receiving account';
+$lang_module['atm_recvbank'] = 'Receiving bank';
+$lang_module['atm_filedepute'] = 'Scanned copy of the credentials';
+$lang_module['atm_filebill'] = 'Invoice file';
+$lang_module['atm_error_sendbank'] = 'Error: Receiving bank is empty';
+$lang_module['atm_error_fracc'] = 'Error: Receiving account is empty';
+$lang_module['atm_error_toacc'] = 'Error: Receiving account is empty';
+$lang_module['atm_error_recvbank'] = 'Error: Receiving bank is empty';
+$lang_module['atm_changefile'] = 'Change';
 $lang_module['email_notice_transaction0'] = 'Notice of new transactions';
 $lang_module['email_notice_transaction1'] = '<ul><li>Code: <strong>%s</strong></li><li>Creat Time: <strong>%s</strong></li><li>The person performing the transaction: <strong>%s</strong></li><li>Amount of money: <strong>%s</strong></li><li>Status: <strong>%s</strong></li></ul>Others info:<ul><li>Full name: <strong>%s</strong></li><li>Email: <strong>%s</strong></li><li>Phone: <strong>%s</strong></li><li>Address: <strong>%s</strong></li><li>Note: <strong>%s</strong></li><li>Payport: <strong>%s</strong></li></ul>To see the invitation details click here: <a href="%s">%s</a>';
 $lang_module['email_notice_visitor'] = 'Customers pay';
