@@ -8,9 +8,11 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_FILE_MODULES')) die('Stop!!!');
+if (!defined('NV_IS_FILE_MODULES')) {
+    die('Stop!!!');
+}
 
-$sql_drop_module = array();
+$sql_drop_module = [];
 
 $result = $db->query("SHOW TABLE STATUS LIKE '" . $db_config['prefix'] . "\_" . $module_data . "\_money%'");
 $num_table = intval($result->rowCount());
@@ -28,9 +30,10 @@ if (empty($num_table)) {
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_orders";
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admin_groups";
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admins";
+    $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_ipn_logs";
 
     $sql_create_module = $sql_drop_module;
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_epay_log(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_epay_log(
       id int(11) NOT NULL AUTO_INCREMENT,
       time int(11) NOT NULL DEFAULT '0',
       telco char(3) NOT NULL DEFAULT '',
@@ -46,7 +49,7 @@ if (empty($num_table)) {
       KEY telco (telco,code)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_exchange(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_exchange(
       id int(10) unsigned NOT NULL AUTO_INCREMENT,
       money_unit char(3) NOT NULL DEFAULT '',
       than_unit char(3) NOT NULL DEFAULT '',
@@ -58,7 +61,7 @@ if (empty($num_table)) {
       UNIQUE KEY type (money_unit,than_unit)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_exchange_log(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_exchange_log(
       log_id int(11) NOT NULL AUTO_INCREMENT,
       money_unit char(3) NOT NULL DEFAULT '',
       than_unit char(3) NOT NULL DEFAULT '',
@@ -69,7 +72,7 @@ if (empty($num_table)) {
       PRIMARY KEY (log_id)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_money(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_money(
       userid int(11) NOT NULL DEFAULT '0',
       created_time int(11) NOT NULL DEFAULT '0',
       created_userid int(11) NOT NULL DEFAULT '0',
@@ -83,14 +86,14 @@ if (empty($num_table)) {
       UNIQUE KEY userid (userid,money_unit)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_money_sys(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_money_sys(
       id int(10) unsigned NOT NULL AUTO_INCREMENT,
       code char(3) NOT NULL DEFAULT '',
       currency varchar(255) NOT NULL DEFAULT '',
       PRIMARY KEY (id)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_payment(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_payment(
       payment varchar(100) NOT NULL DEFAULT '',
       paymentname varchar(255) NOT NULL DEFAULT '',
       domain varchar(255) NOT NULL DEFAULT '',
@@ -109,7 +112,7 @@ if (empty($num_table)) {
       PRIMARY KEY (payment)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_payment_discount(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_payment_discount(
       payment varchar(100) NOT NULL DEFAULT '' COMMENT 'Cổng thanh toán',
       revenue_from double NOT NULL DEFAULT '0' COMMENT 'Doanh thu từ: Quan hệ lớn hơn hoặc bằng',
       revenue_to double NOT NULL DEFAULT '0' COMMENT 'Doanh thu đến: Quan hệ nhỏ hơn',
@@ -118,7 +121,7 @@ if (empty($num_table)) {
       UNIQUE KEY payment (payment,revenue_from,revenue_to,provider)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_smslog(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_smslog(
       id int(12) unsigned NOT NULL AUTO_INCREMENT,
       User_ID varchar(15) NOT NULL DEFAULT '',
       Service_ID varchar(15) NOT NULL DEFAULT '',
@@ -133,7 +136,7 @@ if (empty($num_table)) {
       KEY set_time (set_time)
     ) ENGINE=INNODB";
 
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_transaction(
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_transaction(
       id int(11) NOT NULL AUTO_INCREMENT,
       created_time int(11) NOT NULL DEFAULT '0' COMMENT 'Ngày khởi tạo giao dịch',
       status tinyint(4) NOT NULL DEFAULT '1' COMMENT 'Tác động: 1 cộng tiền, -1 trừ tiền',
@@ -173,7 +176,7 @@ if (empty($num_table)) {
     ) ENGINE=INNODB";
 
     // Các đơn hàng từ module khác
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_orders (
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_orders (
       id int(11) NOT NULL AUTO_INCREMENT,
       order_mod varchar(100) NOT NULL DEFAULT '' COMMENT 'Module title của module thực hiện đơn hàng',
       order_id varchar(100) NOT NULL DEFAULT '' COMMENT 'ID đơn hàng',
@@ -197,7 +200,7 @@ if (empty($num_table)) {
     ) ENGINE=INNODB";
 
     // Phân quyền theo nhóm đối tượng
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_admin_groups (
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admin_groups (
       gid smallint(4) NOT NULL AUTO_INCREMENT,
       group_title varchar(100) NOT NULL DEFAULT '' COMMENT 'Tên nhóm',
       add_time int(11) NOT NULL DEFAULT '0',
@@ -227,13 +230,28 @@ if (empty($num_table)) {
     ) ENGINE=INNODB";
 
     // Phân quyền cho từng admin
-    $sql_create_module[] = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_data . "_admins (
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admins (
       admin_id mediumint(8) NOT NULL,
       gid smallint(4) NOT NULL,
       add_time int(11) NOT NULL DEFAULT '0',
       update_time int(11) NOT NULL DEFAULT '0',
       PRIMARY KEY (admin_id),
       KEY gid (gid)
+    ) ENGINE=INNODB";
+
+    // Ghi log IPN Request
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_ipn_logs (
+      id int(11) NOT NULL AUTO_INCREMENT,
+      userid int(11) NOT NULL DEFAULT '0' COMMENT 'ID thành viên nếu có',
+      log_ip varchar(64) NOT NULL DEFAULT '' COMMENT 'Địa chỉ IP',
+      log_data mediumtext NULL DEFAULT NULL COMMENT 'Dữ liệu dạng json_encode',
+      request_method varchar(20) NOT NULL DEFAULT '' COMMENT 'Loại truy vấn',
+      request_time int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Thời gian log',
+      PRIMARY KEY (id),
+      KEY userid (userid),
+      KEY log_ip (log_ip),
+      KEY request_method (request_method),
+      KEY request_time (request_time)
     ) ENGINE=INNODB";
 }
 

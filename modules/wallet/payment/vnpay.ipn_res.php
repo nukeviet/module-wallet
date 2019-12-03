@@ -8,12 +8,13 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
 // Căn cứ vào biến $walletReturnCode để trả kết quả cho cổng thanh toán
 
-$returnData = array();
+$returnData = [];
 
 if ($walletReturnCode == 0) {
     $returnData['RspCode'] = '01';

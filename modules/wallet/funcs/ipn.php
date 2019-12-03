@@ -8,8 +8,42 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
+
+/*
+ * Ghi log request
+ */
+try {
+    $array_insert = [
+        'userid' => defined('NV_IS_USER') ? $user_info['userid'] : 0,
+        'log_ip' => NV_CLIENT_IP,
+        'log_data' => [],
+        'request_method' => isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '',
+    ];
+    if (!empty($_GET)) {
+        $array_insert['log_data']['get'] = $_GET;
+    }
+    if (!empty($_POST)) {
+        $array_insert['log_data']['post'] = $_POST;
+    }
+    $array_insert['log_data'] = json_encode($array_insert['log_data']);
+    $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_ipn_logs (
+        userid, log_ip, log_data, request_method, request_time
+    ) VALUES (
+        :userid, :log_ip, :log_data, :request_method, " . NV_CURRENTTIME . "
+    )";
+    $sth = $db->prepare($sql);
+    $sth->bindParam(':userid', $array_insert['userid'], PDO::PARAM_INT);
+    $sth->bindParam(':log_ip', $array_insert['log_ip'], PDO::PARAM_STR);
+    $sth->bindParam(':log_data', $array_insert['log_data'], PDO::PARAM_STR, strlen($array_insert['log_data']));
+    $sth->bindParam(':request_method', $array_insert['request_method'], PDO::PARAM_STR);
+    $sth->execute();
+    unset($array_insert, $sth);
+} catch (Exception $exception) {
+    trigger_error(print_r($exception, true));
+}
 
 $payment = $nv_Request->get_title('payment', 'get', '');
 if (!isset($global_array_payments[$payment]) or !file_exists(NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.ipn_get.php')) {
@@ -26,14 +60,14 @@ $payment_config['domain'] = $row_payment['domain'];
 $error = '';
 
 // Dữ liệu trả về đặt vào biến này
-$responseData = array(
+$responseData = [
     'ordertype' => '', // Kiểu giao dịch: pay là thanh toán các đơn hàng khác, recharge là nạp tiền vào ví
     'orderid' => '', // Kiểu text, ID của giao dịch được lưu trước vào CSDL dùng để cập nhật thanh toán
     'transaction_id' => '', // Kiểu text, ID giao dịch trên cổng thanh toán
     'transaction_status' => 0, // Kiểu số, trạng thái giao dịch quy chuẩn
     'transaction_time' => 0, // Kiểu số, thời gian giao dịch
     'transaction_data' => '' // Kiểu text, có thể là serialize array
-);
+];
 
 // Gọi file xử lý dữ liệu trả về
 require NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $payment . ".ipn_get.php";

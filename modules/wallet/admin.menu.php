@@ -138,5 +138,6 @@ if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_configmod'])) {
 if ($IS_FULL_ADMIN) {
     $allow_func[] = 'permission';
     $allow_func[] = 'permission-groups';
-    $submenu['permission'] = $lang_module['permission'];
+    $allow_func[] = 'ipn-logs';
+    $submenu['ipn-logs'] = $lang_module['ipnlog'];
 }

@@ -8,10 +8,11 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
-$returnData = array();
+$returnData = [];
 
 // Kiểm tra IP
 if (!empty($payment_config['vnp_IPIPN'])) {
