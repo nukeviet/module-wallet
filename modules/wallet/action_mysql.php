@@ -247,6 +247,7 @@ if (empty($num_table)) {
       log_data mediumtext NULL DEFAULT NULL COMMENT 'Dữ liệu dạng json_encode',
       request_method varchar(20) NOT NULL DEFAULT '' COMMENT 'Loại truy vấn',
       request_time int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Thời gian log',
+      user_agent text NULL DEFAULT NULL,
       PRIMARY KEY (id),
       KEY userid (userid),
       KEY log_ip (log_ip),

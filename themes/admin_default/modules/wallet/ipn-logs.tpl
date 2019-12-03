@@ -38,8 +38,8 @@
             <thead>
                 <tr>
                     <th style="width: 5%;" class="text-nowrap">ID</th>
-                    <th style="width: 22.5%;" class="text-nowrap">{LANG.user_fullname}</th>
-                    <th style="width: 22.5%;" class="text-nowrap">{LANG.ipnlog_log_ip}</th>
+                    <th style="width: 12.5%;" class="text-nowrap">{LANG.user_fullname}</th>
+                    <th style="width: 32.5%;" class="text-nowrap">{LANG.ipnlog_log_ip}</th>
                     <th style="width: 20%;" class="text-nowrap">{LANG.ipnlog_request_method}</th>
                     <th style="width: 15%;" class="text-nowrap">{LANG.sms_time}</th>
                     <th style="width: 15%;" class="text-nowrap text-center">{LANG.function}</th>
@@ -50,7 +50,7 @@
                 <tr>
                     <td>{ROW.id}</td>
                     <td>{ROW.username}</td>
-                    <td>{ROW.log_ip}</td>
+                    <td><strong>{ROW.log_ip}</strong>: {ROW.user_agent}</td>
                     <td><a href="#" data-toggle="viewdetailrequest" data-id="{ROW.id}">{ROW.request_method}</a></td>
                     <td>{ROW.request_time}</td>
                     <td class="text-center">

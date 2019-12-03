@@ -21,6 +21,7 @@ try {
         'log_ip' => NV_CLIENT_IP,
         'log_data' => [],
         'request_method' => isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '',
+        'user_agent' => NV_USER_AGENT
     ];
     if (!empty($_GET)) {
         $array_insert['log_data']['get'] = $_GET;
@@ -30,15 +31,16 @@ try {
     }
     $array_insert['log_data'] = json_encode($array_insert['log_data']);
     $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_ipn_logs (
-        userid, log_ip, log_data, request_method, request_time
+        userid, log_ip, log_data, request_method, request_time, user_agent
     ) VALUES (
-        :userid, :log_ip, :log_data, :request_method, " . NV_CURRENTTIME . "
+        :userid, :log_ip, :log_data, :request_method, " . NV_CURRENTTIME . ", :user_agent
     )";
     $sth = $db->prepare($sql);
     $sth->bindParam(':userid', $array_insert['userid'], PDO::PARAM_INT);
     $sth->bindParam(':log_ip', $array_insert['log_ip'], PDO::PARAM_STR);
     $sth->bindParam(':log_data', $array_insert['log_data'], PDO::PARAM_STR, strlen($array_insert['log_data']));
     $sth->bindParam(':request_method', $array_insert['request_method'], PDO::PARAM_STR);
+    $sth->bindParam(':user_agent', $array_insert['user_agent'], PDO::PARAM_STR, strlen($array_insert['user_agent']));
     $sth->execute();
     unset($array_insert, $sth);
 } catch (Exception $exception) {
