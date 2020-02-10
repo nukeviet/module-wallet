@@ -410,3 +410,5 @@ $lang_module['ipnlog_log_ip'] = 'Địa chỉ IP';
 $lang_module['ipnlog_request_method'] = 'Kiểu truy vấn';
 $lang_module['ipnlog_detail'] = 'Chi tiết truy vấn';
 $lang_module['ipnlog_delete_all'] = 'Xóa hết nhật ký';
+
+$lang_module['notification_payport_ipn_alert'] = 'Cảnh báo truy cập vào IPN: Cổng thanh toán %s, IP %s thời gian %s';

@@ -365,3 +365,12 @@ $lang_module['atm_toacc'] = 'Receiving account';
 $lang_module['atm_recvbank'] = 'Receiving bank';
 $lang_module['atm_filedepute'] = 'Scanned copy of the credentials';
 $lang_module['atm_filebill'] = 'Invoice file';
+
+$lang_module['ipnlog'] = 'IPN log';
+$lang_module['ipnlog1'] = 'Instant Payment Notification log';
+$lang_module['ipnlog_log_ip'] = 'IP';
+$lang_module['ipnlog_request_method'] = 'Type';
+$lang_module['ipnlog_detail'] = 'Query details';
+$lang_module['ipnlog_delete_all'] = 'Delete all logs';
+
+$lang_module['notification_payport_ipn_alert'] = 'IPN Access warning: Payport %s, IP %s, time %s';

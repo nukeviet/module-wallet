@@ -231,3 +231,12 @@ $lang_module['atm_changefile'] = 'Đổi file';
 $lang_module['email_notice_transaction0'] = 'Thông báo có giao dịch mới';
 $lang_module['email_notice_transaction1'] = '<ul><li>Mã giao dịch: <strong>%s</strong></li><li>Thời điểm khởi tạo: <strong>%s</strong></li><li>Người thực hiện giao dịch: <strong>%s</strong></li><li>Số tiền: <strong>%s</strong></li><li>Trạng thái: <strong>%s</strong></li></ul>Các thông tin khác:<ul><li>Họ và tên: <strong>%s</strong></li><li>Email: <strong>%s</strong></li><li>Điện thoại: <strong>%s</strong></li><li>Địa chỉ: <strong>%s</strong></li><li>Ghi chú: <strong>%s</strong></li><li>Cổng thanh toán: <strong>%s</strong></li></ul>Để xem chi tiết mời nhấp vào đây: <a href="%s">%s</a>';
 $lang_module['email_notice_visitor'] = 'Khách hàng thanh toán';
+$lang_module['email_ipn_alert_s'] = 'Cảnh báo truy cập IPN';
+$lang_module['email_ipn_alert_c'] = '<p>Có truy vấn IPN đến từ IP không được phép. Bên dưới là thông tin:</p>
+<ul>
+    <li>Cổng: <strong>%s</strong></li>
+    <li>IP: <strong>%s</strong></li>
+    <li>Thời gian: <strong>%s</strong></li>
+    <li>User-Agent: <strong>%s</strong></li>
+</ul>
+<p>Xem danh sách chi tiết tại: <a href="%s">%s</a></p>';
