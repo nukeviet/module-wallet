@@ -100,7 +100,8 @@ $global_array_transaction_status = [
     2 => $lang_module['transaction_status2'],
     3 => $lang_module['transaction_status3'],
     4 => $lang_module['transaction_status4'],
-    5 => $lang_module['transaction_status5']
+    5 => $lang_module['transaction_status5'],
+    6 => $lang_module['transaction_status6']
 ];
 
 $global_array_transaction_type = [

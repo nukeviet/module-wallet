@@ -58,6 +58,9 @@ if (preg_match('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/
     $responseData['transaction_time'] = strtotime($m[1] . '-' . $m[2] . '-' . $m[3] . 'T' . $m[4] . ':' . $m[5] . ':' . $m[6] . '+07:00');
 }
 
+// Số tiền giao dịch
+$responseData['amount'] = isset($_GET['vnp_Amount']) ? (floatval($_GET['vnp_Amount']) / 100) : 0;
+
 // Lưu lại một số thông tin giao dịch khác
 $transaction_data = array(
     'code' => (isset($_GET['vnp_ResponseCode']) ? $_GET['vnp_ResponseCode'] : ''),

@@ -97,6 +97,7 @@ $lang_module['transaction_status2'] = 'Holding';
 $lang_module['transaction_status3'] = 'Failed';
 $lang_module['transaction_status4'] = 'Successful';
 $lang_module['transaction_status5'] = 'False Code Checksum';
+$lang_module['transaction_status6'] = 'Wrong IPN data';
 $lang_module['status_sub4'] = 'Buy articles';
 $lang_module['status_sub1'] = 'Deflection metrics';
 $lang_module['status_sub2'] = 'Refund';

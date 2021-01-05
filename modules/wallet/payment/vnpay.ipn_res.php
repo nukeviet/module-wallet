@@ -28,6 +28,10 @@ if ($walletReturnCode == 0) {
     $returnData['RspCode'] = '00';
     $returnData['Message'] = 'Confirm Success';
     nv_jsonOutput($returnData);
+} elseif ($walletReturnCode == 5) {
+    $returnData['RspCode'] = '04';
+    $returnData['Message'] = 'Invalid amount';
+    nv_jsonOutput($returnData);
 }
 
 // Mã khác

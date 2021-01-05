@@ -104,6 +104,7 @@ $lang_module['transaction_status2'] = 'Đang tạm giữ';
 $lang_module['transaction_status3'] = 'Thất bại';
 $lang_module['transaction_status4'] = 'Thành công';
 $lang_module['transaction_status5'] = 'Sai mã Checksum';
+$lang_module['transaction_status6'] = 'Sai lệch thông tin IPN';
 
 $lang_module['status_sub4'] = 'Mua bài viết';
 $lang_module['status_sub1'] = 'Xử lí số liệu lệch';

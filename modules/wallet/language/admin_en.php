@@ -279,6 +279,7 @@ $lang_module['transaction_status2'] = 'Holding';
 $lang_module['transaction_status3'] = 'Failed';
 $lang_module['transaction_status4'] = 'Successful';
 $lang_module['transaction_status5'] = 'False Code Checksum';
+$lang_module['transaction_status6'] = 'Wrong IPN data';
 $lang_module['transaction_created_time'] = 'Transaction created at';
 $lang_module['transaction_payment_no'] = 'No';
 $lang_module['transaction_id'] = 'Transaction ID';

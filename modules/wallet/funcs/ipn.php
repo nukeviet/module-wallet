@@ -82,6 +82,7 @@ require NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $payment . ".ipn
  * 1 => Giao dịch đã được xử lý trước đó
  * 2 => Không thể cập nhật trạng thái giao dịch
  * 4 => Cập nhật trạng thái giao dịch thành công
+ * 5 => Số tiền Không hợp lệ
  */
 $walletReturnCode = 99;
 
@@ -109,6 +110,16 @@ if ($responseData['ordertype'] == 'pay') {
             if ($order_info['paid_status'] != 0 or $transaction['transaction_status'] != 0) {
                 // Giao dịch đã được xử lý
                 $walletReturnCode = 1;
+            } elseif (floatval($order_info['money_amount']) != $responseData['amount']) {
+                // Số tiền không hợp lệ
+                $walletReturnCode = 5;
+
+                // Cập nhật trạng thái thất bại
+                $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
+                    transaction_id = ' . $db->quote($responseData['transaction_id']) . ', transaction_status = 6,
+                    transaction_time = ' . $responseData['transaction_time'] . ', transaction_data = ' . $db->quote($responseData['transaction_data']) . '
+                WHERE id = ' . $transaction['id'];
+                $db->exec($sql);
             } else {
                 // Cập nhật lại giao dịch
                 $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
@@ -147,6 +158,16 @@ if ($responseData['ordertype'] == 'pay') {
         if ($order_info['transaction_status'] != 0) {
             // Giao dịch đã được xử lý
             $walletReturnCode = 1;
+        } elseif (floatval($order_info['money_net']) != $responseData['amount']) {
+            // Số tiền không hợp lệ
+            $walletReturnCode = 5;
+
+            // Cập nhật lại giao dịch thất bại
+            $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
+                transaction_id = ' . $db->quote($responseData['transaction_id']) . ', transaction_status = 6,
+                transaction_time = ' . $responseData['transaction_time'] . ', transaction_data = ' . $db->quote($responseData['transaction_data']) . '
+            WHERE id = ' . $order_info['id'];
+            $db->exec($sql);
         } else {
             $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
                 transaction_id = ' . $db->quote($responseData['transaction_id']) . ', transaction_status = ' . $responseData['transaction_status'] . ',

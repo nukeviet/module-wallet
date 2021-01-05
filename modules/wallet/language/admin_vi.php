@@ -308,6 +308,7 @@ $lang_module['transaction_status2'] = 'Đang tạm giữ';
 $lang_module['transaction_status3'] = 'Thất bại';
 $lang_module['transaction_status4'] = 'Thành công';
 $lang_module['transaction_status5'] = 'Sai mã Checksum';
+$lang_module['transaction_status6'] = 'Sai lệch thông tin IPN';
 $lang_module['transaction_created_time'] = 'Giao dịch tạo lúc';
 $lang_module['transaction_payment_no'] = 'Không';
 $lang_module['transaction_id'] = 'ID giao dịch';
