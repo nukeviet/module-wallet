@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_FILE_ADMIN'))
+if (!defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
+}
 
 nvUpdateTransactionExpired();
 
@@ -154,7 +155,7 @@ if ($view_orderid) {
 if (!empty($array_search['are']) and !isset($array_fields_search[$array_search['are']])) {
     $array_search['are'] = '';
 }
-$array_ele_date = array('crf', 'crt', 'trf', 'trt');
+$array_ele_date = ['crf', 'crt', 'trf', 'trt'];
 foreach ($array_ele_date as $f) {
     $fval = $array_search[$f];
     $array_search[$f] = 0;
@@ -193,7 +194,7 @@ if ($per_page_old != $per_page) {
 
 $base_url = NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op;
 
-$where = array();
+$where = [];
 if (!empty($view_user_info)) {
     $base_url .= '&amp;userid=' . $view_user_info['userid'];
     $where[] = 'tb1.userid=' . $view_user_info['userid'];
@@ -205,15 +206,21 @@ if (!empty($view_order_info)) {
 if (!empty($array_search['q'])) {
     $isSearchSubmit = true;
     $base_url .= '&amp;q=' . urlencode($array_search['q']);
-    $dblike = $db->dblikeescape($array_search['q']);
-    if (empty($array_search['are'])) {
-        $whereOr = array();
-        foreach ($array_fields_search as $key => $val) {
-            $whereOr[] = 'tb1.' . $key . " LIKE '%" . $dblike . "%'";
-        }
-        $where[] = '(' . implode(' OR ', $whereOr) . ')';
+    if (preg_match('/^(GD|WP)([0-9]+)$/i', $array_search['q'], $m)) {
+        // Tìm theo số hóa đơn
+        $where[] = 'tb1.id=' . intval($m[2]);
     } else {
-        $where[] = 'tb1.' . $array_search['are'] . " LIKE '%" . $dblike . "%'";
+        // Tìm từ khóa thông thường
+        $dblike = $db->dblikeescape($array_search['q']);
+        if (empty($array_search['are'])) {
+            $whereOr = [];
+            foreach ($array_fields_search as $key => $val) {
+                $whereOr[] = 'tb1.' . $key . " LIKE '%" . $dblike . "%'";
+            }
+            $where[] = '(' . implode(' OR ', $whereOr) . ')';
+        } else {
+            $where[] = 'tb1.' . $array_search['are'] . " LIKE '%" . $dblike . "%'";
+        }
     }
 }
 if (!empty($array_search['are'])) {
@@ -292,14 +299,14 @@ $db->select('tb1.*, tb2.username admin_transaction, tb3.username accounttran, tb
 $result = $db->query($db->sql());
 
 $xuatra = $congvao = 0;
-$arr_list_transaction = array();
+$arr_list_transaction = [];
 while ($row = $result->fetch()) {
     if ($row['status'] == -1) {
         $xuatra = $row['money_total'] + $xuatra;
     } else {
         $congvao = $row['money_total'] + $congvao;
     }
-    $arr_list_transaction[$row['id']] = array(
+    $arr_list_transaction[$row['id']] = [
         'id' => $row['id'], //
         'code' => empty($row['order_id']) ? vsprintf('GD%010s', $row['id']) : vsprintf('WP%010s', $row['id']),
         'created_time' => date('d/m/Y H:i', $row['created_time']), //
@@ -324,7 +331,7 @@ while ($row = $result->fetch()) {
         'is_expired' => $row['is_expired'], //
         'view_user' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "&amp;userid=" . $row['userid'], //
         'view_transaction' => NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=viewtransaction&amp;id=" . $row['id'], //
-    );
+    ];
 }
 
 $sum = -$xuatra + $congvao;
@@ -339,12 +346,12 @@ foreach ($arr_list_transaction as $element) {
         $xtpl->parse('main.loop.transaction_status1');
     } elseif ($element['transaction_status'] != 4 and ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction']))) {
         foreach ($global_array_transaction_status as $key => $value) {
-            $xtpl->assign('OPTION', array(
+            $xtpl->assign('OPTION', [
                 'key' => $key,
                 'title' => $value,
                 'selected' => ($key == $element['transaction_status']) ? ' selected="selected"' : '',
                 'disabled' => ($key == 0) ? ' disabled="disabled"' : ''
-            ));
+            ]);
             $xtpl->parse('main.loop.transaction_status.loops');
         }
         $xtpl->parse('main.loop.transaction_status');
@@ -393,75 +400,75 @@ if ($isSearchSubmit) {
 
 // Xuất phạm vi tìm
 foreach ($array_fields_search as $k => $v) {
-    $fields_search = array(
+    $fields_search = [
         'key' => $k,
         'title' => $v,
         'selected' => $k == $array_search['are'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('FIELDS_SEARCH', $fields_search);
     $xtpl->parse('main.fields_search');
 }
-foreach (array(1, -1) as $val) {
-    $st = array(
+foreach ([1, -1] as $val) {
+    $st = [
         'key' => $val,
         'title' => $val == 1 ? $lang_module['transaction1'] : $lang_module['transaction2'],
         'selected' => $val == $array_search['st'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('ST', $st);
     $xtpl->parse('main.st');
 }
 foreach ($global_array_money_sys as $row) {
-    $money_sys = array(
+    $money_sys = [
         'key' => $row['code'],
         'title' => $row['code'],
         'selected' => $row['code'] == $array_search['mo'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('MONEY_SYS', $money_sys);
     $xtpl->parse('main.money_sys');
 }
-foreach (array(1, 2) as $row) {
-    $aou = array(
+foreach ([1, 2] as $row) {
+    $aou = [
         'key' => $row,
         'title' => $lang_module['search_aou' . $row],
         'selected' => $row == $array_search['aou'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('AOU', $aou);
     $xtpl->parse('main.aou');
 }
 foreach ($global_array_transaction_type as $k => $v) {
-    $tty = array(
+    $tty = [
         'key' => $k,
         'title' => $v,
         'selected' => $k == $array_search['tty'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('TTY', $tty);
     $xtpl->parse('main.tty');
 }
 foreach ($global_array_transaction_status as $k => $v) {
-    $tst = array(
+    $tst = [
         'key' => $k,
         'title' => $v,
         'selected' => $k == $array_search['tst'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('TST', $tst);
     $xtpl->parse('main.tst');
 }
 foreach ($global_array_payments as $row) {
-    $tpa = array(
+    $tpa = [
         'key' => $row['payment'],
         'title' => $row['paymentname'],
         'selected' => $row['payment'] == $array_search['tpa'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('TPA', $tpa);
     $xtpl->parse('main.tpa');
 }
 for ($i = 1; $i <= 100; $i++) {
     $val = $i * 5;
-    $per_page = array(
+    $per_page = [
         'key' => $val,
         'title' => $val,
         'selected' => $val == $array_search['per_page'] ? ' selected="selected"' : ''
-    );
+    ];
     $xtpl->assign('PER_PAGE', $per_page);
     $xtpl->parse('main.per_page');
 }
