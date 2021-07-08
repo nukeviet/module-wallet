@@ -15,6 +15,9 @@ if (!defined('NV_IS_MOD_WALLET')) {
 $page_title = $lang_module['titleSmsNap'];
 $payment = isset($array_op[1]) ? $array_op[1] : "";
 
+$page_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op . '/' . $payment;
+$canonicalUrl = getCanonicalUrl($page_url, true, true);
+
 if (isset($global_array_payments[$payment])) {
     if ($payment == "sms") {
         // Nạp qua SMS, hiện đã dừng hoạt động
