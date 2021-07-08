@@ -9,8 +9,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_MAINFILE'))
+if (!defined('NV_MAINFILE')) {
     die('Stop!!!');
+}
 
 $lang_translator['author'] = 'VINADES.,JSC (contact@vinades.vn)';
 $lang_translator['createdate'] = '04/04/2011, 06:38';
@@ -307,6 +308,7 @@ $lang_module['transaction_status2'] = 'Đang tạm giữ';
 $lang_module['transaction_status3'] = 'Thất bại';
 $lang_module['transaction_status4'] = 'Thành công';
 $lang_module['transaction_status5'] = 'Sai mã Checksum';
+$lang_module['transaction_status6'] = 'Sai lệch thông tin IPN';
 $lang_module['transaction_created_time'] = 'Giao dịch tạo lúc';
 $lang_module['transaction_payment_no'] = 'Không';
 $lang_module['transaction_id'] = 'ID giao dịch';
@@ -402,3 +404,12 @@ $lang_module['atm_toacc'] = 'Số tài khoản nhận';
 $lang_module['atm_recvbank'] = 'Tên ngân hàng nhận';
 $lang_module['atm_filedepute'] = 'Bản scan giấy ủy nhiệm chi';
 $lang_module['atm_filebill'] = 'File hóa đơn';
+
+$lang_module['ipnlog'] = 'Nhật ký IPN';
+$lang_module['ipnlog1'] = 'Nhật ký Instant Payment Notification';
+$lang_module['ipnlog_log_ip'] = 'Địa chỉ IP';
+$lang_module['ipnlog_request_method'] = 'Kiểu truy vấn';
+$lang_module['ipnlog_detail'] = 'Chi tiết truy vấn';
+$lang_module['ipnlog_delete_all'] = 'Xóa hết nhật ký';
+
+$lang_module['notification_payport_ipn_alert'] = 'Cảnh báo truy cập vào IPN: Cổng thanh toán %s, IP %s thời gian %s';

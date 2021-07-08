@@ -9,6 +9,15 @@
 .mw250 {
     max-width: 250px;
 }
+
+.text-nowrap {
+    white-space: nowrap!important;
+}
+
+.mb-0 {
+    margin-bottom: 0!important;
+}
+
 .help-block-wallet {
     margin-bottom: 0;
     margin-top: 5px;

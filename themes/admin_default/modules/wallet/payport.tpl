@@ -20,7 +20,12 @@
         <!-- BEGIN: config -->
         <tr>
             <td>{CONFIG_LANG}</td>
-            <td><input name="config[{CONFIG_NAME}]" value="{CONFIG_VALUE}" class="form-control" style="width:350px"></td>
+            <td>
+                <input name="config[{CONFIG_NAME}]" value="{CONFIG_VALUE}" class="form-control" style="width:350px">
+                <!-- BEGIN: note -->
+                <div class="help-block-wallet"><i>{CONFIG_NOTE}</i></div>
+                <!-- END: note -->
+            </td>
         </tr>
         <!-- END: config -->
         <tr>

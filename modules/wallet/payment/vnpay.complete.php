@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
 $vnp_SecureHash = isset($_GET['vnp_SecureHash']) ? $_GET['vnp_SecureHash'] : '';
 $inputData = array();
@@ -56,6 +57,9 @@ $vnp_PayDate = isset($_GET['vnp_PayDate']) ? $_GET['vnp_PayDate'] : '';
 if (preg_match('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/', $vnp_PayDate, $m)) {
     $responseData['transaction_time'] = strtotime($m[1] . '-' . $m[2] . '-' . $m[3] . 'T' . $m[4] . ':' . $m[5] . ':' . $m[6] . '+07:00');
 }
+
+// Số tiền giao dịch
+$responseData['amount'] = isset($_GET['vnp_Amount']) ? (floatval($_GET['vnp_Amount']) / 100) : 0;
 
 // Lưu lại một số thông tin giao dịch khác
 $transaction_data = array(

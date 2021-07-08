@@ -67,18 +67,25 @@ foreach ($payment_funcs as $payment) {
         $config = $xmlconfig[0];
         $array_config = [];
         $array_config_title = [];
+        $array_config_note = [];
 
         foreach ($config as $key => $value) {
             $config_lang = $value->attributes();
 
             if (isset($config_lang[NV_LANG_INTERFACE])) {
-                $lang = (string )$config_lang[NV_LANG_INTERFACE];
+                $lang = (string)$config_lang[NV_LANG_INTERFACE];
             } else {
                 $lang = $key;
+            }
+            if (isset($config_lang['note_' . NV_LANG_INTERFACE])) {
+                $lang_note = (string)$config_lang['note_' . NV_LANG_INTERFACE];
+            } else {
+                $lang_note = '';
             }
 
             $array_config[$key] = trim($value);
             $array_config_title[$key] = $lang;
+            $array_config_note[$key] = $lang_note;
         }
 
         $array_payment_other[$payment] = [
@@ -88,6 +95,7 @@ foreach ($payment_funcs as $payment) {
             'images_button' => str_replace('[NV_BASE_SITEURL]', NV_BASE_SITEURL, trim($xml->images_button)),
             'config' => $array_config,
             'titlekey' => $array_config_title,
+            'notekey' => $array_config_note,
             'currency_support' => trim($xml->currency),
             'allowedoptionalmoney' => intval($xml->optional) ? 1 : 0
         ];
@@ -244,16 +252,22 @@ if (!empty($data_pay)) {
     $xtpl->assign('EDITPAYMENT', sprintf($lang_module['editpayment'], $data_pay['payment']));
 
     $array_config = unserialize(nv_base64_decode($data_pay['config']));
-
     $arkey_title = [];
+    $arkey_note = [];
 
     if (!empty($array_payment_other[$data_pay['payment']]['titlekey'])) {
         $arkey_title = $array_payment_other[$data_pay['payment']]['titlekey'];
     }
+    if (!empty($array_payment_other[$data_pay['payment']]['notekey'])) {
+        $arkey_note = $array_payment_other[$data_pay['payment']]['notekey'];
+    }
+    if (!empty($array_payment_other[$data_pay['payment']]['config'])) {
+        $array_config = array_merge($array_payment_other[$data_pay['payment']]['config'], $array_config);
+    }
 
     foreach ($array_config as $key => $value) {
         if (isset($arkey_title[$key])) {
-            $lang = (string )$arkey_title[$key];
+            $lang = $arkey_title[$key];
         } else {
             $lang = $key;
         }
@@ -263,6 +277,12 @@ if (!empty($data_pay)) {
         $xtpl->assign('CONFIG_LANG', $lang);
         $xtpl->assign('CONFIG_NAME', $key);
         $xtpl->assign('CONFIG_VALUE', $value);
+
+        if (!empty($arkey_note[$key])) {
+            $xtpl->assign('CONFIG_NOTE', $arkey_note[$key]);
+            $xtpl->parse('main.paymentedit.config.note');
+        }
+
         $xtpl->parse('main.paymentedit.config');
     }
 

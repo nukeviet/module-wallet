@@ -8,8 +8,44 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
+
+/*
+ * Ghi log request
+ */
+try {
+    $array_insert = [
+        'userid' => defined('NV_IS_USER') ? $user_info['userid'] : 0,
+        'log_ip' => NV_CLIENT_IP,
+        'log_data' => [],
+        'request_method' => isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '',
+        'user_agent' => NV_USER_AGENT
+    ];
+    if (!empty($_GET)) {
+        $array_insert['log_data']['get'] = $_GET;
+    }
+    if (!empty($_POST)) {
+        $array_insert['log_data']['post'] = $_POST;
+    }
+    $array_insert['log_data'] = json_encode($array_insert['log_data']);
+    $sql = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_ipn_logs (
+        userid, log_ip, log_data, request_method, request_time, user_agent
+    ) VALUES (
+        :userid, :log_ip, :log_data, :request_method, " . NV_CURRENTTIME . ", :user_agent
+    )";
+    $sth = $db->prepare($sql);
+    $sth->bindParam(':userid', $array_insert['userid'], PDO::PARAM_INT);
+    $sth->bindParam(':log_ip', $array_insert['log_ip'], PDO::PARAM_STR);
+    $sth->bindParam(':log_data', $array_insert['log_data'], PDO::PARAM_STR, strlen($array_insert['log_data']));
+    $sth->bindParam(':request_method', $array_insert['request_method'], PDO::PARAM_STR);
+    $sth->bindParam(':user_agent', $array_insert['user_agent'], PDO::PARAM_STR, strlen($array_insert['user_agent']));
+    $sth->execute();
+    unset($array_insert, $sth);
+} catch (Exception $exception) {
+    trigger_error(print_r($exception, true));
+}
 
 $payment = $nv_Request->get_title('payment', 'get', '');
 if (!isset($global_array_payments[$payment]) or !file_exists(NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.ipn_get.php')) {
@@ -26,14 +62,14 @@ $payment_config['domain'] = $row_payment['domain'];
 $error = '';
 
 // Dữ liệu trả về đặt vào biến này
-$responseData = array(
+$responseData = [
     'ordertype' => '', // Kiểu giao dịch: pay là thanh toán các đơn hàng khác, recharge là nạp tiền vào ví
     'orderid' => '', // Kiểu text, ID của giao dịch được lưu trước vào CSDL dùng để cập nhật thanh toán
     'transaction_id' => '', // Kiểu text, ID giao dịch trên cổng thanh toán
     'transaction_status' => 0, // Kiểu số, trạng thái giao dịch quy chuẩn
     'transaction_time' => 0, // Kiểu số, thời gian giao dịch
     'transaction_data' => '' // Kiểu text, có thể là serialize array
-);
+];
 
 // Gọi file xử lý dữ liệu trả về
 require NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $payment . ".ipn_get.php";
@@ -46,6 +82,7 @@ require NV_ROOTDIR . "/modules/" . $module_file . "/payment/" . $payment . ".ipn
  * 1 => Giao dịch đã được xử lý trước đó
  * 2 => Không thể cập nhật trạng thái giao dịch
  * 4 => Cập nhật trạng thái giao dịch thành công
+ * 5 => Số tiền Không hợp lệ
  */
 $walletReturnCode = 99;
 
@@ -73,6 +110,16 @@ if ($responseData['ordertype'] == 'pay') {
             if ($order_info['paid_status'] != 0 or $transaction['transaction_status'] != 0) {
                 // Giao dịch đã được xử lý
                 $walletReturnCode = 1;
+            } elseif (floatval($order_info['money_amount']) != $responseData['amount']) {
+                // Số tiền không hợp lệ
+                $walletReturnCode = 5;
+
+                // Cập nhật trạng thái thất bại
+                $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
+                    transaction_id = ' . $db->quote($responseData['transaction_id']) . ', transaction_status = 6,
+                    transaction_time = ' . $responseData['transaction_time'] . ', transaction_data = ' . $db->quote($responseData['transaction_data']) . '
+                WHERE id = ' . $transaction['id'];
+                $db->exec($sql);
             } else {
                 // Cập nhật lại giao dịch
                 $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
@@ -111,6 +158,16 @@ if ($responseData['ordertype'] == 'pay') {
         if ($order_info['transaction_status'] != 0) {
             // Giao dịch đã được xử lý
             $walletReturnCode = 1;
+        } elseif (floatval($order_info['money_net']) != $responseData['amount']) {
+            // Số tiền không hợp lệ
+            $walletReturnCode = 5;
+
+            // Cập nhật lại giao dịch thất bại
+            $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
+                transaction_id = ' . $db->quote($responseData['transaction_id']) . ', transaction_status = 6,
+                transaction_time = ' . $responseData['transaction_time'] . ', transaction_data = ' . $db->quote($responseData['transaction_data']) . '
+            WHERE id = ' . $order_info['id'];
+            $db->exec($sql);
         } else {
             $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
                 transaction_id = ' . $db->quote($responseData['transaction_id']) . ', transaction_status = ' . $responseData['transaction_status'] . ',

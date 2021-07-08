@@ -137,6 +137,36 @@ function nv_chang_pays(payid, object, url_change, url_back) {
     return;
 }
 
+function nv_delele_ipn_logs(id) {
+    if (confirm(nv_is_del_confirm[0])) {
+        $.post(
+            script_name + '?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=ipn-logs&nocache=' + new Date().getTime(),
+            'delete=1&id=' + id, function(res) {
+            var r_split = res.split("_");
+            if (r_split[0] == 'OK') {
+                location.reload();
+            } else {
+                alert(nv_is_del_confirm[2]);
+            }
+        });
+    }
+}
+
+function nv_delele_all_ipn_logs() {
+    if (confirm(nv_is_del_confirm[0])) {
+        $.post(
+            script_name + '?' + nv_lang_variable + '=' + nv_lang_data + '&' + nv_name_variable + '=' + nv_module_name + '&' + nv_fc_variable + '=ipn-logs&nocache=' + new Date().getTime(),
+            'deleteall=1', function(res) {
+            var r_split = res.split("_");
+            if (r_split[0] == 'OK') {
+                location.reload();
+            } else {
+                alert(nv_is_del_confirm[2]);
+            }
+        });
+    }
+}
+
 $(document).ready(function() {
     // Tìm thành viên để khởi tạo tài khoản
     $("#seluid2creat").click( function() {

@@ -3,10 +3,10 @@
 /**
 * @Project NUKEVIET 4.x
 * @Author VINADES.,JSC <contact@vinades.vn>
-* @Copyright (C) 2018 VINADES.,JSC. All rights reserved
+* @Copyright (C) 2019 VINADES.,JSC. All rights reserved
 * @Language English
 * @License CC BY-SA (http://creativecommons.org/licenses/by-sa/4.0/)
-* @Createdate Nov 27, 2018, 09:10:47 AM
+* @Createdate Dec 03, 2019, 12:51:55 AM
 */
 
 if (!defined('NV_ADMIN') or !defined('NV_MAINFILE')) {
@@ -36,6 +36,14 @@ $lang_module['creataccount'] = 'Initialize Money purse';
 $lang_module['confirm'] = 'Confirm';
 $lang_module['goback'] = 'Back';
 $lang_module['filterdata'] = 'Data filtering';
+$lang_module['copy'] = 'Copy';
+$lang_module['site_name'] = 'Site name';
+$lang_module['site_description'] = 'Site description';
+$lang_module['site_email'] = 'Site email';
+$lang_module['site_phone'] = 'Site phone';
+$lang_module['user_name'] = 'Username';
+$lang_module['user_email'] = 'Email';
+$lang_module['user_fullname'] = 'User full name';
 $lang_module['setup_payment'] = 'Payment Gateway';
 $lang_module['setting_stt'] = 'Number';
 $lang_module['weight'] = 'Location';
@@ -67,7 +75,7 @@ $lang_module['payport_discount1'] = 'Supplier fees (%)';
 $lang_module['payport_discount1_note'] = 'This is a fee calculated by the percentage of the payment by the payment gateway specified. PayPal example charges 2.9% of the payment value per time payment';
 $lang_module['payport_discount_transaction'] = 'Transaction fee';
 $lang_module['payport_discount_transaction_note'] = 'This is a fixed fee of each transaction. Example PayPal fixed collector per transaction 0.3 USD';
-$lang_module['payport_discount_note'] = '<strong>Note:</strong> value <strong><em>%s</em></strong> và <strong><em>%s</em></strong>  Used to make a sales statistical basis, there is no effect to change the amount of updates to a member\'s wallet compared to the extent that the member is charging.<br  />If you want to change the load rate you change in the <strong>%s</strong> at <strong><a target="_blank" href="%s">%s</a></strong>';
+$lang_module['payport_discount_note'] = '<strong>Note:</strong> value <strong><em>%s</em></strong> và <strong><em>%s</em></strong>  Used to make a sales statistical basis, there is no effect to change the amount of updates to a member\'s wallet compared to the extent that the member is charging.<br />If you want to change the load rate you change in the <strong>%s</strong> at <strong><a target="_blank" href="%s">%s</a></strong>';
 $lang_module['payport_active_completed_email'] = 'Send emails for unfinished transactions';
 $lang_module['payport_active_incomplete_email'] = 'Email the completed transactions';
 $lang_module['history_payment_wait'] = 'Wait for order browsing';
@@ -102,6 +110,7 @@ $lang_module['money_total_in'] = 'Total amount of money transferred to your acco
 $lang_module['money_total_out'] = 'Total Amount Purchased';
 $lang_module['whocreate'] = 'Creator';
 $lang_module['datecreate'] = 'Date Created';
+$lang_module['updatetime'] = 'Update time';
 $lang_module['createinfo'] = 'Recharge your Account';
 $lang_module['search'] = 'Search';
 $lang_module['search_adv'] = 'Advanced';
@@ -174,7 +183,6 @@ $lang_module['addacountsys'] = 'Automatic system creation';
 $lang_module['user_full_name'] = 'Full name';
 $lang_module['user_location'] = 'Location';
 $lang_module['user_telephone'] = 'Phone';
-$lang_module['user_email'] = 'Email';
 $lang_module['export_excel'] = 'Export to Excel';
 $lang_module['sms'] = 'Diary message';
 $lang_module['epay'] = 'Diary recharge';
@@ -243,7 +251,7 @@ $lang_module['send_mail_success'] = 'Send mail successfully.';
 $lang_module['send_mail_error'] = 'ailed to send mail.';
 $lang_module['num_amount_extend'] = 'Amount of a day time 1 day';
 $lang_module['minimum_amount'] = 'Suggestion relocation';
-$lang_module['note_minimum_amount'] = 'This is a trickle charge for members to recharge their account, in addition to the member can also manually enter the deposit amount arbitrarily. If you do not enter here, you will decide how much money you have. If you enter here, the minimum amount of membership is equal to the minimum amount you enter. <br  /> Charges are separated by commas, (smallest). <br  /> For example: 10000,50000,100000. ..';
+$lang_module['note_minimum_amount'] = 'This is a trickle charge for members to recharge their account, in addition to the member can also manually enter the deposit amount arbitrarily. If you do not enter here, you will decide how much money you have. If you enter here, the minimum amount of membership is equal to the minimum amount you enter. <br /> Charges are separated by commas, (smallest). <br /> For example: 10000,50000,100000. ..';
 $lang_module['statistics'] = 'Statistics';
 $lang_module['statisticsM'] = 'Monthly statistics of the year';
 $lang_module['statisticsM_select'] = 'Select month for statistics';
@@ -271,10 +279,12 @@ $lang_module['transaction_status2'] = 'Holding';
 $lang_module['transaction_status3'] = 'Failed';
 $lang_module['transaction_status4'] = 'Successful';
 $lang_module['transaction_status5'] = 'False Code Checksum';
+$lang_module['transaction_status6'] = 'Wrong IPN data';
 $lang_module['transaction_created_time'] = 'Transaction created at';
 $lang_module['transaction_payment_no'] = 'No';
 $lang_module['transaction_id'] = 'Transaction ID';
 $lang_module['transaction_status_al'] = 'All the status';
+$lang_module['transaction_expired'] = 'Expired';
 $lang_module['status_sub4'] = 'Buy articles';
 $lang_module['status_sub1'] = 'Deflection metrics';
 $lang_module['status_sub2'] = 'Refund';
@@ -307,6 +317,8 @@ $lang_module['cfg_payment_add'] = 'Add Revenue level';
 $lang_module['cfg_payment_remove'] = 'Remove';
 $lang_module['cfg_allow_exchange_pay'] = 'Allow conversion payments';
 $lang_module['cfg_allow_exchange_pay_note'] = 'Enabling this option will allow currency conversion of currencies that are not allowed to be paid for depending on the payment gateway. For example, can pay USD in VNPAYQR port';
+$lang_module['cfg_transaction_expiration_time'] = 'Transaction expiry time';
+$lang_module['cfg_transaction_expiration_time_help'] = 'Unit: Hour. If = 0, the transaction will not expire';
 $lang_module['cfg_accountants_emails'] = 'Email receives transaction notification';
 $lang_module['cfg_accountants_emails_help'] = 'The email will receive information every time a new transaction from the payment gateway has enabled notification function. You can enter multiple emails, each separated by commas';
 $lang_module['term'] = 'Payment Terms';
@@ -321,3 +333,45 @@ $lang_module['order_manager_code'] = 'Order Code';
 $lang_module['order_manager_module'] = 'Module';
 $lang_module['order_manager_obj'] = 'Object';
 $lang_module['order_del_note'] = 'Note: Deleting an order will not delete the previous billing information if the connection module has the payment status saved. Data will not be restored after deletion, are you sure?';
+$lang_module['order_update_status_note'] = 'To update order status, you need to update the status of transactions <a href="%s">here</a>';
+$lang_module['permission'] = 'Permissions setting';
+$lang_module['permission_group_empty'] = 'You have not created any administrative object groups. Click here to create administrative object groups first';
+$lang_module['permission_group_name'] = 'Managing groups (rights management)';
+$lang_module['permission_group'] = 'The administrative object group';
+$lang_module['permission_group_add'] = 'Add administrative object groups';
+$lang_module['permission_group_edit'] = 'Edit admin object group';
+$lang_module['permission_group_title'] = 'Group name';
+$lang_module['permission_group_selp'] = 'Choose the rights';
+$lang_module['permission_is_wallet'] = 'View and update wallet';
+$lang_module['permission_is_vtransaction'] = 'View transactions';
+$lang_module['permission_is_mtransaction'] = 'View and manager transactions';
+$lang_module['permission_is_vorder'] = 'View pay orders';
+$lang_module['permission_is_morder'] = 'View and manager pay orders';
+$lang_module['permission_is_exchange'] = 'Manager exchange rate';
+$lang_module['permission_is_money'] = 'Manager currencies';
+$lang_module['permission_is_payport'] = 'Manage payment gateways';
+$lang_module['permission_is_configmod'] = 'Set up the module configuration';
+$lang_module['permission_is_viewstats'] = 'View statistics';
+$lang_module['permission_error_title'] = 'Error: Group name is empty';
+$lang_module['permission_error_exists'] = 'Error: Group name is exists, please choose other name';
+$lang_module['permission_no_admin'] = 'No module manager, please add module manager to set permissions. General administration and supper administration have full rights';
+$lang_module['permission_list_admin'] = 'List of module management accounts';
+$lang_module['permission_selper'] = 'Choose the right';
+$lang_module['permission_none'] = 'There is no right';
+$lang_module['permission_none_explain'] = 'You are not authorized to operate in this module';
+$lang_module['atm_sendbank'] = 'Sending bank';
+$lang_module['atm_fracc'] = 'Sending account';
+$lang_module['atm_time'] = 'Sedding time';
+$lang_module['atm_toacc'] = 'Receiving account';
+$lang_module['atm_recvbank'] = 'Receiving bank';
+$lang_module['atm_filedepute'] = 'Scanned copy of the credentials';
+$lang_module['atm_filebill'] = 'Invoice file';
+
+$lang_module['ipnlog'] = 'IPN log';
+$lang_module['ipnlog1'] = 'Instant Payment Notification log';
+$lang_module['ipnlog_log_ip'] = 'IP';
+$lang_module['ipnlog_request_method'] = 'Type';
+$lang_module['ipnlog_detail'] = 'Query details';
+$lang_module['ipnlog_delete_all'] = 'Delete all logs';
+
+$lang_module['notification_payport_ipn_alert'] = 'IPN Access warning: Payport %s, IP %s, time %s';

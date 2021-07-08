@@ -82,7 +82,10 @@ if ($payment == 'vnpay') {
     }
     // Giao dịch thành công, chờ IPN
     if ($responseData['transaction_status'] == 4) {
-        redict_link($lang_module['pay_save_ok_wait'], $lang_module['cart_back'], $nv_redirect);
+        if ($order_info['transaction_status'] == 0) {
+            redict_link($lang_module['pay_save_ok_wait'], $lang_module['cart_back'], $nv_redirect);
+        }
+        redict_link($lang_module['pay_error_checkhash'], $lang_module['cart_back'], $nv_redirect);
     }
     // Sai checksum
     if ($responseData['transaction_status'] == 5) {
