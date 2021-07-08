@@ -16,7 +16,7 @@ if (!defined('NV_IS_USER')) {
     nv_redirect_location(NV_BASE_SITEURL . "index.php?" . NV_NAME_VARIABLE . "=users&" . NV_OP_VARIABLE . "=login&nv_redirect=" . nv_redirect_encrypt($redirect));
 }
 
-$base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op;
+$page_url = $base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op;
 $page_title = $lang_module['historyexchange'];
 $page = 1;
 if (isset($array_op[1]) and preg_match('/^page\-([0-9]+)$/', $array_op[1], $m)) {
@@ -27,9 +27,9 @@ if ($page < 1 or $page > 9999999999) {
 }
 
 if ($page > 1) {
-    $base_url .= '/page-' . $page;
+    $page_url .= '/page-' . $page;
 }
-$canonicalUrl = getCanonicalUrl($base_url, true, true);
+$canonicalUrl = getCanonicalUrl($page_url, true, true);
 
 $per_page = 30;
 
@@ -40,6 +40,8 @@ $db->where("userid = " . $user_info['userid']);
 $db->select('COUNT(*)');
 $result = $db->query($db->sql());
 $all_page = $result->fetchColumn();
+
+betweenURLs($page, ceil($all_page/$per_page), $base_url, '/page-', $prevPage, $nextPage);
 
 $db->select('*');
 $db->order('created_time DESC');
