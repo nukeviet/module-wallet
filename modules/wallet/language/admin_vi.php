@@ -413,3 +413,9 @@ $lang_module['ipnlog_detail'] = 'Chi tiết truy vấn';
 $lang_module['ipnlog_delete_all'] = 'Xóa hết nhật ký';
 
 $lang_module['notification_payport_ipn_alert'] = 'Cảnh báo truy cập vào IPN: Cổng thanh toán %s, IP %s thời gian %s';
+$lang_module['process'] = 'Đã xử lý';
+$lang_module['captcha_type'] = 'Kiểu captcha khi người dùng gửi liên hệ';
+$lang_module['captcha_type_'] = 'Không sử dụng';
+$lang_module['captcha_type_captcha'] = 'Captcha hình';
+$lang_module['captcha_type_recaptcha'] = 'reCaptcha';
+$lang_module['captcha_type_recaptcha_note'] = 'Captcha sẽ không chạy cho đến khi bạn <a href="%s">định cấu hình reCaptcha</a>';

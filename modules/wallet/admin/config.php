@@ -55,6 +55,8 @@ if ($nv_Request->isset_request('submit', 'post')) {
         $array_config['transaction_expiration_time'] = 0;
     }
 
+    $array_config['captcha_type'] = $nv_Request->get_string('captcha_type', 'post', '');
+
     $array_config['accountants_emails'] = $nv_Request->get_string('accountants_emails', 'post', '');
     $accountants_emails = array_filter(array_unique(array_map('trim', explode(',', $array_config['accountants_emails']))));
     if (!empty($accountants_emails)) {
@@ -126,6 +128,28 @@ $xtpl->assign('MODULE_NAME', $module_name);
 $xtpl->assign('MODULE_UPLOAD', $module_upload);
 $xtpl->assign('OP', $op);
 $xtpl->assign('DATA', $array_config);
+
+$captcha_types = [
+    '',
+    'captcha',
+    'recaptcha'
+];
+foreach ($captcha_types as $type) {
+    $captcha_type = [
+        'key' => $type,
+        'selected' => $array_config['captcha_type'] == $type ? ' selected="selected"' : '',
+        'title' => $lang_module['captcha_type_' . $type]
+    ];
+    $xtpl->assign('CAPTCHATYPE', $captcha_type);
+    $xtpl->parse('main.captcha_type');
+}
+
+$is_recaptcha_note = empty($global_config['recaptcha_sitekey']) or empty($global_config['recaptcha_secretkey']);
+$xtpl->assign('IS_RECAPTCHA_NOTE', (int) $is_recaptcha_note);
+$xtpl->assign('RECAPTCHA_NOTE', $is_recaptcha_note ? sprintf($lang_module['captcha_type_recaptcha_note'], NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=settings&amp;' . NV_OP_VARIABLE . '=security&amp;selectedtab=2') : '');
+if (!$is_recaptcha_note or $array['captcha_type'] != 'recaptcha') {
+    $xtpl->parse('main.recaptcha_note_hide');
+}
 
 $array_config['minimum_amount'] = !empty($array_config['minimum_amount']) ? unserialize($array_config['minimum_amount']) : array();
 $array_config['recharge_rate'] = !empty($array_config['recharge_rate']) ? unserialize($array_config['recharge_rate']) : array();

@@ -6,7 +6,7 @@
 <!-- BEGIN: error -->
 <div class="alert alert-danger">{ERROR}</div>
 <!-- END: error -->
-<form class="form-horizontal" action="{FORM_ACTION}" method="post">
+<form class="form-horizontal" action="{FORM_ACTION}" method="post" <!-- BEGIN: recaptcha3 --> data-recaptcha3="1"<!-- END: recaptcha3 -->>
     <div class="panel panel-default">
         <div class="panel-body">
             <div class="form-group">
@@ -60,7 +60,7 @@
             <div class="form-group">
                 <label class="control-label col-md-6">{N_CAPTCHA}</label>
                 <div class="col-md-13">
-                    <div id="{RECAPTCHA_ELEMENT}"></div>
+                    <div id="{RECAPTCHA_ELEMENT}" data-toggle="recaptcha" data-pnum="4" data-btnselector="[type=submit]"></div>
                     <script type="text/javascript">
                     nv_recaptcha_elements.push({
                         id: "{RECAPTCHA_ELEMENT}",

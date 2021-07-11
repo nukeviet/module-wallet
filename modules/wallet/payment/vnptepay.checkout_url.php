@@ -37,10 +37,18 @@ if ($nv_Request->isset_request('submit', 'post')) {
     $post['transaction_info'] = $nv_Request->get_title('transaction_info', 'post', '');
     $post['check_term'] = $nv_Request->get_int('check_term', 'post', 0);
 
-    if ($global_config['captcha_type'] == 2) {
+    $post['secure_code'] = $nv_Request->get_title('capchar', 'post', '');
+
+    // Xác định có áp dụng reCaptcha hay không
+    $reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
+
+    // Nếu dùng reCaptcha v3
+    if ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+        $xtpl->parse('main.recaptcha3');
+    }
+    // Nếu dùng reCaptcha v2
+    elseif ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
         $post['secure_code'] = $nv_Request->get_title('g-recaptcha-response', 'post', '');
-    } else {
-        $post['secure_code'] = $nv_Request->get_title('capchar', 'post', '');
     }
 
     if (empty($post['pin'])) {
@@ -97,12 +105,18 @@ foreach ($array_provider as $_provider_key => $_provider_name) {
     $xtpl->parse('main.provider');
 }
 
-if ($global_config['captcha_type'] == 2) {
+// Xác định có áp dụng reCaptcha hay không
+$reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
+
+// Nếu dùng reCaptcha v3
+if ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+    $xtpl->parse('main.recaptcha3');
+}
+// Nếu dùng reCaptcha v2
+elseif ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
     $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
     $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
     $xtpl->parse('main.recaptcha');
-} else {
-    $xtpl->parse('main.captcha');
 }
 
 if (!empty($error)) {
