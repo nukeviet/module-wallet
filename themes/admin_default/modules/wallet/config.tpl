@@ -1,4 +1,7 @@
 <!-- BEGIN: main -->
+<!-- BEGIN: error -->
+<div class="alert alert-warning">{ERROR}</div>
+<!-- END: error -->
 <form action="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&amp;{NV_NAME_VARIABLE}={MODULE_NAME}&amp;{NV_OP_VARIABLE}={OP}" method="post" class="form-horizontal">
     <div class="form-group">
         <label class="control-label col-sm-10 col-md-8 col-lg-5"><strong>{LANG.minimum_amount}</strong></label>
