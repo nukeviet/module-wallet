@@ -156,21 +156,6 @@ if (isset($global_array_payments[$payment])) {
                     $post['transaction_data'] = '';
                 }
 
-                unset($fcaptcha);
-                // Xác định giá trị của captcha nhập vào nếu sử dụng reCaptcha
-                if ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass) {
-                    $fcaptcha = $nv_Request->get_title('g-recaptcha-response', 'post', '');
-                }
-                // Xác định giá trị của captcha nhập vào nếu sử dụng captcha hình
-                elseif ($module_config[$module_name]['captcha_type'] == 'captcha') {
-                    $fcaptcha = $nv_Request->get_title('fcode', 'post', '');
-                }
-
-                // Kiểm tra tính hợp lệ của captcha nhập vào, nếu không hợp lệ => thông báo lỗi
-                if (isset($fcaptcha) and !nv_capcha_txt($fcaptcha, $module_config[$module_name]['captcha_type'])) {
-                    $error = ($global_config['captcha_type'] == 2 ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect']);
-                }
-
                 if (!empty($post['customer_email']) and !empty($check_valid_email)) {
                     $error = $check_valid_email;
                 } elseif (empty($post['money_unit'])) {
@@ -185,6 +170,8 @@ if (isset($global_array_payments[$payment])) {
                     $error = $atm_error;
                 } elseif ($post['check_term'] != 1 and !empty($row_payment['term'])) {
                     $error = $lang_module['error_check_term'];
+                } elseif (isset($fcaptcha) and !nv_capcha_txt($fcaptcha, $module_config[$module_name]['captcha_type'])) {
+                    $error = ($global_config['captcha_type'] == 2 ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect']);
                 } else {
                     $money = get_db_money($money, $post['money_unit']);
                     $post['customer_id'] = $post['userid'] = $user_info['userid'];
