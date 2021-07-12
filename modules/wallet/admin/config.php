@@ -11,6 +11,12 @@ if (!defined('NV_IS_FILE_ADMIN')) die('Stop!!!');
 
 $page_title = $lang_module['config_module'];
 $array_config = $module_config[$module_name];
+$error = array();
+$captcha_types = [
+    '',
+    'captcha',
+    'recaptcha'
+];
 
 if ($nv_Request->isset_request('submit', 'post')) {
     $minimum_amounts = $nv_Request->get_typed_array('minimum_amount', 'post', 'string', array());
@@ -55,6 +61,12 @@ if ($nv_Request->isset_request('submit', 'post')) {
         $array_config['transaction_expiration_time'] = 0;
     }
 
+    $array_config['captcha_type'] = $nv_Request->get_title('captcha_type', 'post', '');
+
+    if (!in_array($array_config['captcha_type'], $captcha_types)) {
+        $error[] = $lang_module['error_required_recaptcha'];
+    }
+
     $array_config['accountants_emails'] = $nv_Request->get_string('accountants_emails', 'post', '');
     $accountants_emails = array_filter(array_unique(array_map('trim', explode(',', $array_config['accountants_emails']))));
     if (!empty($accountants_emails)) {
@@ -69,31 +81,33 @@ if ($nv_Request->isset_request('submit', 'post')) {
         $array_config['accountants_emails'] = '';
     }
 
-    $sth = $db->prepare("UPDATE " . NV_CONFIG_GLOBALTABLE . "
-    SET config_value = :config_value
-    WHERE lang = '" . NV_LANG_DATA . "' AND module = '" . $module_name . "' AND config_name = :config_name");
+    if (empty($error)) {
+        $sth = $db->prepare("UPDATE " . NV_CONFIG_GLOBALTABLE . "
+        SET config_value = :config_value
+        WHERE lang = '" . NV_LANG_DATA . "' AND module = '" . $module_name . "' AND config_name = :config_name");
 
-    foreach ($array_config as $key => $value) {
-        $sth->bindParam(':config_name', $key, PDO::PARAM_STR);
-        $sth->bindParam(':config_value', $value, PDO::PARAM_STR);
-        $exc = $sth->execute();
+        foreach ($array_config as $key => $value) {
+            $sth->bindParam(':config_name', $key, PDO::PARAM_STR);
+            $sth->bindParam(':config_value', $value, PDO::PARAM_STR);
+            $exc = $sth->execute();
+        }
+
+        // Cập nhật ngay các giao dịch
+        $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_transaction SET is_expired=0");
+        if ($array_config['transaction_expiration_time'] > 0) {
+            $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_transaction SET is_expired=1 WHERE (transaction_status=0 OR transaction_status=1) AND created_time<=" . (NV_CURRENTTIME - ($array_config['transaction_expiration_time'] * 3600)));
+        }
+
+        nv_insert_logs(NV_LANG_DATA, $module_name, 'Change config module', ' ', $admin_info['userid']);
+
+        $nv_Cache->delMod('settings');
+        $nv_Cache->delMod($module_name);
+        nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $op);
     }
-
-    // Cập nhật ngay các giao dịch
-    $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_transaction SET is_expired=0");
-    if ($array_config['transaction_expiration_time'] > 0) {
-        $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_transaction SET is_expired=1 WHERE (transaction_status=0 OR transaction_status=1) AND created_time<=" . (NV_CURRENTTIME - ($array_config['transaction_expiration_time'] * 3600)));
-    }
-
-    nv_insert_logs(NV_LANG_DATA, $module_name, 'Change config module', ' ', $admin_info['userid']);
-
-    $nv_Cache->delMod('settings');
-    $nv_Cache->delMod($module_name);
-    nv_redirect_location(NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=' . $op);
 }
 
 if (defined('NV_EDITOR')) {
-    require_once (NV_ROOTDIR . '/' . NV_EDITORSDIR . '/' . NV_EDITOR . '/nv.php');
+    require_once(NV_ROOTDIR . '/' . NV_EDITORSDIR . '/' . NV_EDITOR . '/nv.php');
 }
 
 $array_config['payport_content'] = htmlspecialchars(nv_editor_br2nl($array_config['payport_content']));
@@ -127,6 +141,23 @@ $xtpl->assign('MODULE_UPLOAD', $module_upload);
 $xtpl->assign('OP', $op);
 $xtpl->assign('DATA', $array_config);
 
+foreach ($captcha_types as $type) {
+    $captcha_type = [
+        'key' => $type,
+        'selected' => $array_config['captcha_type'] == $type ? ' selected="selected"' : '',
+        'title' => $lang_module['captcha_type_' . $type]
+    ];
+    $xtpl->assign('CAPTCHATYPE', $captcha_type);
+    $xtpl->parse('main.captcha_type');
+}
+
+$is_recaptcha_note = empty($global_config['recaptcha_sitekey']) or empty($global_config['recaptcha_secretkey']);
+$xtpl->assign('IS_RECAPTCHA_NOTE', (int) $is_recaptcha_note);
+$xtpl->assign('RECAPTCHA_NOTE', $is_recaptcha_note ? sprintf($lang_module['captcha_type_recaptcha_note'], NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=settings&amp;' . NV_OP_VARIABLE . '=security&amp;selectedtab=2') : '');
+if (!$is_recaptcha_note or $array['captcha_type'] != 'recaptcha') {
+    $xtpl->parse('main.recaptcha_note_hide');
+}
+
 $array_config['minimum_amount'] = !empty($array_config['minimum_amount']) ? unserialize($array_config['minimum_amount']) : array();
 $array_config['recharge_rate'] = !empty($array_config['recharge_rate']) ? unserialize($array_config['recharge_rate']) : array();
 
@@ -148,6 +179,11 @@ foreach ($array_replace as $index => $value) {
         'value' => $value
     ));
     $xtpl->parse('main.note');
+}
+
+if (!empty($error)) {
+	$xtpl->assign('ERROR', implode('<br />', $error));
+	$xtpl->parse('main.error');
 }
 
 $xtpl->parse('main');

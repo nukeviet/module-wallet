@@ -15,6 +15,8 @@ $page_title = $module_info['site_title'];
 $key_words = $module_info['keywords'];
 
 $url_checkout = [];
+$page_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name;
+$canonicalUrl = getCanonicalUrl($page_url, true, true);
 
 // Nạp đúng số tiền nào đó
 $pay_amount = $nv_Request->get_title('amount', 'get', '');
@@ -81,7 +83,6 @@ foreach ($array_replace as $index => $value) {
     $payport_content = str_replace('[' . $index . ']', $value, $payport_content);
 }
 
-$base_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name;
 $contents = nv_theme_wallet_main($url_checkout, $payport_content);
 
 include NV_ROOTDIR . '/includes/header.php';

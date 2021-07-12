@@ -7,7 +7,7 @@
     {DATA.error}
 </div>
 <!-- END: error -->
-<form class="form-horizontal" method="post" action="{FORM_ACTION}"<!-- BEGIN: atm_form --> enctype="multipart/form-data"<!-- END: atm_form -->>
+<form class="form-horizontal" method="post" action="{FORM_ACTION}"<!-- BEGIN: atm_form --> enctype="multipart/form-data"<!-- END: atm_form --> <!-- BEGIN: recaptcha3 --> data-recaptcha3="1"<!-- END: recaptcha3 -->>
     <div class="panel panel-default">
         <div class="panel-body">
             <div class="form-group">
@@ -202,7 +202,7 @@
             <div class="form-group">
                 <label class="control-label col-md-8">{N_CAPTCHA}</label>
                 <div class="col-md-16">
-                    <div id="{RECAPTCHA_ELEMENT}"></div>
+                    <div id="{RECAPTCHA_ELEMENT}" data-toggle="recaptcha" data-pnum="4" data-btnselector="[type=submit]"></div>
                     <script type="text/javascript">
                     nv_recaptcha_elements.push({
                         id: "{RECAPTCHA_ELEMENT}",

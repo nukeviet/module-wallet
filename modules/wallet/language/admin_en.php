@@ -375,3 +375,11 @@ $lang_module['ipnlog_detail'] = 'Query details';
 $lang_module['ipnlog_delete_all'] = 'Delete all logs';
 
 $lang_module['notification_payport_ipn_alert'] = 'IPN Access warning: Payport %s, IP %s, time %s';
+
+$lang_module['process'] = 'Processed';
+$lang_module['captcha_type'] = 'Captcha style when user sends contact';
+$lang_module['captcha_type_'] = 'Do not use';
+$lang_module['captcha_type_captcha'] = 'Captcha pictures';
+$lang_module['captcha_type_recaptcha'] = 'reCaptcha';
+$lang_module['captcha_type_recaptcha_note'] = "Captcha won't run  <a href='%s'>until you configure reCaptcha</a>";
+$lang_module['error_required_recaptcha'] = 'You need to choose the right type of captcha to use';

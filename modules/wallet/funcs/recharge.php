@@ -15,6 +15,10 @@ if (!defined('NV_IS_MOD_WALLET')) {
 $page_title = $lang_module['titleSmsNap'];
 $payment = isset($array_op[1]) ? $array_op[1] : "";
 
+$page_url = NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op . '/' . $payment;
+$canonicalUrl = getCanonicalUrl($page_url, true, true);
+$reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
+
 if (isset($global_array_payments[$payment])) {
     if ($payment == "sms") {
         // Nạp qua SMS, hiện đã dừng hoạt động
@@ -96,10 +100,16 @@ if (isset($global_array_payments[$payment])) {
                 $post['transaction_info'] = $nv_Request->get_title('transaction_info', 'post', '');
                 $post['check_term'] = $nv_Request->get_int('check_term', 'post, get', 0);
 
-                if ($global_config['captcha_type'] == 2) {
+                // Xác định có áp dụng reCaptcha hay không
+                $reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
+
+                // Nếu dùng reCaptcha v3
+                if ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+                    $xtpl->parse('main.recaptcha3');
+                }
+                // Nếu dùng reCaptcha v2
+                elseif ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
                     $fcode = $nv_Request->get_title('g-recaptcha-response', 'post', '');
-                } else {
-                    $fcode = $nv_Request->get_title('capchar', 'post', '');
                 }
 
                 $post['money_amount'] = $nv_Request->get_title('money_amount', 'post', '');
@@ -160,7 +170,7 @@ if (isset($global_array_payments[$payment])) {
                     $error = $atm_error;
                 } elseif ($post['check_term'] != 1 and !empty($row_payment['term'])) {
                     $error = $lang_module['error_check_term'];
-                } elseif (!nv_capcha_txt($fcode)) {
+                } elseif (isset($fcaptcha) and !nv_capcha_txt($fcaptcha, $module_config[$module_name]['captcha_type'])) {
                     $error = ($global_config['captcha_type'] == 2 ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect']);
                 } else {
                     $money = get_db_money($money, $post['money_unit']);
