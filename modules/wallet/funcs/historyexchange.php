@@ -29,7 +29,7 @@ if ($page < 1 or $page > 9999999999) {
 if ($page > 1) {
     $page_url .= '/page-' . $page;
 }
-$canonicalUrl = getCanonicalUrl($page_url, true, true);
+$canonicalUrl = getCanonicalUrl($page_url);
 
 $per_page = 30;
 
