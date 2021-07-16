@@ -16,7 +16,7 @@ $key_words = $module_info['keywords'];
 
 $url_checkout = [];
 $page_url = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name;
-$canonicalUrl = getCanonicalUrl($page_url, true, true);
+$canonicalUrl = getCanonicalUrl($page_url);
 
 // Nạp đúng số tiền nào đó
 $pay_amount = $nv_Request->get_title('amount', 'get', '');
