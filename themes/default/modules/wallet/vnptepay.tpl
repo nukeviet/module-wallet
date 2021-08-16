@@ -72,7 +72,7 @@
             <!-- END: recaptcha -->
             <div class="form-group">
                 <div class="col-md-13 col-md-offset-6">
-                    <input type="submit" name="submit" value="{LANG.vnpt_submit}" class="btn btn-primary">
+                    <input type="submit" name="fsubmit" value="{LANG.vnpt_submit}" class="btn btn-primary" onclick="btnClickSubmit(event,this.form);"/>
                 </div>
             </div>
         </div>
