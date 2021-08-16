@@ -110,7 +110,7 @@
             <!-- END: recaptcha -->
             <div class="row">
                 <div class="col-md-24 text-center">
-                    <input class="btn btn-primary" name="submit" type="submit" value="{LANG.customer_submit}"/>
+                    <input class="btn btn-primary" name="fsubmit" type="submit" value="{LANG.customer_submit}" onclick="btnClickSubmit(event,this.form);"/>
                 </div>
             </div>
         </div>

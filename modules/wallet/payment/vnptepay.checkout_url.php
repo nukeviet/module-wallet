@@ -30,7 +30,7 @@ $array_provider = array(
     'MGC' => 'MegaCard'
 );
 
-if ($nv_Request->isset_request('submit', 'post')) {
+if ($nv_Request->isset_request('fsubmit', 'post')) {
     $post['pin'] = $nv_Request->get_title('pin', 'post', ""); // Mã PIN
     $post['serial'] = $nv_Request->get_title('serial', 'post', ""); // Số seri
     $post['provider'] = $nv_Request->get_title('provider', 'post', ""); // Loại thẻ

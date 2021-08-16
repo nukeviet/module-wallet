@@ -323,7 +323,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
         $isSubmit = false;
         $error = '';
 
-        if ($nv_Request->isset_request('submit', 'post')) {
+        if ($nv_Request->isset_request('fsubmit', 'post')) {
             $isSubmit = true;
         } else {
             //
