@@ -203,12 +203,6 @@
                 <label class="control-label col-md-8">{N_CAPTCHA}</label>
                 <div class="col-md-16">
                     <div id="{RECAPTCHA_ELEMENT}" data-toggle="recaptcha" data-pnum="4" data-btnselector="[type=submit]"></div>
-                    <script type="text/javascript">
-                    nv_recaptcha_elements.push({
-                        id: "{RECAPTCHA_ELEMENT}",
-                        btn: $('[type="submit"]', $('#{RECAPTCHA_ELEMENT}').parent().parent().parent())
-                    });
-                    </script>
                 </div>
             </div>
             <!-- END: recaptcha -->
