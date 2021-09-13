@@ -101,7 +101,7 @@ function nv_theme_wallet_main($url_checkout, $payport_content)
  */
 function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 {
-    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op;
+    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $module_captcha;
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
@@ -235,16 +235,16 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
     $reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
 
     // Nếu dùng reCaptcha v3
-    if ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+    if ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
         $xtpl->parse('main.recaptcha3');
     }
     // Nếu dùng reCaptcha v2
-    elseif ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
+    elseif ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
         $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
         $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
         $xtpl->parse('main.recaptcha');
     }
-    
+
     if (!empty($post['error'])) {
         $xtpl->parse('main.error');
     }
@@ -496,7 +496,7 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
  */
 function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
 {
-    global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name;
+    global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name, $module_captcha;
 
     $xtpl = new XTemplate('atm_pay.tpl', NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
@@ -531,11 +531,11 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
     $reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
 
     // Nếu dùng reCaptcha v3
-    if ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+    if ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
         $xtpl->parse('main.recaptcha3');
     }
     // Nếu dùng reCaptcha v2
-    elseif ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
+    elseif ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
         $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
         $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
         $xtpl->parse('main.recaptcha');

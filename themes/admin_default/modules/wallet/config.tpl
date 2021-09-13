@@ -70,34 +70,10 @@
             <input type="text" class="form-control" name="accountants_emails" value="{DATA.accountants_emails}"> <i class="help-block help-block-wallet">{LANG.cfg_accountants_emails_help}</i>
         </div>
     </div>
-    <div class="form-group">
-        <label class="control-label col-sm-10 col-md-8 col-lg-5"><strong>{LANG.captcha_type}</strong></label>
-        <div class="col-sm-14 col-md-16 col-lg-19">
-            <select class="form-control w200" name="captcha_type" data-recaptcha-note="{IS_RECAPTCHA_NOTE}">
-                <!-- BEGIN: captcha_type -->
-                <option value="{CAPTCHATYPE.key}"{CAPTCHATYPE.selected}>{CAPTCHATYPE.title}</option>
-                <!-- END: captcha_type -->
-            </select>
-            <span class="recaptcha_note" <!-- BEGIN: recaptcha_note_hide --> style="display:none"<!-- END: recaptcha_note_hide -->>{RECAPTCHA_NOTE}</span>
-        </div>
-    </div>
     <div class="row">
         <div class="col-sm-14 col-md-16 col-lg-19 col-sm-push-10 col-md-push-8 col-lg-push-5">
             <input class="btn btn-primary" type="submit" value="{LANG.save}" name="submit" />
         </div>
     </div>
 </form>
-<script>
-    $(function() {
-        $("[name=captcha_type]").on('change', function(e) {
-            var v = $(this).val(),
-                is_recaptcha_note = $(this).data('recaptcha-note');
-            if (is_recaptcha_note && v == 'recaptcha') {
-                $(".recaptcha_note").show()
-            } else {
-                $(".recaptcha_note").hide()
-            }
-        })
-    });
-</script>
 <!-- END: main -->

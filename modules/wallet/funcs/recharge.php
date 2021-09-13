@@ -104,11 +104,11 @@ if (isset($global_array_payments[$payment])) {
                 $reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
 
                 // Nếu dùng reCaptcha v3
-                if ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+                if ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
                     $xtpl->parse('main.recaptcha3');
                 }
                 // Nếu dùng reCaptcha v2
-                elseif ($module_config[$module_name]['captcha_type'] == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
+                elseif ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
                     $fcode = $nv_Request->get_title('g-recaptcha-response', 'post', '');
                 }
 
@@ -170,8 +170,8 @@ if (isset($global_array_payments[$payment])) {
                     $error = $atm_error;
                 } elseif ($post['check_term'] != 1 and !empty($row_payment['term'])) {
                     $error = $lang_module['error_check_term'];
-                } elseif (isset($fcaptcha) and !nv_capcha_txt($fcaptcha, $module_config[$module_name]['captcha_type'])) {
-                    $error = ($global_config['captcha_type'] == 2 ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect']);
+                } elseif (isset($fcaptcha) and !nv_capcha_txt($fcaptcha, $module_captcha)) {
+                    $error = ($module_captcha == 'recaptcha' ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect']);
                 } else {
                     $money = get_db_money($money, $post['money_unit']);
                     $post['customer_id'] = $post['userid'] = $user_info['userid'];

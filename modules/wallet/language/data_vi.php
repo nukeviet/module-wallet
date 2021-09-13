@@ -18,7 +18,7 @@ if (!defined('NV_ADMIN')) {
  * 	- Accept global var: $db, $db_config, $global_config
  */
 
-$arrSQL = array();
+$arrSQL = [];
 $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (id, money_unit, than_unit, exchange_from, exchange_to, time_update, status) VALUES(1, 'USD', 'VND', 1, 22675, 1312000118, 1)";
 $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_exchange (id, money_unit, than_unit, exchange_from, exchange_to, time_update, status) VALUES(2, 'VND', 'USD', 22675, 1, 1439725873, 1)";
 
@@ -30,14 +30,14 @@ $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_payme
 ) VALUES(
     'onepaydomestic', 'Cổng thanh toán nội địa OnePay', 'http://www.onepay.vn/', '1', '1',
     'YToxMDp7czoxMjoidnBjX01lcmNoYW50IjtzOjY6Ik9ORVBBWSI7czoxNDoidnBjX0FjY2Vzc0NvZGUiO3M6ODoiRDY3MzQyQzIiO3M6MTE6InZwY19WZXJzaW9uIjtzOjE6IjIiO3M6MTE6InZwY19Db21tYW5kIjtzOjM6InBheSI7czoxMDoidnBjX0xvY2FsZSI7czoyOiJ2biI7czoyMzoidmlydHVhbFBheW1lbnRDbGllbnRVUkwiO3M6NDA6Imh0dHBzOi8vbXRmLm9uZXBheS52bi9vbmVjb21tLXBheS92cGMub3AiO3M6MTM6InNlY3VyZV9zZWNyZXQiO3M6MzI6IkEzRUZERkFCQTg2NTNERjIzNDJFOERBQzI5QjUxQUYwIjtzOjExOiJRdWVyeURSX3VybCI7czo0MjoiaHR0cDovL210Zi5vbmVwYXkudm4vb25lY29tbS1wYXkvVnBjZHBzLm9wIjtzOjg6InZwY19Vc2VyIjtzOjQ6Im9wMDEiO3M6MTI6InZwY19QYXNzd29yZCI7czo4OiJvcDEyMzQ1NiI7fQ,,',
-    '1', '1600', 'https://onepay.vn/onecomm-pay/img/onepay_logo.png', '', '', 'VND', 1
+    '1', '1600', '" . NV_BASE_SITEURL . "themes/default/images/wallet/pay-onepay.png', '', '', 'VND', 1
 )";
 $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_payment (
     payment, paymentname, domain, active, weight, config, discount, discount_transaction, images_button, bodytext, term, currency_support, allowedoptionalmoney
 ) VALUES(
     'vnptepay', 'VNPT EBAY', 'http://vnptepay.com.vn/', '1', '2',
     'YTo2OntzOjExOiJtX1BhcnRuZXJJRCI7czoxMDoiY2hhcmdpbmcwMSI7czo2OiJtX01QSU4iO3M6OToicGFqd3RsemNiIjtzOjEwOiJtX1VzZXJOYW1lIjtzOjEwOiJjaGFyZ2luZzAxIjtzOjY6Im1fUGFzcyI7czo5OiJnbXd0d2pmd3MiO3M6MTM6Im1fUGFydG5lckNvZGUiO3M6NToiMDA0NzciO3M6MTA6IndlYnNlcnZpY2UiO3M6ODQ6Imh0dHA6Ly9jaGFyZ2luZy10ZXN0Lm1lZ2FwYXkubmV0LnZuOjEwMDAxL0NhcmRDaGFyZ2luZ0dXX1YyLjAvc2VydmljZXMvU2VydmljZXM_d3NkbCI7fQ,,',
-    '0', '0', 'http://vnptepay.com.vn/public/theme/images/logo.png', '', '', 'VND', 0
+    '0', '0', '" . NV_BASE_SITEURL . "themes/default/images/wallet/pay-vnpt-epay.png', '', '', 'VND', 0
 )";
 
 $arrSQL[] = "INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_payment_discount (payment, revenue_from, revenue_to, provider, discount) VALUES('vnptepay', '1', '1000000', 'VNP', '10')";
