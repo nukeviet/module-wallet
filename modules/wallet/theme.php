@@ -105,14 +105,9 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
-    $xtpl->assign('SRC_CAPTCHA', NV_BASE_SITEURL . "index.php?scaptcha=captcha&t=" . NV_CURRENTTIME);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
     $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
-    $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
-    $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
-    $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
-    $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
     $xtpl->assign('ROW_PAYMENT', $row_payment);
     $xtpl->assign('TOKEND', sha1($row_payment['payment'] . NV_CHECK_SESSION));
     $xtpl->assign('FORM_ACTION', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "/" . $row_payment['payment']);
@@ -260,18 +255,21 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
         $xtpl->parse('main.atm_form');
     }
 
-    // Xác định có áp dụng reCaptcha hay không
-    $reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
-
-    // Nếu dùng reCaptcha v3
-    if ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+    if ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 3) {
+        // Nếu dùng reCaptcha v3
         $xtpl->parse('main.recaptcha3');
-    }
-    // Nếu dùng reCaptcha v2
-    elseif ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
-        $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
+    } elseif ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 2) {
+        // Nếu dùng reCaptcha v2
         $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
+        $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
         $xtpl->parse('main.recaptcha');
+    } elseif ($module_captcha == 'captcha') {
+        $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
+        $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
+        $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
+        $xtpl->assign('CAPTCHA_REFR_SRC', NV_STATIC_URL . NV_ASSETS_DIR . '/images/refresh.png');
+        $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
+        $xtpl->parse('main.captcha');
     }
 
     if (!empty($post['error'])) {
