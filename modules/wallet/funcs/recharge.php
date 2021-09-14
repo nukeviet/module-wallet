@@ -12,6 +12,8 @@ if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
 }
 
+use NukeViet\Http\Http;
+
 $page_title = $lang_module['titleSmsNap'];
 $payment = isset($array_op[1]) ? $array_op[1] : "";
 
@@ -52,7 +54,14 @@ if (isset($global_array_payments[$payment])) {
         $payment_config = unserialize(nv_base64_decode($row_payment['config']));
         $payment_config['paymentname'] = $row_payment['paymentname'];
         $payment_config['domain'] = $row_payment['domain'];
-        $post = array();
+
+        if ($payment == 'ATM') {
+            $payment_config['account_no'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_no']);
+            $payment_config['account_name'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_name']);
+            $payment_config['acq_id'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['acq_id']);
+        }
+
+        $post = [];
 
         if (!defined('NV_IS_USER')) {
             $linkdirect = NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=users&amp;" . NV_OP_VARIABLE . "=login&nv_redirect=" . nv_redirect_encrypt($client_info['selfurl']);
@@ -90,6 +99,32 @@ if (isset($global_array_payments[$payment])) {
             $error = "";
             $checkss = $nv_Request->get_title('checkss', 'post', '');
 
+            // Lấy một số thông tin ngân hàng khi nạp API
+            $array_banks = [];
+            $is_vietqr = false;
+            if ($row_payment['payment'] == 'ATM' and !empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
+                $is_vietqr = true;
+                $cacheFile = NV_LANG_DATA . '_vietqr_banks_' . NV_CACHE_PREFIX . '.cache';
+                $cacheTTL = 3600;
+                if (($cache = $nv_Cache->getItem($module_name, $cacheFile, $cacheTTL)) != false) {
+                    $array_banks = json_decode($cache, true);
+                } else {
+                    $banks = file_get_contents('https://api.vietqr.io/v1/banks');
+                    $banks = json_decode($banks, true);
+
+                    if (is_array($banks) and !empty($banks['data'])) {
+                        foreach ($banks['data'] as $bank) {
+                            if ($bank['vietqr'] > 1) {
+                                // Ngân hàng quét mã được mới hiển thị
+                                $array_banks[$bank['bin']] = $bank;
+                            }
+                        }
+                    }
+                    $nv_Cache->setItem($module_name, $cacheFile, json_encode($array_banks), $cacheTTL);
+                }
+            }
+
+            // Submit form nạp
             if ($checkss == md5($payment . $global_config['sitekey'] . session_id())) {
                 $post['customer_name'] = $nv_Request->get_title('customer_name', 'post', '');
                 $post['customer_email'] = $nv_Request->get_title('customer_email', 'post', '');
@@ -148,12 +183,79 @@ if (isset($global_array_payments[$payment])) {
                 $minimum_amount = empty($minimum_amount) ? 0 : $minimum_amount[0];
 
                 // Xử lý form và lỗi đối với cổng thanh toán ATM
-                $atm_error = '';
+                $atm_error = $vietrq_error = '';
                 if ($payment == 'ATM') {
                     define('NV_IS_ATM_FORM', true);
-                    require NV_ROOTDIR . '/modules/' . $module_file . '/payment/ATM.form.php';
+                    require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.form.php';
                 } else {
                     $post['transaction_data'] = '';
+                }
+
+                // Gọi API lấy mã VietQR
+                if ($is_vietqr and $nv_Request->get_title('getvietqrcode', 'post', '') === sha1($row_payment['payment'] . NV_CHECK_SESSION)) {
+                    $respon = [
+                        'message' => 'error!',
+                        'success' => 0,
+                        'img' => []
+                    ];
+
+                    // Kiểm tra ngân hàng
+                    if (!empty($vietrq_error)) {
+                        $respon['message'] = $vietrq_error;
+                    } elseif ($money <= 0 or ($minimum_amount > 0 and $money < $minimum_amount)) {
+                        if ($minimum_amount > 0) {
+                            $respon['message'] = sprintf($lang_module['error_money_recharge1'], get_display_money($minimum_amount) . ' ' . $post['money_unit']);
+                        } else {
+                            $respon['message'] = $lang_module['error_money_recharge'];
+                        }
+                    } elseif (strlen(strval($money)) > 13) {
+                        $respon['message'] = $lang_module['atm_money_amount_true3'];
+                    } else {
+                        $body = [
+                            'accountNo' => $payment_config['account_no'][$post['atm_acq']],
+                            'accountName' => $payment_config['account_name'][$post['atm_acq']],
+                            'acqId' => $payment_config['acq_id'][$post['atm_acq']],
+                            'amount' => $money,
+                            'addInfo' => nv_ucfirst(substr(str_replace('-', ' ', change_alias($post['transaction_info'])), 0, 25)),
+                            'format' => 'vietqr_net',
+                        ];
+                        if (empty($body['addInfo'])) {
+                            // Hiện API truyền addInfo empty vào bị treo do đó empty thì bỏ field này
+                            unset($body['addInfo']);
+                        }
+                        $args = [
+                            'headers' => [
+                                'Referer' => $client_info['selfurl'],
+                                'x-client-id' => NV_MY_DOMAIN,
+                                'x-api-key' => 'we-l0v3-v1et-qr',
+                                'Content-Type' => 'application/json'
+                            ],
+                            'body' => json_encode($body),
+                            'timeout' => 10,
+                            'decompress' => false
+                        ];
+
+                        $http = new Http($global_config, NV_TEMP_DIR);
+                        $responsive = $http->post('https://api.vietqr.io/v1/generate', $args);
+
+                        if (!empty(Http::$error)) {
+                            $respon['message'] = Http::$error['message'];
+                        } elseif (!is_array($responsive)) {
+                            $respon['message'] = $lang_module['atm_vietqr_error_api'];
+                        } if (empty($responsive['body'])) {
+                            $respon['message'] = $lang_module['atm_vietqr_error_api'];
+                        } else {
+                            $api_body = json_decode($responsive['body'], true);
+                            if (!is_array($api_body) or empty($api_body['data']['qrDataURL'])) {
+                                $respon['message'] = $lang_module['atm_vietqr_error_api'];
+                            } else {
+                                $respon['success'] = 1;
+                                $respon['img'] = $api_body['data']['qrDataURL'];
+                            }
+                        }
+                    }
+
+                    nv_jsonOutput($respon);
                 }
 
                 if (!empty($post['customer_email']) and !empty($check_valid_email)) {
@@ -200,7 +302,7 @@ if (isset($global_array_payments[$payment])) {
 
                     // Xử lý trước khi lưu CSDL
                     if ($payment == 'ATM') {
-                        require NV_ROOTDIR . '/modules/' . $module_file . '/payment/ATM.presave.php';
+                        require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.presave.php';
                     }
 
                     // Lưu vào giao dịch (Giao dịch này là chưa thanh toán, sau này thanh toán nếu thành công hay thất bại sẽ cập nhật lại chỗ này)
@@ -300,6 +402,7 @@ if (isset($global_array_payments[$payment])) {
                     $post['atm_filedepute_key'] = ''; // Khóa file hiện tại
                     $post['atm_filebill'] = ''; // Tên file hiện tại
                     $post['atm_filebill_key'] = ''; // Khóa file hiện tại
+                    $post['atm_acq'] = -1; // Offset key của ngân hàng nhận
                 }
             }
 

@@ -8,6 +8,85 @@
 <form class="form-horizontal" method="post" action="{FORM_ACTION}" enctype="multipart/form-data" <!-- BEGIN: recaptcha3 --> data-recaptcha3="1"<!-- END: recaptcha3 -->>
     <div class="panel panel-default">
         <div class="panel-body">
+            <!-- BEGIN: vietqr -->
+            <div class="form-group">
+                <label class="control-label col-md-8">
+                    {LANG.atm_select_acq_id}:
+                </label>
+                <div class="col-md-13">
+                    <div class="btn-group btn-group-pickbank">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="val" data-toggle="btnVietQRBank">{LANG.atm_select_acq_id1}</span> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <!-- BEGIN: acq_id -->
+                            <li>
+                                <a href="#" data-toggle="selVietQRBank" data-shortname="{BANK.short_name}" data-name="{BANK.name}" data-acc="{ACCOUNT_NO}" data-acq="{ACQ_KEY}" data-money="{MONEY_NET}" data-info="{DATA.atm_transaction_info}"><img src="{BANK.logo}" alt="{BANK.name}" width="80"> {BANK.name}</a>
+                            </li>
+                            <!-- END: acq_id -->
+                        </ul>
+                        <input type="hidden" name="atm_acq" value="{DATA.atm_acq}">
+                    </div>
+                    <script type="text/javascript">
+                    $(document).ready(function() {
+                        var vietQR = $('#vietQRArea');
+
+                        $('[data-toggle="selVietQRBank"]').on('click', function(e) {
+                            e.preventDefault();
+                            var $this = $(this);
+
+                            $('[name="atm_acq"]').val($this.data('acq'));
+
+                            $('[data-toggle="btnVietQRBank"]').html('{LANG.atm_select_acq_id1}');
+                            $('.vietQRArea', vietQR).html('<i class="fa fa-spinner fa-spin"></i> {LANG.atm_processing_api}');
+                            vietQR.removeClass('hidden');
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '{AJAX_ACTION}&nocache=' + new Date().getTime(),
+                                data: {
+                                    getvietqrcode: '{TOKEND}',
+                                    acq: $this.data('acq')
+                                },
+                                dataType: 'json',
+                                cache: false,
+                                success: function(respon) {
+                                    if (respon.success) {
+                                        $('[name="atm_toacc"]').val($this.data('acc'));
+                                        $('[name="atm_recvbank"]').val($this.data('name'));
+                                        $('[data-toggle="btnVietQRBank"]').html($this.data('shortname'));
+                                        $('.vietQRArea', vietQR).html('<img class="img-responsive" src="' + respon.img + '"><div class="mt-2">{LANG.atm_vietqr_scan}</div>');
+                                        vietQR.removeClass('hidden');
+                                    } else {
+                                        $('[data-toggle="btnVietQRBank"]').html('{LANG.atm_select_acq_id1}');
+                                        $('.vietQRArea', vietQR).html('');
+                                        vietQR.addClass('hidden');
+                                        alert(respon.message);
+                                    }
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    $('[data-toggle="btnVietQRBank"]').html('{LANG.atm_select_acq_id1}');
+                                    console.log(jqXHR, textStatus, errorThrown);
+                                    $('.vietQRArea', vietQR).html('');
+                                    vietQR.addClass('hidden');
+                                    alert('{LANG.exchange_system_error}');
+                                }
+                            });
+                        });
+
+                        if ({DATA.atm_acq} > -1) {
+                            $('[data-toggle="selVietQRBank"][data-acq="{DATA.atm_acq}"]').trigger('click');
+                        }
+                    });
+                    </script>
+                </div>
+            </div>
+            <div class="form-group hidden" id="vietQRArea">
+                <div class="col-md-13 col-md-offset-8">
+                    <div class="vietQRArea"></div>
+                </div>
+            </div>
+            <!-- END: vietqr -->
             <div class="form-group">
                 <label class="control-label col-md-8">
                     {LANG.atm_sendbank} <i class="text-danger">(*)</i>:

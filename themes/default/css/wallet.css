@@ -9,24 +9,31 @@
 .hidden {
     display: none;
 }
+
 .w60 {
     width: 60px;
 }
+
 .w180 {
     width: 180px;
 }
+
 .w250 {
     width: 250px;
 }
-.form-control-fullwidth{
-    width: 100%!important;
+
+.form-control-fullwidth {
+    width: 100% !important;
 }
+
 .margin-bottom {
     margin-bottom: 10px;
 }
+
 .mb0 {
     margin-bottom: 0;
 }
+
 a.btn-default {
     color: #333;
 }
@@ -37,6 +44,7 @@ a.btn-default {
     border-radius: 4px;
     margin-bottom: 10px;
 }
+
 .payport-item a.im {
     display: block;
     margin-bottom: 10px;
@@ -44,10 +52,12 @@ a.btn-default {
     overflow: hidden;
     text-align: center;
 }
+
 .payport-item img {
     height: 100%;
     width: auto;
 }
+
 .help-block-bottom {
     margin-bottom: 0;
     margin-top: 6px;
@@ -57,6 +67,7 @@ a.btn-default {
 .money-exchange-count {
     margin-top: 7px;
 }
+
 .money-exchange-count strong {
     float: right;
     color: red;
@@ -69,18 +80,36 @@ a.btn-default {
     background-color: #eee;
     margin-bottom: 10px;
 }
+
 .payment-term-label {
     font-style: italic;
     font-weight: normal;
 }
+
 .payment-term-label input {
     margin-top: -2px;
 }
+
 #rechargeMoneyOther {
     margin-top: 10px;
 }
+
 .paycollapse {
     display: none;
+}
+
+.btn-group-pickbank {
+    display: block;
+}
+
+.mt-2 {
+    margin-top: 10px !important;
+}
+
+.btn-group-pickbank>.btn {
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 /* PAY */
@@ -90,9 +119,7 @@ a.btn-default {
     }
 }
 
-.visible-sm-block,
-.visible-md-block,
-.visible-md-block {
+.visible-sm-block, .visible-md-block, .visible-md-block {
     display: none !important;
 }
 

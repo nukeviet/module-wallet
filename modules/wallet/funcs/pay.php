@@ -12,6 +12,8 @@ if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
 }
 
+use NukeViet\Http\Http;
+
 /*
  * Bảng trạng thái của đơn hàng
  * 0 => Chưa thanh toán (đơn hàng mới tạo chưa có thông tin gì về thanh toán)
@@ -171,6 +173,38 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $payment_config['paymentname'] = $row_payment['paymentname'];
     $payment_config['domain'] = $row_payment['domain'];
 
+    $array_banks = [];
+    $is_vietqr = false;
+
+    if ($payment == 'ATM') {
+        $payment_config['account_no'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_no']);
+        $payment_config['account_name'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_name']);
+        $payment_config['acq_id'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['acq_id']);
+
+        // Lấy một số thông tin ngân hàng khi nạp API
+        if ($row_payment['payment'] == 'ATM' and !empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
+            $is_vietqr = true;
+            $cacheFile = NV_LANG_DATA . '_vietqr_banks_' . NV_CACHE_PREFIX . '.cache';
+            $cacheTTL = 3600;
+            if (($cache = $nv_Cache->getItem($module_name, $cacheFile, $cacheTTL)) != false) {
+                $array_banks = json_decode($cache, true);
+            } else {
+                $banks = file_get_contents('https://api.vietqr.io/v1/banks');
+                $banks = json_decode($banks, true);
+
+                if (is_array($banks) and !empty($banks['data'])) {
+                    foreach ($banks['data'] as $bank) {
+                        if ($bank['vietqr'] > 1) {
+                            // Ngân hàng quét mã được mới hiển thị
+                            $array_banks[$bank['bin']] = $bank;
+                        }
+                    }
+                }
+                $nv_Cache->setItem($module_name, $cacheFile, json_encode($array_banks), $cacheTTL);
+            }
+        }
+    }
+
     // Xử lý kết quả trả về của cổng thanh toán
     if ($nv_Request->isset_request('wpayportres', 'get')) {
         // Nếu có lỗi thì đặt vào biến này
@@ -318,15 +352,88 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $post['atm_filedepute_key'] = ''; // Khóa file hiện tại
     $post['atm_filebill'] = ''; // Tên file hiện tại
     $post['atm_filebill_key'] = ''; // Khóa file hiện tại
+    $post['atm_acq'] = -1; // Offset key của ngân hàng nhận
+
+    // Quy định tiếng Việt không dấu, tối đa 25 ký tự. Không ký tự đặc biệt
+    $post['atm_transaction_info'] = ucfirst(str_replace('-', ' ', change_alias(sprintf($lang_module['paygate_tranmess1'], vsprintf('DH%010s', $order_id)))));
+    $post['transaction_data'] = '';
+
+    // Gọi API lấy mã VietQR
+    if ($is_vietqr and $nv_Request->get_title('getvietqrcode', 'post', '') === NV_CHECK_SESSION) {
+        $respon = [
+            'message' => 'error!',
+            'success' => 0,
+            'img' => []
+        ];
+
+        $acq = $nv_Request->get_int('acq', 'post', -1);
+
+        if (!$is_vietqr or !isset($payment_config['acq_id'][$acq])) {
+            $respon['message'] = $lang_module['atm_vietqr_error_acq'];
+        } else {
+            $body = [
+                'accountNo' => $payment_config['account_no'][$acq],
+                'accountName' => $payment_config['account_name'][$acq],
+                'acqId' => $payment_config['acq_id'][$acq],
+                'amount' => $money_net,
+                'addInfo' => $post['atm_transaction_info'],
+                'format' => 'vietqr_net',
+            ];
+            if (empty($body['addInfo'])) {
+                // Hiện API truyền addInfo empty vào bị treo do đó empty thì bỏ field này
+                unset($body['addInfo']);
+            }
+            $args = [
+                'headers' => [
+                    'Referer' => $client_info['selfurl'],
+                    'x-client-id' => NV_MY_DOMAIN,
+                    'x-api-key' => 'we-l0v3-v1et-qr',
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode($body),
+                'timeout' => 10,
+                'decompress' => false
+            ];
+
+            $http = new Http($global_config, NV_TEMP_DIR);
+            $responsive = $http->post('https://api.vietqr.io/v1/generate', $args);
+
+            if (!empty(Http::$error)) {
+                $respon['message'] = Http::$error['message'];
+            } elseif (!is_array($responsive)) {
+                $respon['message'] = $lang_module['atm_vietqr_error_api'];
+            } if (empty($responsive['body'])) {
+                $respon['message'] = $lang_module['atm_vietqr_error_api'];
+            } else {
+                $api_body = json_decode($responsive['body'], true);
+                if (!is_array($api_body) or empty($api_body['data']['qrDataURL'])) {
+                    $respon['message'] = $lang_module['atm_vietqr_error_api'];
+                } else {
+                    $respon['success'] = 1;
+                    $respon['img'] = $api_body['data']['qrDataURL'];
+                }
+            }
+        }
+
+        nv_jsonOutput($respon);
+    }
 
     if ($payment == 'ATM') {
         $isSubmit = false;
-        $error = '';
+        $error = $atm_error = '';
 
         if ($nv_Request->isset_request('fsubmit', 'post')) {
             $isSubmit = true;
-        } else {
-            //
+
+            define('NV_IS_ATM_FORM', true);
+            require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.form.php';
+
+            if (!empty($atm_error)) {
+                $error = $atm_error;
+            } else {
+                // Xử lý trước khi lưu CSDL
+                require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.presave.php';
+            }
         }
 
         if (!$isSubmit or !empty($error)) {
@@ -345,7 +452,8 @@ if ($nv_Request->isset_request('payment', 'get')) {
     ) VALUES (
         " . NV_CURRENTTIME . ", -1, " . $db->quote($pay_money) . ", " . $money_total . ", " . $money_net . ", " . $money_discount . ",
         " . $money_revenue . ", " . $user_info['userid'] . ", 0, " . $order_info['id'] . ", " . $user_info['userid'] . ", " . $db->quote($user_info['full_name']) . ",
-        " . $db->quote($user_info['email']) . ", '', '', '', '', -1, 0, 0, " . $db->quote($transaction_info) . ", '', " . $db->quote($payment) . ",
+        " . $db->quote($user_info['email']) . ", '', '', '', '', -1, 0, 0,
+        " . $db->quote($transaction_info) . ", " . $db->quote($post['transaction_data']) . ", " . $db->quote($payment) . ",
         '', " . $db->quote($tokenkey) . "
     )", 'id');
 

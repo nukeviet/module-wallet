@@ -17,6 +17,11 @@ $post['atm_fracc'] = nv_substr($nv_Request->get_title('atm_fracc', 'post', ''), 
 $post['atm_time'] = nv_substr($nv_Request->get_title('atm_time', 'post', ''), 0, 250);
 $post['atm_toacc'] = nv_substr($nv_Request->get_title('atm_toacc', 'post', ''), 0, 250);
 $post['atm_recvbank'] = nv_substr($nv_Request->get_title('atm_recvbank', 'post', ''), 0, 250);
+$post['atm_acq'] = $nv_Request->get_int('atm_acq', 'post', -1);
+$post['atm_to_bank'] = '';
+$post['atm_to_name'] = '';
+$post['atm_to_account'] = '';
+$post['transaction_data'] = '';
 
 if (empty($post['atm_sendbank'])) {
     $atm_error = $lang_module['atm_error_sendbank'];
@@ -26,6 +31,15 @@ if (empty($post['atm_sendbank'])) {
     $atm_error = $lang_module['atm_error_toacc'];
 } elseif (empty($post['atm_recvbank'])) {
     $atm_error = $lang_module['atm_error_recvbank'];
+}
+
+// Kiểm tra điều kiện gọi API VietQR
+if (!isset($payment_config['acq_id'][$post['atm_acq']])) {
+    $vietrq_error = $lang_module['atm_vietqr_error_acq'];
+} elseif ($is_vietqr) {
+    $post['atm_to_bank'] = $array_banks[$payment_config['acq_id'][$post['atm_acq']]]['name'];
+    $post['atm_to_name'] = $payment_config['account_name'][$post['atm_acq']];
+    $post['atm_to_account'] = $payment_config['account_no'][$post['atm_acq']];
 }
 
 $file_types_allowed = ['images', 'archives', 'documents', 'adobe'];
@@ -112,5 +126,3 @@ if (isset($_FILES['atm_filebill']) and is_uploaded_file($_FILES['atm_filebill'][
 if (!empty($array_session_file)) {
     $nv_Request->set_Session($module_data . '_atm_files', $crypt->encrypt(json_encode($array_session_file)));
 }
-
-$post['transaction_data'] = '';

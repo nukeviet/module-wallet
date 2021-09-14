@@ -82,7 +82,7 @@ $lang_module['exchange_error_money'] = 'Lỗi: Tiền tệ %s không hợp lệ'
 $lang_module['exchange_error_money_amount'] = 'Vui lòng nhập số tiền lớn hơn 0';
 $lang_module['exchange_transition_mess_sub'] = 'Chuyển tiền sang %s';
 $lang_module['exchange_transition_mess_plus'] = 'Nhận tiền từ %s';
-$lang_module['exchange_system_error'] = 'Có lỗi không xác định, vui lòng dừng ngay các thao tác và liên hệ với quản trị site về vấn đề này';
+$lang_module['exchange_system_error'] = 'Có lỗi không xác định, vui lòng dừng các thao tác và liên hệ với quản trị site về vấn đề này';
 
 $lang_module['typetransaction'] = 'Loại giao dịch';
 $lang_module['moneytransaction'] = 'Số tiền giao dịch';
@@ -205,6 +205,7 @@ $lang_module['paygate_error_resetsuccess'] = 'Không thể thanh toán lại đ�
 $lang_module['paygate_error_reset'] = 'Lỗi cập nhật trạng thái đơn hàng, vui lòng thử lại';
 $lang_module['paygate_tranmess_send'] = 'Thanh toán đơn hàng mã số %s tại %s';
 $lang_module['paygate_tranmess'] = 'Thanh toán đơn hàng mã số %s';
+$lang_module['paygate_tranmess1'] = 'TTDH %s';
 $lang_module['paygate_ptitle'] = 'Thanh toán qua các cổng thanh toán sau';
 $lang_module['paygate_exchange_pay_msg'] = 'Cổng thanh toán này không hỗ trợ thanh toán tiền <strong>%s</strong> do đó bạn sẽ phải thanh toán số tiền tương đương là <strong>%s</strong>. Nếu đồng ý bạn hãy nhấp nút bên dưới để tiếp tục, nếu không hãy thử chọn cổng thanh toán khác';
 $lang_module['paygate_exchange_pay_allow'] = 'Đồng ý thanh toán';
@@ -228,6 +229,15 @@ $lang_module['atm_error_fracc'] = 'Lỗi: Chưa nhập số tài khoản gửi';
 $lang_module['atm_error_toacc'] = 'Lỗi: Chưa nhập số tài khoản nhận';
 $lang_module['atm_error_recvbank'] = 'Lỗi: Chưa nhập ngân hàng nhận';
 $lang_module['atm_changefile'] = 'Đổi file';
+$lang_module['atm_select_acq_id'] = 'Ngân hàng thụ hưởng';
+$lang_module['atm_select_acq_id1'] = 'Nhấp để chọn ngân hàng thụ hưởng';
+$lang_module['atm_money_amount_true1'] = 'Vui lòng nhập số tiền hợp lệ. Số điền đúng là số 0-9, tối đa 13 chữ số';
+$lang_module['atm_money_amount_true2'] = 'Vui lòng nhập số tiền hợp lệ. Số điền đúng là số 0-9, nhỏ nhất là %s và tối đa 13 chữ số';
+$lang_module['atm_money_amount_true3'] = 'Số tiền quá lớn, tối đa được 13 số';
+$lang_module['atm_vietqr_error_acq'] = 'Ngân hàng thụ hưởng không tồn tại, vui lòng kiểm tra lại';
+$lang_module['atm_vietqr_error_api'] = 'Lỗi xử lý mã QR, vui lòng thử lại sau khoảng 5s';
+$lang_module['atm_processing_api'] = 'Đang xử lý, phiền bạn đợi chút';
+$lang_module['atm_vietqr_scan'] = 'Bạn có thể mở ứng dụng của ngân hàng, quét mã QR bên trên để chuyển khoản nhanh hoặc tự chuyển khoản vào tài khoản thụ hưởng sau đó tiếp tục hoàn tất các thông tin bên dưới';
 
 $lang_module['email_notice_transaction0'] = 'Thông báo có giao dịch mới';
 $lang_module['email_notice_transaction1'] = '<ul><li>Mã giao dịch: <strong>%s</strong></li><li>Thời điểm khởi tạo: <strong>%s</strong></li><li>Người thực hiện giao dịch: <strong>%s</strong></li><li>Số tiền: <strong>%s</strong></li><li>Trạng thái: <strong>%s</strong></li></ul>Các thông tin khác:<ul><li>Họ và tên: <strong>%s</strong></li><li>Email: <strong>%s</strong></li><li>Điện thoại: <strong>%s</strong></li><li>Địa chỉ: <strong>%s</strong></li><li>Ghi chú: <strong>%s</strong></li><li>Cổng thanh toán: <strong>%s</strong></li></ul>Để xem chi tiết mời nhấp vào đây: <a href="%s">%s</a>';

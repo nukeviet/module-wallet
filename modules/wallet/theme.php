@@ -101,7 +101,7 @@ function nv_theme_wallet_main($url_checkout, $payport_content)
  */
 function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 {
-    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $module_captcha;
+    global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $module_captcha, $payment_config, $nv_Cache, $array_banks, $is_vietqr;
 
     $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
@@ -114,6 +114,7 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
     $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
     $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
     $xtpl->assign('ROW_PAYMENT', $row_payment);
+    $xtpl->assign('TOKEND', sha1($row_payment['payment'] . NV_CHECK_SESSION));
     $xtpl->assign('FORM_ACTION', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "/" . $row_payment['payment']);
 
     $isOnlyOneMoneyUnit = false;
@@ -211,8 +212,8 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
         $xtpl->parse('main.term');
     }
 
-    // Xuất riêng đối với cổng ATM
     if ($row_payment['payment'] == 'ATM') {
+        // Xuất riêng đối với cổng ATM
         if (!empty($post['atm_filedepute_key'])) {
             $xtpl->assign('SHOW_ATM_FILEDEPUTE', ' class="hidden"');
             $xtpl->parse('main.atm.atm_filedepute');
@@ -225,6 +226,34 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
             $xtpl->parse('main.atm.atm_filebill');
         } else {
             $xtpl->assign('SHOW_ATM_FILEBILL', '');
+        }
+
+        if ($is_vietqr) {
+            // Xử lý câu thông báo số tiền hợp lệ
+            $array_amount = $module_config[$module_name]['minimum_amount'][$post['money_unit']];
+            $array_amount = array_filter(explode(',', $array_amount));
+            if (empty($array_amount)) {
+                $xtpl->assign('MONEY_AMOUNT_RULE', $lang_module['atm_money_amount_true1']);
+            } else {
+                $xtpl->assign('MONEY_AMOUNT_RULE', sprintf($lang_module['atm_money_amount_true2'], get_display_money($array_amount[0])));
+            }
+
+            // Xử lý xuất ngân hàng thụ hưởng
+            $num_banks = 0;
+            foreach ($payment_config['acq_id'] as $acq_key => $acq_id) {
+                if (isset($array_banks[$acq_id])) {
+                    $num_banks++;
+                    $xtpl->assign('ACQ_KEY', $acq_key);
+                    $xtpl->assign('BANK', $array_banks[$acq_id]);
+                    $xtpl->assign('ACCOUNT_NO', $payment_config['account_no'][$acq_key]);
+                    $xtpl->assign('ACCOUNT_NAME', urlencode($payment_config['account_name'][$acq_key]));
+                    $xtpl->parse('main.atm.vietqr.acq_id');
+                }
+            }
+
+            if ($num_banks) {
+                $xtpl->parse('main.atm.vietqr');
+            }
         }
 
         $xtpl->parse('main.atm');
@@ -496,7 +525,7 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
  */
 function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
 {
-    global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name, $module_captcha;
+    global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name, $module_captcha, $is_vietqr, $payment_config, $array_banks, $money_net;
 
     $xtpl = new XTemplate('atm_pay.tpl', NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
@@ -510,8 +539,30 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
     $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
     $xtpl->assign('ROW_PAYMENT', $row_payment);
     $xtpl->assign('FORM_ACTION', $order_info['payurl'] . '&amp;payment=' . $row_payment['payment']);
+    $xtpl->assign('AJAX_ACTION', str_replace('&amp;', '&', $order_info['payurl'] . '&amp;payment=' . $row_payment['payment']));
+    $xtpl->assign('TOKEND', NV_CHECK_SESSION);
 
+    $xtpl->assign('MONEY_NET', $money_net);
     $xtpl->assign('DATA', $post);
+
+    if ($is_vietqr) {
+        // Xử lý xuất ngân hàng thụ hưởng
+        $num_banks = 0;
+        foreach ($payment_config['acq_id'] as $acq_key => $acq_id) {
+            if (isset($array_banks[$acq_id])) {
+                $num_banks++;
+                $xtpl->assign('ACQ_KEY', $acq_key);
+                $xtpl->assign('BANK', $array_banks[$acq_id]);
+                $xtpl->assign('ACCOUNT_NO', $payment_config['account_no'][$acq_key]);
+                $xtpl->assign('ACCOUNT_NAME', urlencode($payment_config['account_name'][$acq_key]));
+                $xtpl->parse('main.vietqr.acq_id');
+            }
+        }
+
+        if ($num_banks) {
+            $xtpl->parse('main.vietqr');
+        }
+    }
 
     if (!empty($post['atm_filedepute_key'])) {
         $xtpl->assign('SHOW_ATM_FILEDEPUTE', ' class="hidden"');
