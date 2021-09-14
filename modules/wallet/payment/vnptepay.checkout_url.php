@@ -8,27 +8,27 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
-$post = array();
+$post = [];
 $error = "";
 
 $post['provider'] = 'VNP';
 $post['pin'] = '';
 $post['serial'] = '';
 $post['transaction_info'] = '';
-$post['secure_code'] = '';
 $post['check_term'] = 0;
 
-$array_provider = array(
+$array_provider = [
     'VNP' => 'Vinaphone',
     'VMS' => 'Mobifone',
     'VTT' => 'Viettel',
     'FPT' => 'FPT',
     'VTC' => 'VTC Vcoin',
     'MGC' => 'MegaCard'
-);
+];
 
 if ($nv_Request->isset_request('fsubmit', 'post')) {
     $post['pin'] = $nv_Request->get_title('pin', 'post', ""); // Mã PIN
@@ -37,18 +37,13 @@ if ($nv_Request->isset_request('fsubmit', 'post')) {
     $post['transaction_info'] = $nv_Request->get_title('transaction_info', 'post', '');
     $post['check_term'] = $nv_Request->get_int('check_term', 'post', 0);
 
-    $post['secure_code'] = $nv_Request->get_title('capchar', 'post', '');
-
-    // Xác định có áp dụng reCaptcha hay không
-    $reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
-
-    // Nếu dùng reCaptcha v3
-    if ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
-        $xtpl->parse('main.recaptcha3');
-    }
-    // Nếu dùng reCaptcha v2
-    elseif ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
-        $post['secure_code'] = $nv_Request->get_title('g-recaptcha-response', 'post', '');
+    unset($fcode);
+    if ($module_captcha == 'recaptcha') {
+        // Xác định giá trị của captcha nhập vào nếu sử dụng reCaptcha
+        $fcode = $nv_Request->get_title('g-recaptcha-response', 'post', '');
+    } elseif ($module_captcha == 'captcha') {
+        // Xác định giá trị của captcha nhập vào nếu sử dụng captcha hình
+        $fcode = $nv_Request->get_title('fcode', 'post', '');
     }
 
     if (empty($post['pin'])) {
@@ -59,8 +54,8 @@ if ($nv_Request->isset_request('fsubmit', 'post')) {
         $error = $lang_module['vnpt_error_provider'];
     } elseif ($post['check_term'] != 1 and !empty($row_payment['term'])) {
         $error = $lang_module['error_check_term'];
-    } elseif (!nv_capcha_txt($post['secure_code'])) {
-        $error = $lang_module['error_captcha'];
+    } elseif (isset($fcode) and !nv_capcha_txt($fcode, $module_captcha)) {
+        $error = ($module_captcha == 'recaptcha') ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect'];
     } else {
         require NV_ROOTDIR . "/modules/" . $module_file . "/payment/vnptepay.complete.php";
     }
@@ -70,15 +65,9 @@ $xtpl = new XTemplate("vnptepay.tpl", NV_ROOTDIR . "/themes/" . $module_info['te
 $xtpl->assign('LANG', $lang_module);
 $xtpl->assign('GLANG', $lang_global);
 $xtpl->assign('FORM_ACTION', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "/" . $payment);
-$xtpl->assign('SRC_CAPTCHA', NV_BASE_SITEURL . "index.php?scaptcha=captcha&t=" . NV_CURRENTTIME);
 $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
 $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
-$xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
-$xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
 $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
-$xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
-$xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
-$xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
 
 $post['check_term'] = empty($post['check_term']) ? '' : ' checked="checked"';
 
@@ -105,18 +94,21 @@ foreach ($array_provider as $_provider_key => $_provider_name) {
     $xtpl->parse('main.provider');
 }
 
-// Xác định có áp dụng reCaptcha hay không
-$reCaptchaPass = (!empty($global_config['recaptcha_sitekey']) and !empty($global_config['recaptcha_secretkey']) and ($global_config['recaptcha_ver'] == 2 or $global_config['recaptcha_ver'] == 3));
-
-// Nếu dùng reCaptcha v3
-if ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 3) {
+if ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 3) {
+    // Nếu dùng reCaptcha v3
     $xtpl->parse('main.recaptcha3');
-}
-// Nếu dùng reCaptcha v2
-elseif ($module_captcha == 'recaptcha' and $reCaptchaPass and $global_config['recaptcha_ver'] == 2) {
-    $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
+} elseif ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 2) {
+    // Nếu dùng reCaptcha v2
     $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
+    $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
     $xtpl->parse('main.recaptcha');
+} elseif ($module_captcha == 'captcha') {
+    $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
+    $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
+    $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
+    $xtpl->assign('CAPTCHA_REFR_SRC', NV_STATIC_URL . NV_ASSETS_DIR . '/images/refresh.png');
+    $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
+    $xtpl->parse('main.captcha');
 }
 
 if (!empty($error)) {

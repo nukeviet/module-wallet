@@ -46,20 +46,20 @@
             <!-- END: term -->
             <!-- BEGIN: captcha -->
             <div class="form-group">
-                <label class="control-label col-md-6">{LANG.input_capchar}</label>
-                <div class="col-md-8">
-                    <input class="form-control" type="text" name="capchar" id="pay_captcha"/>
-                </div>
-                <div class="col-md-9">
-                    <img class="captchaImg" src="{SRC_CAPTCHA}" height="22px"/>
-                    <img alt="{CAPTCHA_REFRESH}" src="{CAPTCHA_REFR_SRC}" width="16" height="16" class="refresh" onclick="change_captcha('#pay_captcha');"/>
+                <label class="control-label col-md-6">
+                    {LANG.input_capchar}:
+                </label>
+                <div class="col-md-18">
+                    <input autocomplete="off" type="text" maxlength="{NV_GFX_NUM}" value="" id="fcode_iavim" name="fcode" class="form-control pull-left" style="width: 150px;" />
+                    <img height="32" src="{NV_BASE_SITEURL}index.php?scaptcha=captcha&t={NV_CURRENTTIME}" alt="{LANG.captcha}" class="captchaImg" />
+                    <img role="button" alt="{CAPTCHA_REFRESH}" src="{CAPTCHA_REFR_SRC}" width="16" height="16" class="refresh" onclick="change_captcha('#fcode_iavim');" />
                 </div>
             </div>
             <!-- END: captcha -->
             <!-- BEGIN: recaptcha -->
             <div class="form-group">
                 <label class="control-label col-md-6">{N_CAPTCHA}</label>
-                <div class="col-md-13">
+                <div class="col-md-18">
                     <div id="{RECAPTCHA_ELEMENT}" data-toggle="recaptcha" data-pnum="4" data-btnselector="[type=submit]"></div>
                 </div>
             </div>
