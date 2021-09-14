@@ -425,10 +425,21 @@ if ($nv_Request->isset_request('payment', 'get')) {
         if ($nv_Request->isset_request('fsubmit', 'post')) {
             $isSubmit = true;
 
+            unset($fcode);
+            if ($module_captcha == 'recaptcha') {
+                // Xác định giá trị của captcha nhập vào nếu sử dụng reCaptcha
+                $fcode = $nv_Request->get_title('g-recaptcha-response', 'post', '');
+            } elseif ($module_captcha == 'captcha') {
+                // Xác định giá trị của captcha nhập vào nếu sử dụng captcha hình
+                $fcode = $nv_Request->get_title('fcode', 'post', '');
+            }
+
             define('NV_IS_ATM_FORM', true);
             require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.form.php';
 
-            if (!empty($atm_error)) {
+            if (isset($fcode) and !nv_capcha_txt($fcode, $module_captcha)) {
+                $error = ($module_captcha == 'recaptcha') ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect'];
+            } elseif (!empty($atm_error)) {
                 $error = $atm_error;
             } else {
                 // Xử lý trước khi lưu CSDL

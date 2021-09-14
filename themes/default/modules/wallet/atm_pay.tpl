@@ -161,15 +161,13 @@
             </div>
             <!-- BEGIN: captcha -->
             <div class="form-group">
-                <label class="control-label col-xs-6">
+                <label class="control-label col-md-8">
                     {LANG.input_capchar}:
                 </label>
-                <div class="col-xs-6">
-                    <input class="form-control" type="text" name="capchar" id="upload_seccode_iavim"/>
-                </div>
-                <div class="col-xs-12">
-                    <img class="captchaImg" src="{SRC_CAPTCHA}" height="30px"/>
-                    <img alt="{CAPTCHA_REFRESH}" src="{CAPTCHA_REFR_SRC}" width="16" height="16" class="refresh" onclick="change_captcha('#upload_seccode_iavim');"/>
+                <div class="col-md-16">
+                    <input autocomplete="off" type="text" maxlength="{NV_GFX_NUM}" value="" id="fcode_iavim" name="fcode" class="form-control pull-left" style="width: 150px;" />
+                    <img height="32" src="{NV_BASE_SITEURL}index.php?scaptcha=captcha&t={NV_CURRENTTIME}" alt="{LANG.captcha}" class="captchaImg" />
+                    <img role="button" alt="{CAPTCHA_REFRESH}" src="{CAPTCHA_REFR_SRC}" width="16" height="16" class="refresh" onclick="change_captcha('#fcode_iavim');" />
                 </div>
             </div>
             <!-- END: captcha -->
