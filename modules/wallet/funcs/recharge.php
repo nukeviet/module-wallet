@@ -228,7 +228,8 @@ if (isset($global_array_payments[$payment])) {
                             ],
                             'body' => json_encode($body),
                             'timeout' => 10,
-                            'decompress' => false
+                            'decompress' => false,
+                            //'sslverify' => false
                         ];
 
                         $http = new Http($global_config, NV_TEMP_DIR);
@@ -238,7 +239,7 @@ if (isset($global_array_payments[$payment])) {
                             $respon['message'] = Http::$error['message'];
                         } elseif (!is_array($responsive)) {
                             $respon['message'] = $lang_module['atm_vietqr_error_api'];
-                        } if (empty($responsive['body'])) {
+                        } elseif (empty($responsive['body'])) {
                             $respon['message'] = $lang_module['atm_vietqr_error_api'];
                         } else {
                             $api_body = json_decode($responsive['body'], true);
