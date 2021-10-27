@@ -67,7 +67,7 @@
             <div class="form-group">
                 <div class="col-md-13 col-md-offset-6">
                     <input type="hidden" value="1" name="fsubmit">
-                    <input type="submit" value="{LANG.vnpt_submit}" class="btn btn-primary" onclick="btnClickSubmit(event,this.form);"/>
+                    <input type="submit" value="{LANG.vnpt_submit}" class="btn btn-primary"/>
                 </div>
             </div>
         </div>
