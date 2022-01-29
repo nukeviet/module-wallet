@@ -218,6 +218,11 @@ $lang_module['atm_vietqr_error_acq'] = 'Beneficiary bank does not exist, please 
 $lang_module['atm_vietqr_error_api'] = 'Error processing QR code, please try again in about 5s';
 $lang_module['atm_processing_api'] = 'Processing, please wait a moment';
 $lang_module['atm_vietqr_scan'] = 'You can open the bank\'s application, scan the QR code above to make a quick transfer, or manually transfer to the beneficiary account then continue to complete the information below';
+$lang_module['vietqr_scan'] = 'Scan the QR code above to transfer then take a screenshot of the successful transaction notification to attach below';
+$lang_module['vietqr_screenshots'] = 'Screenshots';
+$lang_module['vietqr_error_screenshots'] = 'Please attach screenshot file';
+$lang_module['vietqr_error_acq'] = 'Please select the beneficiary bank';
+
 $lang_module['email_notice_transaction0'] = 'Notice of new transactions';
 $lang_module['email_notice_transaction1'] = '<ul><li>Code: <strong>%s</strong></li><li>Creat Time: <strong>%s</strong></li><li>The person performing the transaction: <strong>%s</strong></li><li>Amount of money: <strong>%s</strong></li><li>Status: <strong>%s</strong></li></ul>Others info:<ul><li>Full name: <strong>%s</strong></li><li>Email: <strong>%s</strong></li><li>Phone: <strong>%s</strong></li><li>Address: <strong>%s</strong></li><li>Note: <strong>%s</strong></li><li>Payport: <strong>%s</strong></li></ul>To see the invitation details click here: <a href="%s">%s</a>';
 $lang_module['email_notice_visitor'] = 'Customers pay';

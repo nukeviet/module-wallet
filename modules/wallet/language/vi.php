@@ -238,6 +238,10 @@ $lang_module['atm_vietqr_error_acq'] = 'Ngân hàng thụ hưởng không tồn 
 $lang_module['atm_vietqr_error_api'] = 'Lỗi xử lý mã QR, vui lòng thử lại sau khoảng 5s';
 $lang_module['atm_processing_api'] = 'Đang xử lý, phiền bạn đợi chút';
 $lang_module['atm_vietqr_scan'] = 'Bạn có thể mở ứng dụng của ngân hàng, quét mã QR bên trên để chuyển khoản nhanh hoặc tự chuyển khoản vào tài khoản thụ hưởng sau đó tiếp tục hoàn tất các thông tin bên dưới';
+$lang_module['vietqr_scan'] = 'Quét mã QR bên trên để chuyển khoản sau đó chụp lại ảnh màn hình thông báo giao dịch thành công để đính kèm bên dưới';
+$lang_module['vietqr_screenshots'] = 'Ảnh chụp màn hình';
+$lang_module['vietqr_error_screenshots'] = 'Vui lòng đính kèm file chụp màn hình';
+$lang_module['vietqr_error_acq'] = 'Vui lòng chọn ngân hàng thụ hưởng';
 
 $lang_module['email_notice_transaction0'] = 'Thông báo có giao dịch mới';
 $lang_module['email_notice_transaction1'] = '<ul><li>Mã giao dịch: <strong>%s</strong></li><li>Thời điểm khởi tạo: <strong>%s</strong></li><li>Người thực hiện giao dịch: <strong>%s</strong></li><li>Số tiền: <strong>%s</strong></li><li>Trạng thái: <strong>%s</strong></li></ul>Các thông tin khác:<ul><li>Họ và tên: <strong>%s</strong></li><li>Email: <strong>%s</strong></li><li>Điện thoại: <strong>%s</strong></li><li>Địa chỉ: <strong>%s</strong></li><li>Ghi chú: <strong>%s</strong></li><li>Cổng thanh toán: <strong>%s</strong></li></ul>Để xem chi tiết mời nhấp vào đây: <a href="%s">%s</a>';

@@ -75,7 +75,7 @@ if (!empty($row['transaction_data'])) {
             $transaction_data_size++;
             $xtpl->assign('OTHER_KEY', isset($lang_module[$key]) ? $lang_module[$key] : $key);
 
-            if ($key == 'atm_filedepute' or $key == 'atm_filebill') {
+            if ($key == 'atm_filedepute' or $key == 'atm_filebill' or $key == 'vietqr_screenshots') {
                 $files = explode('|', $value);
                 if (isset($files[1])) {
                     $array_files_key++;

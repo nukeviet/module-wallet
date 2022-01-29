@@ -366,6 +366,7 @@ $lang_module['atm_toacc'] = 'Receiving account';
 $lang_module['atm_recvbank'] = 'Receiving bank';
 $lang_module['atm_filedepute'] = 'Scanned copy of the credentials';
 $lang_module['atm_filebill'] = 'Invoice file';
+$lang_module['vietqr_screenshots'] = 'Screenshots';
 
 $lang_module['ipnlog'] = 'IPN log';
 $lang_module['ipnlog1'] = 'Instant Payment Notification log';

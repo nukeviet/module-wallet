@@ -54,7 +54,7 @@ if (isset($global_array_payments[$payment])) {
         $payment_config['paymentname'] = $row_payment['paymentname'];
         $payment_config['domain'] = $row_payment['domain'];
 
-        if ($payment == 'ATM') {
+        if ($payment == 'ATM' or $payment == 'VietQR') {
             $payment_config['account_no'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_no']);
             $payment_config['account_name'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_name']);
             $payment_config['acq_id'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['acq_id']);
@@ -101,7 +101,7 @@ if (isset($global_array_payments[$payment])) {
             // Lấy một số thông tin ngân hàng khi nạp API
             $array_banks = [];
             $is_vietqr = false;
-            if ($row_payment['payment'] == 'ATM' and !empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
+            if (($row_payment['payment'] == 'ATM' or $row_payment['payment'] == 'VietQR') and !empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
                 $is_vietqr = true;
                 $cacheFile = NV_LANG_DATA . '_vietqr_banks_' . NV_CACHE_PREFIX . '.cache';
                 $cacheTTL = 3600;
@@ -178,10 +178,13 @@ if (isset($global_array_payments[$payment])) {
                 $minimum_amount = !empty($module_config[$module_name]['minimum_amount'][$post['money_unit']]) ? explode(',', $module_config[$module_name]['minimum_amount'][$post['money_unit']]) : array();
                 $minimum_amount = empty($minimum_amount) ? 0 : $minimum_amount[0];
 
-                // Xử lý form và lỗi đối với cổng thanh toán ATM
+                // Xử lý form và lỗi đối với cổng thanh toán ATM, VietQR
                 $atm_error = $vietrq_error = '';
                 if ($payment == 'ATM') {
                     define('NV_IS_ATM_FORM', true);
+                    require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.form.php';
+                } elseif ($payment == 'VietQR') {
+                    define('NV_IS_VIETQR_FORM', true);
                     require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.form.php';
                 } else {
                     $post['transaction_data'] = '';
@@ -300,6 +303,8 @@ if (isset($global_array_payments[$payment])) {
                     // Xử lý trước khi lưu CSDL
                     if ($payment == 'ATM') {
                         require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.presave.php';
+                    } elseif ($payment == 'VietQR') {
+                        require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.presave.php';
                     }
 
                     // Lưu vào giao dịch (Giao dịch này là chưa thanh toán, sau này thanh toán nếu thành công hay thất bại sẽ cập nhật lại chỗ này)
@@ -387,8 +392,8 @@ if (isset($global_array_payments[$payment])) {
                     }
                 }
 
-                // Thêm một số dữ liệu của kiểu thanh toán ATM
-                if ($payment == 'ATM') {
+                if ($payment == 'ATM' or $payment == 'VietQR') {
+                    // Thêm một số dữ liệu của kiểu thanh toán ATM
                     $post['atm_sendbank'] = '';
                     $post['atm_fracc'] = '';
                     $post['atm_time'] = '';
@@ -400,6 +405,21 @@ if (isset($global_array_payments[$payment])) {
                     $post['atm_filebill'] = ''; // Tên file hiện tại
                     $post['atm_filebill_key'] = ''; // Khóa file hiện tại
                     $post['atm_acq'] = -1; // Offset key của ngân hàng nhận
+                    $post['vietqr_screenshots'] = ''; // Tên ảnh chụp màn hình hiện tại
+                    $post['vietqr_screenshots_key'] = ''; // Khóa ảnh chụp màn hình hiện tại
+
+                    // Truyền mặc định STK nhận
+                    $no = $nv_Request->get_title('no', 'get', '');
+                    if (!empty($no)) {
+                        foreach ($payment_config['account_no'] as $key => $account_no) {
+                            if ($account_no === $no) {
+                                $post['atm_acq'] = $key;
+                                break;
+                            }
+                        }
+                    }
+                    // Truyền mặc định nội dung thanh toán
+                    $post['transaction_info'] = nv_substr($nv_Request->get_title('i', 'get', ''), 0, 25);
                 }
             }
 

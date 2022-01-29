@@ -176,13 +176,13 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $array_banks = [];
     $is_vietqr = false;
 
-    if ($payment == 'ATM') {
+    if ($payment == 'ATM' or $payment == 'VietQR') {
         $payment_config['account_no'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_no']);
         $payment_config['account_name'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_name']);
         $payment_config['acq_id'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['acq_id']);
 
         // Lấy một số thông tin ngân hàng khi nạp API
-        if ($row_payment['payment'] == 'ATM' and !empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
+        if (!empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
             $is_vietqr = true;
             $cacheFile = NV_LANG_DATA . '_vietqr_banks_' . NV_CACHE_PREFIX . '.cache';
             $cacheTTL = 3600;
@@ -311,7 +311,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
         $link_redirect = nv_url_rewrite($link_redirect, true);
 
         // Đối với cổng thanh toán ATM và manual thì hiển thị thông báo trước khi chuyển về module kết nối
-        if ($payment == 'manual' or $payment == 'ATM') {
+        if ($payment == 'manual' or $payment == 'ATM' or $payment == 'VietQR') {
             redict_link($payment_config['completemessage'], $lang_module['cart_back_pay'], $link_redirect);
         }
 
@@ -340,7 +340,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $money_discount = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount_transaction'] * $money_net) / 100), $pay_money);
     $money_revenue = get_db_money($money_net - $money_discount, $pay_money);
 
-    // Đối với cổng thanh toán ATM tại đây cần lấy thông tin của khách
+    // Đối với cổng thanh toán ATM, VietQR tại đây cần lấy thông tin của khách
     $post = [];
     $post['atm_sendbank'] = '';
     $post['atm_fracc'] = '';
@@ -353,6 +353,8 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $post['atm_filebill'] = ''; // Tên file hiện tại
     $post['atm_filebill_key'] = ''; // Khóa file hiện tại
     $post['atm_acq'] = -1; // Offset key của ngân hàng nhận
+    $post['vietqr_screenshots'] = ''; // Tên ảnh chụp màn hình hiện tại
+    $post['vietqr_screenshots_key'] = ''; // Khóa ảnh chụp màn hình hiện tại
 
     // Quy định tiếng Việt không dấu, tối đa 25 ký tự. Không ký tự đặc biệt
     $post['atm_transaction_info'] = ucfirst(str_replace('-', ' ', change_alias(sprintf($lang_module['paygate_tranmess1'], vsprintf('DH%010s', $order_id)))));
@@ -419,7 +421,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
         nv_jsonOutput($respon);
     }
 
-    if ($payment == 'ATM') {
+    if ($payment == 'ATM' or $payment == 'VietQR') {
         $isSubmit = false;
         $error = $atm_error = '';
 
@@ -435,7 +437,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
                 $fcode = $nv_Request->get_title('fcode', 'post', '');
             }
 
-            define('NV_IS_ATM_FORM', true);
+            define('NV_IS_' . strtoupper($payment) . '_FORM', true);
             require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.form.php';
 
             if (isset($fcode) and !nv_capcha_txt($fcode, $module_captcha)) {

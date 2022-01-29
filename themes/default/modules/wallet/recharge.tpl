@@ -175,7 +175,7 @@
                                         $('[name="atm_toacc"]').val($this.data('acc'));
                                         $('[name="atm_recvbank"]').val($this.data('name'));
                                         $('[data-toggle="btnVietQRBank"]').html($this.data('shortname'));
-                                        $('.vietQRArea', vietQR).html('<img class="img-responsive" src="' + respon.img + '"><div class="mt-2">{LANG.atm_vietqr_scan}</div>');
+                                        $('.vietQRArea', vietQR).html('<img class="img-responsive" src="' + respon.img + '"><div class="mt-2">{SCAN_MESSAGE}</div>');
                                         vietQR.removeClass('hidden');
                                     } else {
                                         $('[data-toggle="btnVietQRBank"]').html('{LANG.atm_select_acq_id1}');
@@ -216,7 +216,7 @@
                     <strong>{LANG.atm_heading}</strong>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group{HIDE_ATM}">
                 <label class="control-label col-md-8">
                     {LANG.atm_sendbank} <i class="text-danger">(*)</i>:
                 </label>
@@ -224,7 +224,7 @@
                     <input class="form-control" type="text" name="atm_sendbank" value="{DATA.atm_sendbank}">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group{HIDE_ATM}">
                 <label class="control-label col-md-8">
                     {LANG.atm_fracc} <i class="text-danger">(*)</i>:
                 </label>
@@ -232,7 +232,7 @@
                     <input class="form-control" type="text" name="atm_fracc" value="{DATA.atm_fracc}">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group{HIDE_ATM}">
                 <label class="control-label col-md-8">
                     {LANG.atm_time}:
                 </label>
@@ -240,7 +240,7 @@
                     <input class="form-control" type="text" name="atm_time" value="{DATA.atm_time}">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group{HIDE_ATM}">
                 <label class="control-label col-md-8">
                     {LANG.atm_toacc} <i class="text-danger">(*)</i>:
                 </label>
@@ -248,7 +248,7 @@
                     <input class="form-control" type="text" name="atm_toacc" value="{DATA.atm_toacc}">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group{HIDE_ATM}">
                 <label class="control-label col-md-8">
                     {LANG.atm_recvbank} <i class="text-danger">(*)</i>:
                 </label>
@@ -256,7 +256,7 @@
                     <input class="form-control" type="text" name="atm_recvbank" value="{DATA.atm_recvbank}">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group{HIDE_ATM}">
                 <label class="control-label col-md-8">
                     {LANG.atm_filedepute}:
                 </label>
@@ -272,7 +272,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group{HIDE_ATM}">
                 <label class="control-label col-md-8">
                     {LANG.atm_filebill}:
                 </label>
@@ -285,6 +285,22 @@
                         <input type="hidden" name="atm_filebill_key" value="{DATA.atm_filebill_key}">
                         <!-- END: atm_filebill -->
                         <input type="file" name="atm_filebill"{SHOW_ATM_FILEBILL} value="{DATA.atm_filebill}">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group{HIDE_VIETQR}">
+                <label class="control-label col-md-8">
+                    {LANG.vietqr_screenshots} <i class="text-danger">(*)</i>:
+                </label>
+                <div class="col-md-13">
+                    <div class="checkbox">
+                        <!-- BEGIN: screenshots -->
+                        <div>
+                            <strong class="text-info">{DATA.vietqr_screenshots}</strong> &nbsp; <a href="#" class="text-danger" data-toggle="changeAtmFile" data-ipt="vietqr_screenshots_key" data-file="vietqr_screenshots">({LANG.atm_changefile})</a>
+                        </div>
+                        <input type="hidden" name="vietqr_screenshots_key" value="{DATA.vietqr_screenshots_key}">
+                        <!-- END: screenshots -->
+                        <input type="file" name="vietqr_screenshots"{SHOW_SCREENSHOTS} value="{DATA.vietqr_screenshots}">
                     </div>
                 </div>
             </div>

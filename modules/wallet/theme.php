@@ -207,7 +207,15 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
         $xtpl->parse('main.term');
     }
 
-    if ($row_payment['payment'] == 'ATM') {
+    if ($row_payment['payment'] == 'ATM' or $row_payment['payment'] == 'VietQR') {
+        if ($row_payment['payment'] == 'ATM') {
+            $xtpl->assign('HIDE_ATM', '');
+            $xtpl->assign('HIDE_VIETQR', ' hidden');
+        } else {
+            $xtpl->assign('HIDE_ATM', ' hidden');
+            $xtpl->assign('HIDE_VIETQR', '');
+        }
+
         // Xuất riêng đối với cổng ATM
         if (!empty($post['atm_filedepute_key'])) {
             $xtpl->assign('SHOW_ATM_FILEDEPUTE', ' class="hidden"');
@@ -223,7 +231,16 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
             $xtpl->assign('SHOW_ATM_FILEBILL', '');
         }
 
+        if (!empty($post['vietqr_screenshots_key'])) {
+            $xtpl->assign('SHOW_SCREENSHOTS', ' class="hidden"');
+            $xtpl->parse('main.atm.screenshots');
+        } else {
+            $xtpl->assign('SHOW_SCREENSHOTS', '');
+        }
+
         if ($is_vietqr) {
+            $xtpl->assign('SCAN_MESSAGE', $row_payment['payment'] == 'ATM' ? $lang_module['atm_vietqr_scan'] : $lang_module['vietqr_scan']);
+
             // Xử lý câu thông báo số tiền hợp lệ
             $array_amount = $module_config[$module_name]['minimum_amount'][$post['money_unit']];
             $array_amount = array_filter(explode(',', $array_amount));
@@ -537,7 +554,21 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
     $xtpl->assign('MONEY_NET', $money_net);
     $xtpl->assign('DATA', $post);
 
+    $order_info['code'] = vsprintf('DH%010s', $order_info['id']);
+    $order_info['money_amount'] = get_display_money($order_info['money_amount']);
+    $xtpl->assign('ORDER', $order_info);
+
+    if ($row_payment['payment'] == 'ATM') {
+        $xtpl->assign('HIDE_ATM', '');
+        $xtpl->assign('HIDE_VIETQR', ' hidden');
+    } else {
+        $xtpl->assign('HIDE_ATM', ' hidden');
+        $xtpl->assign('HIDE_VIETQR', '');
+    }
+
     if ($is_vietqr) {
+        $xtpl->assign('SCAN_MESSAGE', $row_payment['payment'] == 'ATM' ? $lang_module['atm_vietqr_scan'] : $lang_module['vietqr_scan']);
+
         // Xử lý xuất ngân hàng thụ hưởng
         $num_banks = 0;
         foreach ($payment_config['acq_id'] as $acq_key => $acq_id) {
@@ -568,6 +599,13 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
         $xtpl->parse('main.atm_filebill');
     } else {
         $xtpl->assign('SHOW_ATM_FILEBILL', '');
+    }
+
+    if (!empty($post['vietqr_screenshots_key'])) {
+        $xtpl->assign('SHOW_SCREENSHOTS', ' class="hidden"');
+        $xtpl->parse('main.screenshots');
+    } else {
+        $xtpl->assign('SHOW_SCREENSHOTS', '');
     }
 
     if ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 3) {

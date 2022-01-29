@@ -404,6 +404,7 @@ $lang_module['atm_toacc'] = 'Số tài khoản nhận';
 $lang_module['atm_recvbank'] = 'Tên ngân hàng nhận';
 $lang_module['atm_filedepute'] = 'Bản scan giấy ủy nhiệm chi';
 $lang_module['atm_filebill'] = 'File hóa đơn';
+$lang_module['vietqr_screenshots'] = 'Ảnh chụp màn hình';
 
 $lang_module['ipnlog'] = 'Nhật ký IPN';
 $lang_module['ipnlog1'] = 'Nhật ký Instant Payment Notification';
