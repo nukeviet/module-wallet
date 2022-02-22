@@ -23,25 +23,12 @@ $post['atm_to_name'] = '';
 $post['atm_to_account'] = '';
 $post['transaction_data'] = '';
 
-unset($fcode);
-if ($module_captcha == 'recaptcha') {
-    // Xác định giá trị của captcha nhập vào nếu sử dụng reCaptcha
-    $fcode = $nv_Request->get_title('g-recaptcha-response', 'post', '');
-} elseif ($module_captcha == 'captcha') {
-    // Xác định giá trị của captcha nhập vào nếu sử dụng captcha hình
-    $fcode = $nv_Request->get_title('capchar', 'post', '');
-}
-
 $post['atm_filedepute'] = '';
 $post['atm_filedepute_key'] = '';
 $post['atm_filebill'] = '';
 $post['atm_filebill_key'] = '';
 $post['vietqr_screenshots'] = '';
 $post['vietqr_screenshots_key'] = '';
-
-if (isset($fcode) and !nv_capcha_txt($fcode, $module_captcha)) {
-    $atm_error = ($module_captcha == 'recaptcha') ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect'];
-}
 
 // Kiểm tra điều kiện gọi API VietQR
 if (!isset($payment_config['acq_id'][$post['atm_acq']])) {
