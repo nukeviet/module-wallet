@@ -285,7 +285,7 @@ if (isset($global_array_payments[$payment])) {
                     /**
                      * Phí giao dịch
                      */
-                    $post['money_discount'] = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount_transaction'] * $post['money_net']) / 100), $post['money_unit']);
+                    $post['money_discount'] = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount'] * $post['money_net']) / 100), $post['money_unit']);
                     $post['money_revenue'] = get_db_money($post['money_net'] - $post['money_discount'], $post['money_unit']);
                     if (isset($module_config[$module_name]['recharge_rate'][$post['money_unit']])) {
                         $post['money_total'] = $post['money_total'] * $module_config[$module_name]['recharge_rate'][$post['money_unit']]['r'] / $module_config[$module_name]['recharge_rate'][$post['money_unit']]['s'];

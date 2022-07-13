@@ -337,7 +337,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $money_discount = 0;
     $money_total = 0; // Thanh toán hóa đơn thì không thay đổi gì vào tài khoản
 
-    $money_discount = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount_transaction'] * $money_net) / 100), $pay_money);
+    $money_discount = get_db_money($row_payment['discount_transaction'] + (($row_payment['discount'] * $money_net) / 100), $pay_money);
     $money_revenue = get_db_money($money_net - $money_discount, $pay_money);
 
     // Đối với cổng thanh toán ATM, VietQR tại đây cần lấy thông tin của khách
