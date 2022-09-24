@@ -16,7 +16,7 @@ $page_title = $lang_module['add_transaction'];
 $row = array();
 $error = array();
 
-if ($nv_Request->isset_request('submit', 'post')) {
+if ($nv_Request->isset_request('btnsubmit', 'post')) {
     // Tài khoản tác động tới
     $row['account'] = $nv_Request->get_title('account', 'post', '');
     // Người giao dịch

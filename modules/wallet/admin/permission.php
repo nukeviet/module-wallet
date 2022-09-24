@@ -28,7 +28,7 @@ if ($is_refresh) {
     $global_array_admins = nv_organs_array_admins($module_data);
 }
 
-if ($nv_Request->isset_request('submit', 'post')) {
+if ($nv_Request->isset_request('btnsubmit', 'post')) {
     $permission = $nv_Request->get_typed_array('permission', 'post', 'int', []);
 
     foreach ($permission as $admin_id => $gid) {

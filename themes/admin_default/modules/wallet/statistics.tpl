@@ -103,7 +103,7 @@ window.onload = function() {
             <!-- END: loop_month -->
         </div>
         <div class="text-center">
-            <input type="submit" class="btn btn-primary" value="{LANG.statistics_view}" name="submit">
+            <input type="submit" class="btn btn-primary" value="{LANG.statistics_view}" name="btnsubmit">
         </div>
     </form>
 </div>
@@ -216,7 +216,7 @@ window.onload = function() {
             <!-- END: loop_year -->
         </div>
         <div class="text-center">
-            <input type="submit" class="btn btn-primary" value="{LANG.statistics_view}" name="submit">
+            <input type="submit" class="btn btn-primary" value="{LANG.statistics_view}" name="btnsubmit">
         </div>
     </form>
 </div>
@@ -277,7 +277,7 @@ window.onload = function() {
             </div>
         </div>
         <div class="text-center">
-            <input type="submit" class="btn btn-primary" value="{LANG.statistics_view}" name="submit">
+            <input type="submit" class="btn btn-primary" value="{LANG.statistics_view}" name="btnsubmit">
         </div>
     </form>
 </div>

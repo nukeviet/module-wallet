@@ -61,7 +61,7 @@
                     <textarea class="form-control" style="height:100px;" cols="75" rows="5" name="transaction_info">{ROW.transaction_info}</textarea>
                 </div>
             </div>
-            <div class="form-group" style="text-align: center"><input class="btn btn-primary" name="submit" type="submit" value="{LANG.save}" />
+            <div class="form-group" style="text-align: center"><input class="btn btn-primary" name="btnsubmit" type="submit" value="{LANG.save}" />
             </div>
         </form>
     </div>

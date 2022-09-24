@@ -45,7 +45,7 @@
             <tfoot>
                 <tr>
                     <td colspan="5">
-                        <button type="submit" name="submit" class="btn btn-primary">{LANG.save}</button>
+                        <button type="submit" name="btnsubmit" class="btn btn-primary">{LANG.save}</button>
                     </td>
                 </tr>
             </tfoot>

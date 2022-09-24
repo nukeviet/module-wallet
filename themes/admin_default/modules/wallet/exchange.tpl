@@ -124,7 +124,7 @@
             </div>
         </div>
         <div class="panel-footer text-center">
-            <input class="btn btn-primary" name="submit" type="submit" value="{LANG.save}" />
+            <input class="btn btn-primary" name="btnsubmit" type="submit" value="{LANG.save}" />
         </div>
     </div>
 </form>
