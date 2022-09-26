@@ -34,7 +34,7 @@ while ($row = $result->fetch()) {
 }
 
 // Lưu mới, cập nhật tỉ giá
-if ($nv_Request->get_title('submit', 'post')) {
+if ($nv_Request->get_title('btnsubmit', 'post')) {
     $applyopposite = $nv_Request->get_int('applyopposite', 'post', 0);
     $array_exchange_from = $nv_Request->get_typed_array('exchange_from', 'post', 'float', array());
     $array_exchange_to = $nv_Request->get_typed_array('exchange_to', 'post', 'float', array());

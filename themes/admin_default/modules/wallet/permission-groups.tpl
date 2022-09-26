@@ -109,7 +109,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-offset-8 col-md-offset-6">
-                        <button type="submit" name="submit" class="btn btn-primary">{LANG.save}</button>
+                        <button type="submit" name="btnsubmit" class="btn btn-primary">{LANG.save}</button>
                     </div>
                 </div>
             </form>

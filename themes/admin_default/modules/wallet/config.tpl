@@ -72,7 +72,7 @@
     </div>
     <div class="row">
         <div class="col-sm-14 col-md-16 col-lg-19 col-sm-push-10 col-md-push-8 col-lg-push-5">
-            <input class="btn btn-primary" type="submit" value="{LANG.save}" name="submit" />
+            <input class="btn btn-primary" type="submit" value="{LANG.save}" name="btnsubmit" />
         </div>
     </div>
 </form>

@@ -61,7 +61,7 @@ if (!empty($id)) {
 $error = '';
 $is_submit = false;
 
-if ($nv_Request->isset_request('submit', 'post')) {
+if ($nv_Request->isset_request('btnsubmit', 'post')) {
     $is_submit = true;
     $array['group_title'] = nv_substr($nv_Request->get_title('group_title', 'post', ''), 0, 100);
     $array['is_wallet'] = intval($nv_Request->get_bool('is_wallet', 'post', false));

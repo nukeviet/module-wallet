@@ -8,7 +8,7 @@
     <input type="hidden" name="search" value="1">
     <div class="form-group form-inline">
         {LANG.viewhistoryexchange} : <input class="form-control" name="starttime" id="starttime" value="{curenttime}" maxlength="10" readonly="readonly" type="text"/>
-        <input class="btn btn-primary" type="submit" value="{LANG.search}" name="submit">
+        <input class="btn btn-primary" type="submit" value="{LANG.search}" name="btnsubmit">
     </div>
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">

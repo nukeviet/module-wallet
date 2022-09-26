@@ -103,7 +103,7 @@
             </tr>
             <tr>
                 <td colspan="2">
-                <input class="btn btn-primary" type="submit" value="{LANG.createinfo}" name="submit" />
+                <input class="btn btn-primary" type="submit" value="{LANG.createinfo}" name="btnsubmit" />
                 </td>
             </tr>
         </tbody>

@@ -21,7 +21,7 @@
 				<td colspan="9"><a href="javascript:void(0)" class="btn btn-success" onclick="nv_add_items()">{LANG.cfg_payment_add}</a></td>
 			</tr>
 			<tr>
-				<td colspan="9" class="text-center"><input class="btn btn-primary" name="submit" type="submit" value="{LANG.save}" /></td>
+				<td colspan="9" class="text-center"><input class="btn btn-primary" name="btnsubmit" type="submit" value="{LANG.save}" /></td>
 			</tr>
 		</tfoot>
 		<tbody id="id-area">

@@ -16,7 +16,7 @@ $page_title = $lang_module['config_module'];
 $array_config = $module_config[$module_name];
 $error = [];
 
-if ($nv_Request->isset_request('submit', 'post')) {
+if ($nv_Request->isset_request('btnsubmit', 'post')) {
     $minimum_amounts = $nv_Request->get_typed_array('minimum_amount', 'post', 'string', []);
     $recharge_rates_s = $nv_Request->get_typed_array('recharge_rate_s', 'post', 'float', []);
     $recharge_rates_r = $nv_Request->get_typed_array('recharge_rate_r', 'post', 'float', []);

@@ -107,7 +107,7 @@
         <tfoot>
             <tr>
                 <td colspan="2" class="text-center">
-                    <input class="btn btn-primary" name="submit" type="submit" value="{LANG.save}"/>
+                    <input class="btn btn-primary" name="btnsubmit" type="submit" value="{LANG.save}"/>
                 </td>
             </tr>
         </tfoot>

@@ -53,7 +53,7 @@ while ($row = $result->fetch()) {
     $array['data'][$key]['provider'][$row['provider']] = floatval($row['discount']);
 }
 
-if ($nv_Request->isset_request('submit', 'post')) {
+if ($nv_Request->isset_request('btnsubmit', 'post')) {
     $ids = $nv_Request->get_typed_array('ids', 'post', 'int', array());
 
     unset($array['data']);

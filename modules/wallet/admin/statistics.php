@@ -74,7 +74,7 @@ if ($mode == 'month') {
         'money_revenue' => 0 // Tiền nhận được
             );
 
-    if ($nv_Request->isset_request('submit', 'post')) {
+    if ($nv_Request->isset_request('btnsubmit', 'post')) {
         if (empty($months)) {
             $error = $lang_module['statisticsM_error_select_month'];
         } else {
@@ -186,7 +186,7 @@ if ($mode == 'month') {
         'money_discount' => 0,
         'money_revenue' => 0);
 
-    if ($nv_Request->isset_request('submit', 'post')) {
+    if ($nv_Request->isset_request('btnsubmit', 'post')) {
         if (empty($years)) {
             $error = $lang_module['statisticsY_error_select'];
         } else {
