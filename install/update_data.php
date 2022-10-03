@@ -155,7 +155,7 @@ function nv_up_f1()
 
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_exchange
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange
                     CHANGE exchange exchange DOUBLE NOT NULL DEFAULT '1' "
                 );
             } catch(PDOException $e) {
@@ -163,7 +163,7 @@ function nv_up_f1()
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_exchange
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange
                     ADD exchange_from DOUBLE NOT NULL DEFAULT '1' AFTER than_unit "
                 );
             } catch(PDOException $e) {
@@ -172,7 +172,7 @@ function nv_up_f1()
         
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_exchange_log
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange_log
                     CHANGE exchange exchange DOUBLE NOT NULL DEFAULT '1' "
                 );
             } catch(PDOException $e) {
@@ -180,7 +180,7 @@ function nv_up_f1()
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_exchange_log
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange_log
                     ADD exchange_from DOUBLE NOT NULL DEFAULT '1' AFTER than_unit "
                 );
             } catch(PDOException $e) {
@@ -189,7 +189,7 @@ function nv_up_f1()
         
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_orders
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_orders
                     ADD paid_id VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'ID giao dịch' AFTER paid_status "
                 );
             } catch(PDOException $e) {
@@ -233,7 +233,7 @@ function nv_up_f2()
             }
 
             try {
-                $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_ipn_logs(
+                $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_ipn_logs(
                     id int(11) NOT NULL AUTO_INCREMENT,
                     userid int(11) NOT NULL DEFAULT '0' COMMENT 'ID thành viên nếu có',
                     log_ip varchar(64) NOT NULL DEFAULT '' COMMENT 'Địa chỉ IP',
@@ -253,7 +253,7 @@ function nv_up_f2()
             }
         
             try {
-                $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_admins(
+                $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_admins(
                     admin_id mediumint(8) NOT NULL,
                     gid smallint(4) NOT NULL,
                     add_time int(11) NOT NULL DEFAULT '0',
@@ -267,7 +267,7 @@ function nv_up_f2()
             }
         
             try {
-                $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_admin_groups(
+                $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_admin_groups(
                     gid smallint(4) NOT NULL AUTO_INCREMENT,
                     group_title varchar(100) NOT NULL DEFAULT '' COMMENT 'Tên nhóm',
                     add_time int(11) NOT NULL DEFAULT '0',
@@ -302,7 +302,7 @@ function nv_up_f2()
         
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_payment
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_payment
                     ADD active_completed_email TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Kích hoạt gửi email thông báo các giao dịch chưa hoàn thành' AFTER allowedoptionalmoney,
                     ADD active_incomplete_email TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Kích hoạt gửi email thông báo các giao dịch đã hoàn thành' AFTER active_completed_email "
                 );
@@ -312,7 +312,7 @@ function nv_up_f2()
         
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_transaction
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction
                     ADD is_expired TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '0: Chưa hết hạn, 1: Hết hạn' AFTER tokenkey,
                     ADD INDEX is_expired (is_expired) "
                 );
@@ -323,63 +323,63 @@ function nv_up_f2()
             //Thay đổi Enginee của các bảng dữ liệu
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_epay_log ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_epay_log ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_exchange ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_exchange_log ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange_log ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_money ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_money ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_money_sys ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_money_sys ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_payment ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_payment ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_payment_discount ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_payment_discount ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_smslog ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_smslog ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_transaction 
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction 
                     DROP INDEX customer_name, ADD INDEX customer_name (customer_name(191)) USING BTREE"
                 );
             } catch(PDOException $e) {
@@ -387,7 +387,7 @@ function nv_up_f2()
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_transaction 
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction 
                     DROP INDEX customer_email, ADD INDEX customer_email (customer_email(191)) USING BTREE"
                 );
             } catch(PDOException $e) {
@@ -395,14 +395,14 @@ function nv_up_f2()
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_transaction ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_title'] . "_orders ENGINE = INNODB"
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_orders ENGINE = INNODB"
                 );
             } catch(PDOException $e) {
                 trigger_error($e->getMessage());
