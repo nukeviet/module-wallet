@@ -30,6 +30,7 @@ $lang_module['del'] = 'Xóa';
 $lang_module['delitem'] = 'Bạn có chắc muốn xóa';
 $lang_module['noitem'] = 'Bạn phải chọn ít nhất 1 dòng';
 $lang_module['content'] = 'Nội dung hiển thị';
+$lang_module['description_content'] = 'Nội dung';
 $lang_module['select'] = 'Chọn';
 $lang_module['select_user'] = 'Chọn thành viên';
 $lang_module['creataccount'] = 'Khởi tạo ví tiền';
@@ -415,3 +416,16 @@ $lang_module['ipnlog_delete_all'] = 'Xóa hết nhật ký';
 
 $lang_module['notification_payport_ipn_alert'] = 'Cảnh báo truy cập vào IPN: Cổng thanh toán %s, IP %s thời gian %s';
 $lang_module['process'] = 'Đã xử lý';
+
+$lang_module['sepay'] = 'Giao dịch bên SePay';
+$lang_module['sepay_banktime'] = 'TG phía bank';
+$lang_module['sepay_addtime'] = 'TG ghi nhận';
+$lang_module['sepay_reference_code'] = 'Mã tham chiếu';
+$lang_module['sepay_search_status'] = 'Cú pháp tin nhắn';
+$lang_module['sepay_search_status0'] = 'Bất kỳ';
+$lang_module['sepay_search_status1'] = 'Hợp lệ';
+$lang_module['sepay_search_status2'] = 'Không hợp lệ';
+$lang_module['sepay_status0'] = 'Cú pháp tin nhắn không hợp lệ';
+$lang_module['sepay_status1'] = 'Cú pháp tin nhắn hợp lệ';
+$lang_module['sepay_mapping_status0'] = 'Xử lý tin nhắn thất bại';
+$lang_module['sepay_mapping_status1'] = 'Xử lý tin nhắn thành công';

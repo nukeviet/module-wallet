@@ -17,6 +17,9 @@ global $nv_Cache, $global_array_admins, $global_array_admin_groups, $db_config;
 $sql = "SELECT * FROM " . $db_config['prefix'] . "_" . $module_data . "_admin_groups ORDER BY group_title ASC";
 $global_array_admin_groups = $nv_Cache->db($sql, 'gid', $module_name);
 
+$sql = "SELECT payment, paymentname FROM " . $db_config['prefix'] . "_" . $module_data . "_payment";
+$global_array_payports = $nv_Cache->db($sql, 'payment', $module_name);
+
 if (!function_exists('nv_wallet_array_admins')) {
     /**
      * nv_wallet_array_admins()
@@ -138,7 +141,17 @@ if ($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_configmod'])) {
 if ($IS_FULL_ADMIN) {
     $allow_func[] = 'permission';
     $allow_func[] = 'permission-groups';
-    $allow_func[] = 'ipn-logs';
+
     $submenu['permission'] = $lang_module['permission'];
-    $submenu['ipn-logs'] = $lang_module['ipnlog'];
+
+    if (isset($global_array_payports['vnpay'])) {
+        $allow_func[] = 'ipn-logs';
+        $submenu['ipn-logs'] = $lang_module['ipnlog'];
+    }
+}
+
+// Quyền xem log SePay
+if (($IS_FULL_ADMIN or !empty($PERMISSION_ADMIN['is_mtransaction'])) and isset($global_array_payports['sepay'])) {
+    $allow_func[] = 'sepay';
+    $submenu['sepay'] = $lang_module['sepay'];
 }
