@@ -116,7 +116,7 @@ if (!empty($module_config[$module_name]['accountants_emails']) and (
 )) {
     $accountants_emails = array_filter(array_unique(array_map("trim", explode(',', $module_config[$module_name]['accountants_emails']))));
 
-    $email_order_code = empty($order_info['order_id']) ? vsprintf('GD%010s', $order_info['id']) : vsprintf('WP%010s', $order_info['id']);
+    $email_order_code = empty($order_info['order_id']) ? sprintf('GD%010s', $order_info['id']) : sprintf('WP%010s', $order_info['id']);
     $email_created_time = nv_date('H:i d/m/Y', $order_info['created_time']);
     $email_customer_name = $lang_module['email_notice_visitor'];
     if (!empty($order_info['customer_id'])) {

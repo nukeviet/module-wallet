@@ -36,7 +36,7 @@
             </div>
             <div class="form-group">
                 <label class="control-label col-md-8">
-                    {LANG.customer_address}:
+                    {LANG.customer_tax_address}:
                 </label>
                 <div class="col-md-13">
                     <input class="form-control" type="text" name="customer_address" value="{DATA.customer_address}"/>
@@ -305,6 +305,21 @@
                 </div>
             </div>
             <!-- END: atm -->
+            <!-- BEGIN: sepay -->
+            <div class="form-group">
+                <label class="control-label col-md-8" for="element_to_account">
+                    {LANG.atm_toacc} <i class="text-danger">(*)</i>:
+                </label>
+                <div class="col-md-13">
+                    <select class="form-control" name="to_account" id="element_to_account">
+                        <option value="">{LANG.chose_account_number}</option>
+                        <!-- BEGIN: account -->
+                        <option value="{ACCOUNT_NO}"{ACCOUNT_SELECTED}>{ACCOUNT_NAME}</option>
+                        <!-- END: account -->
+                    </select>
+                </div>
+            </div>
+            <!-- END: sepay -->
             <!-- BEGIN: term -->
             <div class="form-group">
                 <label class="control-label col-md-8">
@@ -323,7 +338,7 @@
             <!-- BEGIN: captcha -->
             <div class="form-group">
                 <label class="control-label col-md-8">
-                    {LANG.input_capchar}:
+                    {LANG.input_capchar} <i class="text-danger">(*)</i>:
                 </label>
                 <div class="col-md-16">
                     <input autocomplete="off" type="text" maxlength="{NV_GFX_NUM}" value="" id="fcode_iavim" name="fcode" class="form-control pull-left" style="width: 150px;" />

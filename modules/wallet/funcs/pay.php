@@ -142,7 +142,7 @@ if ($nv_Request->isset_request('wallet', 'get')) {
     }
     $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
         paid_status=4,
-        paid_id=" . $db->quote(vsprintf('WP%010s', $transaction_id)) . ",
+        paid_id=" . $db->quote(sprintf('WP%010s', $transaction_id)) . ",
         paid_time=" . NV_CURRENTTIME . "
     WHERE id=" . $order_id);
     if (!$check) {
@@ -184,24 +184,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
         // Lấy một số thông tin ngân hàng khi nạp API
         if (!empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
             $is_vietqr = true;
-            $cacheFile = NV_LANG_DATA . '_vietqr_banks_' . NV_CACHE_PREFIX . '.cache';
-            $cacheTTL = 3600;
-            if (($cache = $nv_Cache->getItem($module_name, $cacheFile, $cacheTTL)) != false) {
-                $array_banks = json_decode($cache, true);
-            } else {
-                $banks = file_get_contents('https://api.vietqr.io/v1/banks');
-                $banks = json_decode($banks, true);
-
-                if (is_array($banks) and !empty($banks['data'])) {
-                    foreach ($banks['data'] as $bank) {
-                        if ($bank['vietqr'] > 1) {
-                            // Ngân hàng quét mã được mới hiển thị
-                            $array_banks[$bank['bin']] = $bank;
-                        }
-                    }
-                }
-                $nv_Cache->setItem($module_name, $cacheFile, json_encode($array_banks), $cacheTTL);
-            }
+            $array_banks = getVietqrBanksV1();
         }
     }
 
@@ -263,7 +246,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
             // Cập nhật lại đơn hàng
             $check = $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
                 paid_status=" . $responseData['transaction_status'] . ",
-                paid_id=" . $db->quote(vsprintf('WP%010s', $transaction['id'])) . ",
+                paid_id=" . $db->quote(sprintf('WP%010s', $transaction['id'])) . ",
                 paid_time=" . $responseData['transaction_time'] . "
             WHERE id=" . $order_id);
             if (!$check) {
@@ -280,7 +263,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
         )) {
             $accountants_emails = array_filter(array_unique(array_map("trim", explode(',', $module_config[$module_name]['accountants_emails']))));
 
-            $email_order_code = empty($transaction['order_id']) ? vsprintf('GD%010s', $transaction['id']) : vsprintf('WP%010s', $transaction['id']);
+            $email_order_code = empty($transaction['order_id']) ? sprintf('GD%010s', $transaction['id']) : sprintf('WP%010s', $transaction['id']);
             $email_created_time = nv_date('H:i d/m/Y', $transaction['created_time']);
             $email_customer_name = $lang_module['email_notice_visitor'];
             if (!empty($transaction['customer_id'])) {
@@ -321,7 +304,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
 
     // Lưu mới phiên thanh toán
     $transaction = [];
-    $transaction_info = sprintf($lang_module['paygate_tranmess'], vsprintf('DH%010s', $order_info['id']));
+    $transaction_info = sprintf($lang_module['paygate_tranmess'], sprintf('DH%010s', $order_info['id']));
     // Tạo ngẫu nhiên một khóa xem như là Private key để tính checksum
     $tokenkey = md5($global_config['sitekey'] . $user_info['userid'] . NV_CURRENTTIME . $order_info['money_amount'] . $order_info['money_unit'] . $payment . nv_genpass());
 
@@ -357,7 +340,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $post['vietqr_screenshots_key'] = ''; // Khóa ảnh chụp màn hình hiện tại
 
     // Quy định tiếng Việt không dấu, tối đa 25 ký tự. Không ký tự đặc biệt
-    $post['atm_transaction_info'] = ucfirst(str_replace('-', ' ', change_alias(sprintf($lang_module['paygate_tranmess1'], vsprintf('DH%010s', $order_id)))));
+    $post['atm_transaction_info'] = ucfirst(str_replace('-', ' ', change_alias(sprintf($lang_module['paygate_tranmess1'], sprintf('DH%010s', $order_id)))));
     $post['transaction_data'] = '';
 
     // Gọi API lấy mã VietQR
@@ -477,7 +460,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
 
     // Tạo dữ liệu cổng thanh toán
     $post = [];
-    $post['transaction_code'] = vsprintf('WP%010s', $transaction['id']);
+    $post['transaction_code'] = sprintf('WP%010s', $transaction['id']);
     $post['transaction_info'] = sprintf($lang_module['paygate_tranmess_send'], $post['transaction_code'], NV_SERVER_NAME);
     $post['money_net'] = $money_net;
     $post['money_unit'] = $pay_money;

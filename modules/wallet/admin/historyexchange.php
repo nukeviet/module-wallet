@@ -8,10 +8,11 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_FILE_ADMIN'))
+if (!defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
+}
 
-$xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $global_config['module_theme'] . "/modules/" . $module_file);
+$xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
 $xtpl->assign('LANG', $lang_module);
 $xtpl->assign('NV_BASE_ADMINURL', NV_BASE_ADMINURL);
 $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
@@ -21,18 +22,17 @@ $xtpl->assign('OP', $op);
 
 $page = $nv_Request->get_int('page', 'get', 1);
 $per_page = 30;
-$dateview_search = $where = $dateview_search = "";
-$dateview = $nv_Request->get_string('starttime', 'post,get');
-if ($dateview != 0) {
-    $hour = date("H", NV_CURRENTTIME);
-    $minute = date("i", NV_CURRENTTIME);
-    unset($m);
-    preg_match("/^([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})$/", $dateview, $m);
-    $dateview_search = mktime($hour, $minute, 00, $m[2], $m[1], $m[3]);
+$dateview_search = $where = $dateview_search = '';
+$dateview = $nv_Request->get_string('starttime', 'post,get', '');
+
+if (preg_match('/^([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})$/', $dateview, $m)) {
+    $dateview_search = $dateview = mktime(date('H', NV_CURRENTTIME), date('i', NV_CURRENTTIME), 0, $m[2], $m[1], $m[3]);
+} else {
+    $dateview = 0;
 }
 
-$base_url = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=historyexchange";
-if ($dateview_search != "") {
+$base_url = NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=historyexchange';
+if ($dateview_search != '') {
     $where = " WHERE time_begin < " . $dateview_search . " AND time_end > " . $dateview_search;
 }
 
@@ -43,7 +43,7 @@ $order = " ORDER BY time_begin DESC LIMIT " . (($page - 1) * $per_page) . ", " .
 $sql .= $where . $order;
 
 $result = $db->query($sql);
-$result_page = $db->query("SELECT FOUND_ROWS()");
+$result_page = $db->query('SELECT FOUND_ROWS()');
 $numf = $result_page->fetchColumn();
 $all_page = ($numf) ? $numf : 1;
 
@@ -55,8 +55,8 @@ while (list($log_id, $money_unit, $than_unit, $exchange_from, $exchange_to, $tim
         'than_unit' => $than_unit, //
         'exchange_from' => get_display_money($exchange_from, 9), //
         'exchange_to' => get_display_money($exchange_to, 9), //
-        'time_begin' => date("d/m/Y H:i", $time_begin), //
-        'time_end' => date("d/m/Y H:i", $time_end)
+        'time_begin' => date('d/m/Y H:i', $time_begin), //
+        'time_end' => date('d/m/Y H:i', $time_end)
     );
 
 }
@@ -74,9 +74,7 @@ if ($generate_page) {
 
     $xtpl->assign('PAGE', $generate_page);
 }
-if ($dateview != "") {
-    $xtpl->assign('curenttime', $dateview);
-}
+$xtpl->assign('curenttime', $dateview ? date('d/m/Y', $dateview) : '');
 $xtpl->parse('main');
 $contents = $xtpl->text('main');
 

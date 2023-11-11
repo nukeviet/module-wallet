@@ -6,6 +6,10 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
+.mb-1 {
+    margin-bottom: 5px!important;
+}
+
 .hidden {
     display: none;
 }
@@ -110,6 +114,44 @@ a.btn-default {
     width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+.vietqr-image img {
+    width: 500px;
+    max-width: 100%;
+    height: auto;
+}
+
+.atm-logo-bank {
+    text-align: center;
+}
+
+.atm-logo-bank img {
+    width: 200px;
+    max-width: 100%;
+    height: auto;
+}
+
+.atm-bank-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.atm-bank-row .lb {
+    flex: 0 0 120px;
+    max-width: 120px;
+}
+
+.atm-bank-row .vl {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-weight: 700;
+}
+
+.atm-bank-row .cp {
+    flex: 0 0 120px;
+    max-width: 120px;
 }
 
 /* PAY */
