@@ -53,9 +53,9 @@ $result = $db->query($db->sql());
 $array = array();
 while ($row = $result->fetch()) {
     if (!empty($row['order_id'])) {
-        $row['transaction_code'] = vsprintf('WP%010s', $row['id']);
+        $row['transaction_code'] = sprintf('WP%010s', $row['id']);
     } else {
-        $row['transaction_code'] = vsprintf('GD%010s', $row['id']);
+        $row['transaction_code'] = sprintf('GD%010s', $row['id']);
     }
     $array[$row['id']] = $row;
 }

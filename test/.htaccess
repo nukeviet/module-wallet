@@ -1,0 +1,6 @@
+# Đặt nó vào httpd.conf hoặc VirtualHost config và khởi động lại apache
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]

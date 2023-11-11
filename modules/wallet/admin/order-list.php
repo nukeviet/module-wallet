@@ -78,7 +78,7 @@ $all_page = $db->query($db->sql())->fetchColumn();
 $db->select('*')->order('add_time DESC')->limit($per_page)->offset(($page - 1) * $per_page);
 $result = $db->query($db->sql());
 while ($row = $result->fetch()) {
-    $row['code'] = vsprintf('DH%010s', $row['id']);
+    $row['code'] = sprintf('DH%010s', $row['id']);
     $row['module_title'] = isset($sys_mods[$row['order_mod']]) ? $sys_mods[$row['order_mod']]['custom_title'] : $row['order_mod'];
     $row['module_link'] = NV_BASE_ADMINURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "&amp;mod=" . $row['order_mod'];
     $row['order_object'] = nv_ucfirst($row['order_object']);

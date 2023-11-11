@@ -308,7 +308,7 @@ while ($row = $result->fetch()) {
     }
     $arr_list_transaction[$row['id']] = [
         'id' => $row['id'], //
-        'code' => empty($row['order_id']) ? vsprintf('GD%010s', $row['id']) : vsprintf('WP%010s', $row['id']),
+        'code' => empty($row['order_id']) ? sprintf('GD%010s', $row['id']) : sprintf('WP%010s', $row['id']),
         'created_time' => date('d/m/Y H:i', $row['created_time']), //
         'status' => ($row['status'] == 1) ? '+' : '-', //
         'money_unit' => $row['money_unit'], //
@@ -385,7 +385,7 @@ if (!empty($view_user_info)) {
 }
 
 if (!empty($view_order_info)) {
-    $xtpl->assign('VIEW_ORDER_NAME', vsprintf('DH%010s', $view_order_info['id']));
+    $xtpl->assign('VIEW_ORDER_NAME', sprintf('DH%010s', $view_order_info['id']));
     $xtpl->assign('VIEW_ORDER_CANCEL', NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op);
     $xtpl->parse('main.view_order_info');
 }

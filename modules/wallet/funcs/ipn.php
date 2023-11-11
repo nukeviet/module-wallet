@@ -131,7 +131,7 @@ if ($responseData['ordertype'] == 'pay') {
                 } else {
                     $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
                         paid_status=" . $responseData['transaction_status'] . ",
-                        paid_id=" . $db->quote(vsprintf('GD%010s', $transaction['id'])) . ",
+                        paid_id=" . $db->quote(sprintf('GD%010s', $transaction['id'])) . ",
                         paid_time=" . $responseData['transaction_time'] . "
                     WHERE id=" . $order_info['id']);
                     if (!$check) {

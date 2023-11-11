@@ -30,6 +30,7 @@ $lang_module['del'] = 'Delete';
 $lang_module['delitem'] = 'Are you sure you want to delete';
 $lang_module['noitem'] = 'You must select at least 1 line';
 $lang_module['content'] = 'Content display';
+$lang_module['description_content'] = 'Content';
 $lang_module['select'] = 'Select';
 $lang_module['select_user'] = 'Select a member';
 $lang_module['creataccount'] = 'Initialize Money purse';
@@ -378,3 +379,16 @@ $lang_module['ipnlog_delete_all'] = 'Delete all logs';
 $lang_module['notification_payport_ipn_alert'] = 'IPN Access warning: Payport %s, IP %s, time %s';
 
 $lang_module['process'] = 'Processed';
+
+$lang_module['sepay'] = 'Giao dịch bên SePay';
+$lang_module['sepay_banktime'] = 'TG phía bank';
+$lang_module['sepay_addtime'] = 'TG ghi nhận';
+$lang_module['sepay_reference_code'] = 'Mã tham chiếu';
+$lang_module['sepay_search_status'] = 'Cú pháp tin nhắn';
+$lang_module['sepay_search_status0'] = 'Bất kỳ';
+$lang_module['sepay_search_status1'] = 'Hợp lệ';
+$lang_module['sepay_search_status2'] = 'Không hợp lệ';
+$lang_module['sepay_status0'] = 'Cú pháp tin nhắn không hợp lệ';
+$lang_module['sepay_status1'] = 'Cú pháp tin nhắn hợp lệ';
+$lang_module['sepay_mapping_status0'] = 'Xử lý tin nhắn thất bại';
+$lang_module['sepay_mapping_status1'] = 'Xử lý tin nhắn thành công';
