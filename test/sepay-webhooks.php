@@ -17,13 +17,13 @@ $data = [
     'accountNumber' => '0041000123456',
     'subAccount' => '',
     'code' => '',
-    'content' => 'GD0000000005',
+    'content' => 'GD0000000008',
     'transferType' => 'in',
-    'description' => 'SD TK 0041000123456 +10,000VND luc 11-11-2023 17:33:35. SD 19.234.567.890VND. Ref 737016.062023.043327.GD0000000005',
-    'transferAmount' => 10000,
+    'description' => 'SD TK 0041000123456 +10,000VND luc 11-11-2023 17:33:35. SD 19.234.567.890VND. Ref 737016.062023.043327.GD0000000008',
+    'transferAmount' => 100000,
     'referenceCode' => '737016.062023.043327',
     'accumulated' => 19234567890,
-    'id' => 12345678
+    'id' => rand(1, 9999999999)
 ];
 
 $ch = curl_init();

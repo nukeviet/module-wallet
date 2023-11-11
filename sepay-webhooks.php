@@ -16,11 +16,12 @@ define('NV_MAINFILE', true);
 define('NV_SYSTEM', true);
 define('NV_ROOTDIR', pathinfo(str_replace(DIRECTORY_SEPARATOR, '/', __FILE__), PATHINFO_DIRNAME));
 
-require NV_ROOTDIR . '/config.php';
+$global_config = [];
 
-$site_timezone = 'Asia/Ho_Chi_Minh';
-date_default_timezone_set($site_timezone);
+require NV_ROOTDIR . '/includes/constants.php';
+require realpath(NV_ROOTDIR . '/' . NV_CONFIG_FILENAME);
 
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 define('NV_START_TIME', microtime(true));
 define('NV_CURRENTTIME', time());
 
@@ -214,6 +215,16 @@ if (floatval($transaction['money_net']) > $array['transferAmount']) {
     jsonOut($returnData, 403);
 }
 
+$transaction['transaction_data'] = unserialize($transaction['transaction_data']);
+if (empty($transaction['transaction_data']) or !is_array($transaction['transaction_data']) or empty($transaction['transaction_data']['to_account'])) {
+    $returnData['message'] = 'Transaction data is wrong!';
+    jsonOut($returnData, 404);
+}
+if ($transaction['transaction_data']['to_account'] !== $array['accountNumber']) {
+    $returnData['message'] = 'Account not equal!';
+    jsonOut($returnData, 403);
+}
+
 $referenceCode = mb_substr(htmlspecialchars($_POST['referenceCode'] ?? ''), 0, 200);
 unset($_POST['accumulated'], $_POST['description']);
 $transaction_data = serialize($_POST);
@@ -231,17 +242,15 @@ if ($transaction_type == 'pay') {
 
     if (empty($order_info)) {
         // Không tìm thấy đơn hàng
-        http_response_code(404);
         $returnData['message'] = 'Order not found!';
-        nv_jsonOutput($returnData);
+        jsonOut($returnData, 404);
     }
 
     // Giao dịch đã được xử lý
     if ($order_info['paid_status'] != 0) {
         // Đơn hàng đã được xử lý
-        http_response_code(403);
         $returnData['message'] = 'This order has been processed!';
-        nv_jsonOutput($returnData);
+        jsonOut($returnData, 403);
     }
 
     // Cập nhật trạng thái giao dịch
@@ -250,9 +259,8 @@ if ($transaction_type == 'pay') {
         transaction_time=' . NV_CURRENTTIME . ', transaction_data=' . $db->quote($transaction_data) . '
     WHERE id=' . $transaction_id;
     if (!$db->exec($sql)) {
-        http_response_code(500);
         $returnData['message'] = 'Can not update transaction!';
-        nv_jsonOutput($returnData);
+        jsonOut($returnData, 500);
     }
 
     // Cập nhật trạng thái đơn hàng
@@ -262,19 +270,17 @@ if ($transaction_type == 'pay') {
         paid_time=" . NV_CURRENTTIME . "
     WHERE id=" . $order_info['id']);
     if (!$check) {
-        http_response_code(500);
         $returnData['message'] = 'Can not update order!';
-        nv_jsonOutput($returnData);
+        jsonOut($returnData, 500);
     }
 
     // Cập nhật lại trạng thái xử lý
     $sql = "UPDATE " . $db_config['prefix'] . "_" . $module_data . "_sepay_logs SET mapping_status=1 WHERE id=" . $array['id'];
     $db->query($sql);
 
-    http_response_code(201);
     $returnData['success'] = true;
     $returnData['message'] = 'Success!';
-    nv_jsonOutput($returnData);
+    jsonOut($returnData, 201);
 }
 
 // Nạp tiền vào ví

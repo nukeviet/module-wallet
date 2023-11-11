@@ -139,7 +139,7 @@ if (isset($array_op[1]) and $array_op[0] == 'sepay' and preg_match('/^(GD|WP)([0
                 $checksum = hash('sha256', $checksum_str);
 
                 // Tạo URL để chuyển ngay về phần complete
-                $transaction['ReturnURL'] = urlRewriteWithDomain($order_info['payurl'] . '&payment=sepay&wpayportres=true', NV_MY_DOMAIN);
+                $transaction['ReturnURL'] = NV_MY_DOMAIN . nv_url_rewrite($order_info['payurl'] . '&payment=sepay&wpayportres=true', true);
                 $url = $transaction['ReturnURL'];
                 $url .= '&code=' . $transaction['transaction_code'] . '&money=' . $transaction['money_net'] . '&unit=' . $transaction['money_unit'] . '&info=' . urlencode($transaction['transaction_info']) . '&checksum=' . $checksum;
 

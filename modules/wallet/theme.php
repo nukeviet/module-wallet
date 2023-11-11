@@ -634,6 +634,68 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
 }
 
 /**
+ * @param array $order_info
+ * @param array $row_payment
+ * @param array $post
+ * @param string $error
+ * @return string
+ */
+function nv_theme_wallet_sepay_pay($order_info, $row_payment, $post, $error)
+{
+    global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name, $module_captcha, $payment_config, $array_banks, $money_net;
+
+    $xtpl = new XTemplate('sepay_pay.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
+    $xtpl->assign('LANG', $lang_module);
+    $xtpl->assign('ROW_PAYMENT', $row_payment);
+    $xtpl->assign('FORM_ACTION', $order_info['payurl'] . '&amp;payment=' . $row_payment['payment']);
+    $xtpl->assign('MONEY_NET', $money_net);
+    $xtpl->assign('DATA', $post);
+
+    $order_info['code'] = sprintf('DH%010s', $order_info['id']);
+    $order_info['money_amount'] = get_display_money($order_info['money_amount']);
+    $xtpl->assign('ORDER', $order_info);
+
+    foreach ($payment_config['acq_id'] as $acq_key => $acq_id) {
+        $xtpl->assign('ACCOUNT_NO', $payment_config['account_no'][$acq_key]);
+
+        $account_name = '';
+        if (isset($array_banks[$acq_id]) and !empty($array_banks[$acq_id]['shortName'])) {
+            $account_name = $array_banks[$acq_id]['shortName'] . ' - ';
+        }
+        $account_name .= $payment_config['account_no'][$acq_key];
+        $xtpl->assign('ACCOUNT_NAME', $account_name);
+        $xtpl->assign('ACCOUNT_SELECTED', $payment_config['account_no'][$acq_key] == $post['to_account'] ? ' selected="selected"' : '');
+
+        $xtpl->parse('main.account');
+    }
+
+    if ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 3) {
+        // Nếu dùng reCaptcha v3
+        $xtpl->parse('main.recaptcha3');
+    } elseif ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 2) {
+        // Nếu dùng reCaptcha v2
+        $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
+        $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
+        $xtpl->parse('main.recaptcha');
+    } elseif ($module_captcha == 'captcha') {
+        $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
+        $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
+        $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
+        $xtpl->assign('CAPTCHA_REFR_SRC', NV_STATIC_URL . NV_ASSETS_DIR . '/images/refresh.png');
+        $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
+        $xtpl->parse('main.captcha');
+    }
+
+    if (!empty($error)) {
+        $xtpl->assign('ERROR', $error);
+        $xtpl->parse('main.error');
+    }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}
+
+/**
  * @param array $transaction
  * @param array $api_banks
  * @return string

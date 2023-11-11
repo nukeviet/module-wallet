@@ -161,6 +161,12 @@ a.btn-default {
     }
 }
 
+@media (min-width: 992px) {
+    .mt-md-70 {
+        margin-top: 7px;
+    }
+}
+
 .visible-sm-block, .visible-md-block, .visible-md-block {
     display: none !important;
 }
