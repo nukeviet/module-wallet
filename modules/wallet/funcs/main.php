@@ -34,6 +34,13 @@ if (preg_match('/^([0-9\.]+)\-([A-Z]{3})$/', $pay_amount, $m)) {
     $pay_amount = '';
 }
 
+require_once NV_ROOTDIR . '/modules/wallet/wallet.class.php';
+$wallet = new nukeviet_wallet();
+
+echo '<pre><code>';
+echo htmlspecialchars(print_r($wallet->my_money($user_info['userid']), true));
+die('</code></pre>');
+
 foreach ($global_array_payments as $row) {
     $row['currency_support'] = explode(',', $row['currency_support']);
     if (file_exists(NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $row['payment'] . '.checkout_url.php') and (empty($pay_amount) or !empty($row['allowedoptionalmoney'])) and (empty($pay_money) or in_array($pay_money, $row['currency_support']))) {

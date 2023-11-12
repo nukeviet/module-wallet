@@ -185,36 +185,33 @@ class nukeviet_wallet
     }
 
     /**
-     * nukeviet_wallet::my_money()
-     *
      * @param mixed $userid
      * @return
      */
     public function my_money($userid)
     {
         if (empty($userid)) {
-            return array();
+            return [];
         }
 
-        $wallet_setting = array();
+        $wallet_setting = [];
         $wallet_setting['money_unit'] = "VND";
 
         $sql = "SELECT * FROM " . NV_WALLET_TABLE . "_money WHERE userid=" . $userid . " AND money_unit=" . $this->db->quote($wallet_setting['money_unit']);
-        $list = $this->nv_Cache->db($sql, 'userid', NV_WALLET_MODULE);
-
-        if (!empty($list)) {
-            $row = $list[$userid];
-            $array = array(
-                "userid" => $row['userid'],
-                "created_time" => date("d/m/Y", $row['created_time']),
-                "created_userid" => $row['created_userid'],
-                "status" => $row['status'],
-                "money_unit" => $row['money_unit'],
-                "money_in" => number_format($row['money_in'], 0, '.', ' '),
-                "money_out" => number_format($row['money_out'], 0, '.', ' '),
-                "money_total" => number_format($row['money_total'], 0, '.', ' '),
-                "money_current" => (int)$row['money_total'],
-                "note" => $row['note']);
+        $row = $this->db->query($sql)->fetch();
+        if (!empty($row)) {
+            $array = [
+                'userid' => $row['userid'],
+                'created_time' => date('d/m/Y', $row['created_time']),
+                'created_userid' => $row['created_userid'],
+                'status' => $row['status'],
+                'money_unit' => $row['money_unit'],
+                'money_in' => number_format($row['money_in'], 0, '.', ' '),
+                'money_out' => number_format($row['money_out'], 0, '.', ' '),
+                'money_total' => number_format($row['money_total'], 0, '.', ' '),
+                'money_current' => (int) $row['money_total'],
+                'note' => $row['note']
+            ];
         } else {
             $array = $this->init($userid);
         }
