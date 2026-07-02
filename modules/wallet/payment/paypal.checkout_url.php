@@ -8,69 +8,101 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
-$OAuthTokenCredential = new \PayPal\Auth\OAuthTokenCredential($payment_config['clientid'], $payment_config['secret']);
-$apiContext = new \PayPal\Rest\ApiContext($OAuthTokenCredential);
-$apiContext->setConfig(array(
-    'mode' => $payment_config['mode'] // live or sandbox
-));
+use PaypalServerSdkLib\PaypalServerSdkClientBuilder;
+use PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder;
+use PaypalServerSdkLib\Environment;
+use PaypalServerSdkLib\Models\CheckoutPaymentIntent;
+use PaypalServerSdkLib\Models\Builders\OrderRequestBuilder;
+use PaypalServerSdkLib\Models\Builders\PurchaseUnitRequestBuilder;
+use PaypalServerSdkLib\Models\Builders\AmountWithBreakdownBuilder;
+use PaypalServerSdkLib\Models\Builders\AmountBreakdownBuilder;
+use PaypalServerSdkLib\Models\Builders\ItemRequestBuilder;
+use PaypalServerSdkLib\Models\Builders\MoneyBuilder;
+use PaypalServerSdkLib\Models\Builders\OrderApplicationContextBuilder;
+use PaypalServerSdkLib\Exceptions\ApiException;
+use PaypalServerSdkLib\Exceptions\ErrorException;
 
-use PayPal\Api\Amount;
-use PayPal\Api\Details;
-use PayPal\Api\Item;
-use PayPal\Api\ItemList;
-use PayPal\Api\Payer;
-use PayPal\Api\Payment;
-use PayPal\Api\RedirectUrls;
-use PayPal\Api\Transaction;
-use PayPal\Exception\PayPalConnectionException;
+// Khởi tạo client PayPal (Orders API v2)
+$client = PaypalServerSdkClientBuilder::init()
+    ->clientCredentialsAuthCredentials(
+        ClientCredentialsAuthCredentialsBuilder::init($payment_config['clientid'], $payment_config['secret'])
+    )
+    ->environment($payment_config['mode'] == 'live' ? Environment::PRODUCTION : Environment::SANDBOX)
+    ->build();
 
-$payer = new Payer();
-$payer->setPaymentMethod("paypal");
+// Số tiền phải là chuỗi định dạng chuẩn USD (2 chữ số thập phân)
+$money_value = number_format((float) $post['money_net'], 2, '.', '');
 
-$item1 = new Item();
-$item1->setName($post['transaction_code'])
-    ->setDescription($post['transaction_info'])
-    ->setCurrency('USD')
-    ->setQuantity(1)
-    ->setSku("1")
-    ->setPrice($post['money_net']);
+// PayPal giới hạn description của purchase unit tối đa 127 ký tự
+$pu_description = function_exists('nv_substr') ? nv_substr($post['transaction_info'], 0, 127) : substr($post['transaction_info'], 0, 127);
 
-$itemList = new ItemList();
-$itemList->setItems(array($item1));
+$amount = AmountWithBreakdownBuilder::init('USD', $money_value)
+    ->breakdown(
+        AmountBreakdownBuilder::init()
+            ->itemTotal(MoneyBuilder::init('USD', $money_value)->build())
+            ->build()
+    )
+    ->build();
 
-$details = new Details();
-$details->setShipping(0)
-    ->setTax(0)
-    ->setSubtotal($post['money_net']);
+$item = ItemRequestBuilder::init($post['transaction_code'], MoneyBuilder::init('USD', $money_value)->build(), '1')
+    ->description($post['transaction_info'])
+    ->sku('1')
+    ->build();
 
-$amount = new Amount();
-$amount->setCurrency('USD')
-    ->setTotal($post['money_net'])
-    ->setDetails($details);
+$purchaseUnit = PurchaseUnitRequestBuilder::init($amount)
+    ->items([$item])
+    ->description($pu_description)
+    ->invoiceId($post['transaction_code'])
+    ->customId($post['transaction_code'])
+    ->build();
 
-$transaction = new Transaction();
-$transaction->setAmount($amount)
-    ->setItemList($itemList)
-    ->setDescription($post['transaction_info'])
-    ->setInvoiceNumber($post['transaction_code']);
+// Cấu hình trải nghiệm thanh toán và URL chuyển hướng
+$applicationContext = OrderApplicationContextBuilder::init()
+    ->brandName(NV_SERVER_NAME)
+    ->userAction('PAY_NOW')
+    ->shippingPreference('NO_SHIPPING')
+    ->returnUrl($post['ReturnURL'])
+    ->cancelUrl($post['ReturnURL'] . '&ucancel=1')
+    ->build();
 
-$redirectUrls = new RedirectUrls();
-$redirectUrls->setReturnUrl($post['ReturnURL'])
-    ->setCancelUrl($post['ReturnURL'] . '&ucancel=1');
-
-$payment = new Payment();
-$payment->setIntent("sale")
-    ->setPayer($payer)
-    ->setRedirectUrls($redirectUrls)
-    ->setTransactions(array($transaction));
+$orderBody = OrderRequestBuilder::init(CheckoutPaymentIntent::CAPTURE, [$purchaseUnit])
+    ->applicationContext($applicationContext)
+    ->build();
 
 try {
-    $payment->create($apiContext);
-    $url = $payment->getApprovalLink();
-} catch (PayPalConnectionException $ex) {
-    $errorData = nv_object2array(json_decode($ex->getData()));
-    $error = $errorData['error_description'];
+    $apiResponse = $client->getOrdersController()->createOrder([
+        'body' => $orderBody,
+        'prefer' => 'return=minimal'
+    ]);
+
+    if ($apiResponse->isSuccess()) {
+        $order = $apiResponse->getResult();
+
+        // Lấy link phê duyệt (approve/payer-action) để chuyển hướng khách hàng
+        foreach ((array) $order->getLinks() as $link) {
+            $rel = $link->getRel();
+            if ($rel == 'approve' || $rel == 'payer-action') {
+                $url = $link->getHref();
+                break;
+            }
+        }
+
+        if (empty($url)) {
+            $error = 'PayPal: Error get approve link';
+        }
+    } else {
+        $error = 'PayPal: Error create order';
+    }
+} catch (ApiException $ex) {
+    $error = $ex->getMessage();
+    if ($ex instanceof ErrorException) {
+        $message = $ex->getMessageProperty();
+        if (!empty($message)) {
+            $error = $message;
+        }
+    }
 }
