@@ -1,0 +1,12 @@
+{
+  "intelephense.diagnostics.exclude": {
+    "**/modules/wallet/payment/vnptepay/Entries.php": [
+      "P1008",
+      "P1010",
+      "P1011",
+      "P1013",
+      "P1116"
+    ]
+  },
+  "php.version": "7.4"
+}

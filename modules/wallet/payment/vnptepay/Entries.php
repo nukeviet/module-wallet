@@ -8,26 +8,28 @@
  * @Createdate Dec 29, 2010  10:42:00 PM
  */
 
+// phpcs:disable
+
 class login
 {
 	public $m_UserName;
 	public $m_Pass;
 	public $m_PartnerID;
 	public $soapClient;
-	
+
 	/**
 	 * login::login_()
-	 * 
+	 *
 	 * @return
 	 */
 	function login_()
 	{
 		$Obj = new loginResponse();
 		$RSAClass = new ClsCryptor();
-		
+
 		//Ham thuc hien lay public key cua EPAy tu file pem
 		$RSAClass->GetpublicKeyFrompemFile( NV_ROOTDIR . "/modules/wallet/payment/vnptepay/Key/Epay_Public_key.pem" );
-		
+
 		try
 		{
 			$EncrypedPass = $RSAClass->encrypt( $this->m_Pass );
@@ -35,7 +37,7 @@ class login
 		catch ( exception $ex )
 		{
 		}
-		
+
 		$Pass = base64_encode( $EncrypedPass );
 		//$soapClient = new Soapclient("http://192.168.0.85:10001/CardChargingGW_0108/services/Services?wsdl");
 
@@ -54,7 +56,7 @@ class login
 
 		//Ham thuc hien lay private key cua doi tac tu file pem
 		$RSAClass->GetPrivatekeyFrompemFile( NV_ROOTDIR . "/modules/wallet/payment/vnptepay/Key/kh0016_mykey.pem" );
-		
+
 		try
 		{
 			$Session_Decryped = $RSAClass->decrypt( base64_decode( $result->sessionid ) );
@@ -69,10 +71,10 @@ class login
 
 		return $Obj;
 	}
-	
+
 	/**
 	 * login::Hextobyte()
-	 * 
+	 *
 	 * @param mixed $strHex
 	 * @return
 	 */
@@ -88,7 +90,7 @@ class login
 
 	/**
 	 * login::ByteToHex()
-	 * 
+	 *
 	 * @param mixed $strHex
 	 * @return
 	 */
@@ -116,10 +118,10 @@ class logout
 	public $m_PartnerID;
 	public $m_SessionID;
 	public $soapClient;
-	
+
 	/**
 	 * logout::logout_()
-	 * 
+	 *
 	 * @return
 	 */
 	function logout_()
@@ -127,7 +129,7 @@ class logout
 		$Ojb = new LogoutResponse();
 
 		//$soapClient = new Soapclient("http://192.168.0.85:10001/CardChargingGW_0108/services/Services?wsdl");
-		
+
 		try
 		{
 			$result = $this->soapClient->logout( $this->m_UserName, $this->m_PartnerID, md5( $this->m_SessionID ) ); // goi ham login de lay session id du lieu tra ve la mot mang voi cac thong tin message, sessionid,status,transid
@@ -135,10 +137,10 @@ class logout
 		catch ( exception $ex )
 		{
 		}
-		
+
 		$Obj->m_Status = $result->status;
 		$Obj->m_Message = $result->message;
-		
+
 		return $Obj;
 	}
 }
@@ -159,17 +161,17 @@ class ChangePassword
 	public $m_NEW_PASSWORD;
 	public $m_SessionID;
 	public $soapClient;
-	
+
 	/**
 	 * ChangePassword::ChangePassword_()
-	 * 
+	 *
 	 * @return
 	 */
 	function ChangePassword_()
 	{
 		$Ojb = new ChangeResponse();
 		$ObjTriptDes = new TriptDes( $this->m_SessionID );
-		
+
 		try
 		{
 			$OldPass = $ObjTriptDes->EncrypTriptDes( $this->m_OLD_PASSWORD );
@@ -178,9 +180,9 @@ class ChangePassword
 		catch ( exception $ex )
 		{
 		}
-		
+
 		//$soapClient = new Soapclient("http://192.168.0.85:10001/CardChargingGW_0108/services/Services?wsdl");
-		
+
 		try
 		{
 			$result = $this->soapClient->changePassword( $this->m_TransID, $this->m_UserName, $this->m_PartnerID, $OldPass, $NewPass, md5( $this->m_SessionID ) ); // goi ham login de lay session id du lieu tra ve la mot mang voi cac thong tin message, sessionid,status,transid
@@ -188,10 +190,10 @@ class ChangePassword
 		catch ( exception $ex )
 		{
 		}
-		
+
 		$Obj->m_Status = $result->status;
 		$Obj->m_Message = $result->message;
-		
+
 		return $Obj;
 	}
 }
@@ -211,17 +213,17 @@ class ChangMPin
 	public $m_NEW_MPIN;
 	public $m_SessionID;
 	public $soapClient;
-	
+
 	/**
 	 * ChangMPin::ChangMPin_()
-	 * 
+	 *
 	 * @return
 	 */
 	function ChangMPin_()
 	{
 		$Ojb = new ChangeResponse();
 		$ObjTriptDes = new TriptDes( $this->m_SessionID );
-		
+
 		try
 		{
 			$OldMpin = $ObjTriptDes->EncrypTriptDes( $this->m_OLD_OLD_MPIN );
@@ -259,10 +261,10 @@ class CardCharging
 	public $m_Pass;
 	var $SessionID;
 	var $soapClient;
-	
+
 	/**
 	 * CardCharging::CardCharging_()
-	 * 
+	 *
 	 * @return
 	 */
 	function CardCharging_()
@@ -309,9 +311,9 @@ class CardCharging
 		{
 			trigger_error( "Co loi xay ra khi ma hoa mpin: " . $ex, 256 );
 		}
-		
+
 		//$soapClient = new Soapclient("http://192.168.0.85:10001/CardChargingGW_0108/services/Services?wsdl");
-		
+
 		try
 		{
 			$result = $this->soapClient->cardCharging( $this->m_TransID, $this->m_UserName, $this->m_PartnerID, $Mpin, $this->m_Target, $Card_DATA, md5( $this->SessionID ) ); // goi ham login de lay session id du lieu tra ve la mot mang voi cac thong tin message, sessionid,status,transid
@@ -325,19 +327,19 @@ class CardCharging
 		$Obj->m_Message = $result->message;
 		$Obj->m_TRANSID = $result->transid;
 		$Obj->m_AMOUNT = $result->amount;
-		
+
 		$resAmount = $ObjTriptDes->decrypt( $this->Hextobyte( $result->responseamount ) );
-		
+
 		$Obj->m_RESPONSEAMOUNT = $resAmount; //$result->responseamount;
-		
+
 		if( $Obj->m_Status == 3 || $Obj->m_Status == 7 ) $this->SessionID = null;
-		
+
 		return $Obj;
 	}
 
 	/**
 	 * CardCharging::Hextobyte()
-	 * 
+	 *
 	 * @param mixed $strHex
 	 * @return
 	 */
@@ -350,10 +352,10 @@ class CardCharging
 		}
 		return $string;
 	}
-	
+
 	/**
 	 * CardCharging::ByteToHex()
-	 * 
+	 *
 	 * @param mixed $strHex
 	 * @return
 	 */
@@ -376,10 +378,10 @@ class CardChargingResponse
 class TriptDes
 {
 	private $DessKey;
-	
+
 	/**
 	 * TriptDes::TriptDes()
-	 * 
+	 *
 	 * @param mixed $key
 	 * @return
 	 */
@@ -387,10 +389,10 @@ class TriptDes
 	{
 		$this->DessKey = $key;
 	}
-	
+
 	/**
 	 * TriptDes::decrypt()
-	 * 
+	 *
 	 * @param mixed $text
 	 * @return
 	 */
@@ -405,7 +407,7 @@ class TriptDes
 
 	/**
 	 * TriptDes::encrypt()
-	 * 
+	 *
 	 * @param mixed $text
 	 * @return
 	 */
@@ -422,7 +424,7 @@ class TriptDes
 
 	/**
 	 * TriptDes::pkcs5_pad()
-	 * 
+	 *
 	 * @param mixed $text
 	 * @param mixed $blocksize
 	 * @return
@@ -435,13 +437,13 @@ class TriptDes
 
 	/**
 	 * TriptDes::pkcs5_unpad()
-	 * 
+	 *
 	 * @param mixed $text
 	 * @return
 	 */
 	function pkcs5_unpad( $text )
 	{
-		$pad = ord( $text{strlen( $text ) - 1} );
+		$pad = ord( $text[strlen( $text ) - 1] );
 		if( $pad > strlen( $text ) ) return false;
 		if( strspn( $text, chr( $pad ), strlen( $text ) - $pad ) != $pad ) return false;
 		return substr( $text, 0, -1 * $pad );
@@ -453,10 +455,10 @@ class ClsCryptor
 	private $RsaPublicKey;
 	private $RsaPrivateKey;
 	private $TripDesKey;
-	
+
 	/**
 	 * ClsCryptor::GetpublicKeyFromCertFile()
-	 * 
+	 *
 	 * @param mixed $filePath
 	 * @return
 	 */
@@ -472,7 +474,7 @@ class ClsCryptor
 
 	/**
 	 * ClsCryptor::GetpublicKeyFrompemFile()
-	 * 
+	 *
 	 * @param mixed $filePath
 	 * @return
 	 */
@@ -489,7 +491,7 @@ class ClsCryptor
 
 	/**
 	 * ClsCryptor::GetPrivatekeyFrompemFile()
-	 * 
+	 *
 	 * @param mixed $filePath
 	 * @return
 	 */
@@ -502,10 +504,10 @@ class ClsCryptor
 
 
 	}
-	
+
 	/**
 	 * ClsCryptor::GetPrivate_Public_KeyFromPfxFile()
-	 * 
+	 *
 	 * @param mixed $filePath
 	 * @param mixed $Passphase
 	 * @return
@@ -524,7 +526,7 @@ class ClsCryptor
 
 	/**
 	 * ClsCryptor::encrypt()
-	 * 
+	 *
 	 * @param mixed $source
 	 * @return
 	 */
@@ -555,11 +557,11 @@ class ClsCryptor
 		return ( $crt );
 
 	}
-	
+
 	//Decryption with private key
 	/**
 	 * ClsCryptor::decrypt()
-	 * 
+	 *
 	 * @param mixed $crypttext
 	 * @return
 	 */
@@ -579,3 +581,5 @@ class ClsCryptor
 		return $str;
 	}
 }
+
+// phpcs:enable
