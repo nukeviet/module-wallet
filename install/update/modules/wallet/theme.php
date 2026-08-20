@@ -8,12 +8,11 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_IS_MOD_WALLET'))
+if (!defined('NV_IS_MOD_WALLET')) {
     die('Stop!!!');
+}
 
 /**
- * redict_link()
- *
  * @param mixed $lang_view
  * @param mixed $lang_back
  * @param mixed $nv_redirect
@@ -22,20 +21,18 @@ if (!defined('NV_IS_MOD_WALLET'))
 function redict_link($lang_view, $lang_back, $nv_redirect)
 {
     $nv_redirect = nv_url_rewrite($nv_redirect, true);
-    $contents = "<div class=\"text-center alert alert-info\">";
-    $contents .= $lang_view . "<br /><br />\n";
-    $contents .= "<img border=\"0\" src=\"" . NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/load_bar.gif\"><br /><br />\n";
-    $contents .= "<a href=\"" . $nv_redirect . "\">" . $lang_back . "</a>";
-    $contents .= "</div>";
-    $contents .= "<meta http-equiv=\"refresh\" content=\"6;url=" . $nv_redirect . "\" />";
+    $contents = '<div class="text-center alert alert-info">';
+    $contents .= $lang_view . '<br /><br />';
+    $contents .= '<img border="0" src="' . NV_BASE_SITEURL . NV_ASSETS_DIR . '/images/load_bar.gif"><br /><br />';
+    $contents .= '<a href="' . $nv_redirect . '">' . $lang_back . '</a>';
+    $contents .= '</div>';
+    $contents .= '<meta http-equiv="refresh" content="6;url=' . $nv_redirect . '" />';
     include NV_ROOTDIR . '/includes/header.php';
     echo nv_site_theme($contents);
     include NV_ROOTDIR . '/includes/footer.php';
 }
 
 /**
- * nv_theme_wallet_main()
- *
  * @param mixed $url_checkout
  * @param mixed $payport_content
  * @return
@@ -44,7 +41,7 @@ function nv_theme_wallet_main($url_checkout, $payport_content)
 {
     global $global_config, $module_name, $lang_module, $module_config, $module_info, $op;
 
-    $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('module_file', $module_info['module_theme']);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
@@ -57,7 +54,7 @@ function nv_theme_wallet_main($url_checkout, $payport_content)
 
     $flag = false;
     if ($module_config[$module_name]['allow_smsNap'] == 1) {
-        $xtpl->assign('URLNAP', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=pay/sms");
+        $xtpl->assign('URLNAP', NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=pay/sms');
         $xtpl->parse('main.payment.smsNap');
         $flag = true;
     }
@@ -92,8 +89,6 @@ function nv_theme_wallet_main($url_checkout, $payport_content)
 }
 
 /**
- * nv_theme_wallet_recharge()
- *
  * @param mixed $row_payment
  * @param mixed $post
  * @param mixed $array_money_unit
@@ -103,14 +98,14 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 {
     global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op, $module_captcha, $payment_config, $nv_Cache, $array_banks, $is_vietqr;
 
-    $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
     $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
     $xtpl->assign('ROW_PAYMENT', $row_payment);
     $xtpl->assign('TOKEND', sha1($row_payment['payment'] . NV_CHECK_SESSION));
-    $xtpl->assign('FORM_ACTION', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . "&amp;" . NV_OP_VARIABLE . "=" . $op . "/" . $row_payment['payment']);
+    $xtpl->assign('FORM_ACTION', NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $op . '/' . $row_payment['payment']);
 
     $isOnlyOneMoneyUnit = false;
     $sizeMoneyUnit = sizeof($array_money_unit);
@@ -270,6 +265,22 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 
         $xtpl->parse('main.atm');
         $xtpl->parse('main.atm_form');
+    } elseif ($row_payment['payment'] == 'sepay') {
+        foreach ($payment_config['acq_id'] as $acq_key => $acq_id) {
+            $xtpl->assign('ACCOUNT_NO', $payment_config['account_no'][$acq_key]);
+
+            $account_name = '';
+            if (isset($array_banks[$acq_id]) and !empty($array_banks[$acq_id]['shortName'])) {
+                $account_name = $array_banks[$acq_id]['shortName'] . ' - ';
+            }
+            $account_name .= $payment_config['account_no'][$acq_key];
+            $xtpl->assign('ACCOUNT_NAME', $account_name);
+            $xtpl->assign('ACCOUNT_SELECTED', $payment_config['account_no'][$acq_key] == $post['to_account'] ? ' selected="selected"' : '');
+
+            $xtpl->parse('main.sepay.account');
+        }
+
+        $xtpl->parse('main.sepay');
     }
 
     if ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 3) {
@@ -298,8 +309,6 @@ function nv_theme_wallet_recharge($row_payment, $post, $array_money_unit)
 }
 
 /**
- * nv_wallet_acountuser()
- *
  * @param mixed $arr_money_user
  * @return
  */
@@ -307,7 +316,7 @@ function nv_wallet_acountuser($arr_money_user)
 {
     global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op;
 
-    $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
 
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
@@ -327,8 +336,6 @@ function nv_wallet_acountuser($arr_money_user)
 }
 
 /**
- * nv_wallet_money_sys()
- *
  * @param mixed $arr_money_sys
  * @return
  */
@@ -336,7 +343,7 @@ function nv_wallet_money_sys($arr_money_sys)
 {
     global $global_config, $module_name, $lang_module, $lang_global, $module_config, $module_info, $op;
 
-    $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
 
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
@@ -345,7 +352,7 @@ function nv_wallet_money_sys($arr_money_sys)
     $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
     $xtpl->assign('MODULE_NAME', $module_name);
     $xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
-    $xtpl->assign('URL_EXCHANGE_BACK', nv_url_rewrite(NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&" . NV_NAME_VARIABLE . "=" . $module_name . "&" . NV_OP_VARIABLE . "=money", true));
+    $xtpl->assign('URL_EXCHANGE_BACK', nv_url_rewrite(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=money', true));
 
     foreach ($arr_money_sys as $arr_money_sys_i) {
         $xtpl->assign('money1', $arr_money_sys_i['code']);
@@ -358,8 +365,6 @@ function nv_wallet_money_sys($arr_money_sys)
 }
 
 /**
- * nv_wallet_history_exchange()
- *
  * @param mixed $array
  * @param mixed $generate_page
  * @param mixed $page
@@ -369,7 +374,7 @@ function nv_wallet_history_exchange($array, $generate_page, $page, $per_page)
 {
     global $module_name, $lang_module, $lang_global, $module_info, $op, $global_array_transaction_status;
 
-    $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('GLANG', $lang_global);
 
@@ -385,7 +390,7 @@ function nv_wallet_history_exchange($array, $generate_page, $page, $per_page)
         $i++;
         $xtpl->assign('STT', $i);
 
-        $row['created_time'] = date("d/m/Y H:i", $row['created_time']);
+        $row['created_time'] = date('d/m/Y H:i', $row['created_time']);
         $row['money_total'] = get_display_money($row['money_total']);
         $row['money_net'] = get_display_money($row['money_net']);
         $row['status'] = empty($row['order_id']) ? ($row['status'] == 1 ? '+' : '-') : '';
@@ -406,8 +411,6 @@ function nv_wallet_history_exchange($array, $generate_page, $page, $per_page)
 }
 
 /**
- * nv_theme_wallet_pay()
- *
  * @param mixed $row_payment
  * @return
  */
@@ -420,16 +423,16 @@ function nv_theme_wallet_pay_gamebank($row_payment, $post, $error)
     } else {
         $lang_module['note_pay'] = $row_payment['bodytext'];
     }
-    $xtpl = new XTemplate("gamebank.tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate('gamebank.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
-    $xtpl->assign('SRC_CAPTCHA', NV_BASE_SITEURL . "index.php?scaptcha=captcha&t=" . NV_CURRENTTIME);
+    $xtpl->assign('SRC_CAPTCHA', NV_BASE_SITEURL . 'index.php?scaptcha=captcha&t=' . NV_CURRENTTIME);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
     $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
     $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
     $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
     $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
-    $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . "/images/refresh.png");
+    $xtpl->assign('CAPTCHA_REFR_SRC', NV_BASE_SITEURL . NV_ASSETS_DIR . '/images/refresh.png');
     $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
     $xtpl->assign('DATA', $post);
     if (!empty($error)) {
@@ -442,8 +445,6 @@ function nv_theme_wallet_pay_gamebank($row_payment, $post, $error)
 }
 
 /**
- * nv_theme_sms()
- *
  * @param mixed $smsConfig_keyword
  * @param mixed $smsConfig_port
  * @param mixed $smsConfig_prefix
@@ -453,17 +454,15 @@ function nv_theme_sms($smsConfig_keyword, $smsConfig_port, $smsConfig_prefix)
 {
     global $global_config, $module_name, $user_info, $lang_module, $module_config, $module_info, $op;
 
-    $xtpl = new XTemplate("sms.tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate('sms.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
-    $xtpl->assign('sms', sprintf($lang_module['sms'], $smsConfig_keyword . " " . $smsConfig_prefix, $user_info['email'], $smsConfig_keyword . " " . $smsConfig_prefix, $user_info['email'], $smsConfig_port));
+    $xtpl->assign('sms', sprintf($lang_module['sms'], $smsConfig_keyword . ' ' . $smsConfig_prefix, $user_info['email'], $smsConfig_keyword . ' ' . $smsConfig_prefix, $user_info['email'], $smsConfig_port));
 
     $xtpl->parse('main');
     return $xtpl->text('main');
 }
 
 /**
- * nv_theme_wallet_pay()
- *
  * @param mixed $url_checkout
  * @param mixed $payport_content
  * @return
@@ -472,7 +471,7 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
 {
     global $global_config, $module_name, $lang_module, $module_config, $module_info, $op;
 
-    $xtpl = new XTemplate($op . ".tpl", NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('module_file', $module_info['module_theme']);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
@@ -520,7 +519,7 @@ function nv_theme_wallet_pay($url_checkout, $payport_content, $order_info, $mone
     $xtpl->assign('WPAYMSG', sprintf($lang_module['paygate_wpay_msg'], $order_info['money_amountdisplay'] . ' ' . $order_info['money_unit']));
 
     if ($money_info['moneytotalnotformat'] < $order_info['money_amount']) {
-        $xtpl->assign('LINK_RECHARGE', NV_BASE_SITEURL . "index.php?" . NV_LANG_VARIABLE . "=" . NV_LANG_DATA . "&amp;" . NV_NAME_VARIABLE . "=" . $module_name . '&amp;amount=' . ($order_info['money_amount'] - $money_info['moneytotalnotformat']) . '-' . $order_info['money_unit']);
+        $xtpl->assign('LINK_RECHARGE', NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;amount=' . ($order_info['money_amount'] - $money_info['moneytotalnotformat']) . '-' . $order_info['money_unit']);
         $xtpl->parse('main.wpay_cant');
     } else {
         $xtpl->parse('main.wpay_detail');
@@ -542,7 +541,7 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
 {
     global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name, $module_captcha, $is_vietqr, $payment_config, $array_banks, $money_net;
 
-    $xtpl = new XTemplate('atm_pay.tpl', NV_ROOTDIR . "/themes/" . $module_info['template'] . "/modules/" . $module_info['module_theme']);
+    $xtpl = new XTemplate('atm_pay.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
     $xtpl->assign('LANG', $lang_module);
     $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
     $xtpl->assign('NV_BASE_SITEURL', NV_BASE_SITEURL);
@@ -554,7 +553,7 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
     $xtpl->assign('MONEY_NET', $money_net);
     $xtpl->assign('DATA', $post);
 
-    $order_info['code'] = vsprintf('DH%010s', $order_info['id']);
+    $order_info['code'] = sprintf('DH%010s', $order_info['id']);
     $order_info['money_amount'] = get_display_money($order_info['money_amount']);
     $xtpl->assign('ORDER', $order_info);
 
@@ -629,6 +628,106 @@ function nv_theme_wallet_atm_pay($order_info, $row_payment, $post, $error)
         $xtpl->assign('ERROR', $error);
         $xtpl->parse('main.error');
     }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}
+
+/**
+ * @param array $order_info
+ * @param array $row_payment
+ * @param array $post
+ * @param string $error
+ * @return string
+ */
+function nv_theme_wallet_sepay_pay($order_info, $row_payment, $post, $error)
+{
+    global $global_config, $lang_module, $lang_global, $module_info, $module_config, $module_name, $module_captcha, $payment_config, $array_banks, $money_net;
+
+    $xtpl = new XTemplate('sepay_pay.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
+    $xtpl->assign('LANG', $lang_module);
+    $xtpl->assign('ROW_PAYMENT', $row_payment);
+    $xtpl->assign('FORM_ACTION', $order_info['payurl'] . '&amp;payment=' . $row_payment['payment']);
+    $xtpl->assign('MONEY_NET', $money_net);
+    $xtpl->assign('DATA', $post);
+
+    $order_info['code'] = sprintf('DH%010s', $order_info['id']);
+    $order_info['money_amount'] = get_display_money($order_info['money_amount']);
+    $xtpl->assign('ORDER', $order_info);
+
+    foreach ($payment_config['acq_id'] as $acq_key => $acq_id) {
+        $xtpl->assign('ACCOUNT_NO', $payment_config['account_no'][$acq_key]);
+
+        $account_name = '';
+        if (isset($array_banks[$acq_id]) and !empty($array_banks[$acq_id]['shortName'])) {
+            $account_name = $array_banks[$acq_id]['shortName'] . ' - ';
+        }
+        $account_name .= $payment_config['account_no'][$acq_key];
+        $xtpl->assign('ACCOUNT_NAME', $account_name);
+        $xtpl->assign('ACCOUNT_SELECTED', $payment_config['account_no'][$acq_key] == $post['to_account'] ? ' selected="selected"' : '');
+
+        $xtpl->parse('main.account');
+    }
+
+    if ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 3) {
+        // Nếu dùng reCaptcha v3
+        $xtpl->parse('main.recaptcha3');
+    } elseif ($module_captcha == 'recaptcha' and $global_config['recaptcha_ver'] == 2) {
+        // Nếu dùng reCaptcha v2
+        $xtpl->assign('N_CAPTCHA', $lang_global['securitycode1']);
+        $xtpl->assign('RECAPTCHA_ELEMENT', 'recaptcha' . nv_genpass(8));
+        $xtpl->parse('main.recaptcha');
+    } elseif ($module_captcha == 'captcha') {
+        $xtpl->assign('GFX_WIDTH', NV_GFX_WIDTH);
+        $xtpl->assign('GFX_HEIGHT', NV_GFX_HEIGHT);
+        $xtpl->assign('CAPTCHA_REFRESH', $lang_global['captcharefresh']);
+        $xtpl->assign('CAPTCHA_REFR_SRC', NV_STATIC_URL . NV_ASSETS_DIR . '/images/refresh.png');
+        $xtpl->assign('NV_GFX_NUM', NV_GFX_NUM);
+        $xtpl->parse('main.captcha');
+    }
+
+    if (!empty($error)) {
+        $xtpl->assign('ERROR', $error);
+        $xtpl->parse('main.error');
+    }
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}
+
+/**
+ * @param array $transaction
+ * @param array $api_banks
+ * @return string
+ */
+function nv_theme_wallet_waitsepay($transaction, $api_banks)
+{
+    global $module_info, $lang_module, $lang_global;
+
+    $xtpl = new XTemplate('waitsepay.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
+    $xtpl->assign('LANG', $lang_module);
+    $xtpl->assign('GLANG', $lang_global);
+
+    $xtpl->assign('TRANSACTION', $transaction);
+    $xtpl->assign('COL_WIDTH', $transaction['qr_supported'] ? '12' : '24');
+
+    // Hiển thị mã QR
+    if ($transaction['qr_supported']) {
+        if (empty($transaction['qr_image'])) {
+            $xtpl->parse('main.qr.noimg');
+        } else {
+            $xtpl->parse('main.qr.img');
+        }
+
+        $xtpl->parse('main.qr');
+    }
+
+    if (isset($transaction['acq_id']) and isset($api_banks[$transaction['acq_id']])) {
+        $xtpl->assign('LOGO', $api_banks[$transaction['acq_id']]['logo']);
+        $xtpl->assign('ALT_LOGO', $api_banks[$transaction['acq_id']]['name']);
+        $xtpl->parse('main.logo_bank');
+    }
+    $xtpl->assign('MESSAGE_NOTE', sprintf($lang_module['atm_mess_note'], $transaction['transaction_code']));
 
     $xtpl->parse('main');
     return $xtpl->text('main');

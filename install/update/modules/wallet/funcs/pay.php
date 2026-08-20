@@ -142,7 +142,7 @@ if ($nv_Request->isset_request('wallet', 'get')) {
     }
     $check = $db->exec("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
         paid_status=4,
-        paid_id=" . $db->quote(vsprintf('WP%010s', $transaction_id)) . ",
+        paid_id=" . $db->quote(sprintf('WP%010s', $transaction_id)) . ",
         paid_time=" . NV_CURRENTTIME . "
     WHERE id=" . $order_id);
     if (!$check) {
@@ -176,33 +176,21 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $array_banks = [];
     $is_vietqr = false;
 
-    if ($payment == 'ATM' or $payment == 'VietQR') {
-        $payment_config['account_no'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_no']);
-        $payment_config['account_name'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['account_name']);
-        $payment_config['acq_id'] = empty($payment_config['account_no']) ? [] : explode(',', $payment_config['acq_id']);
-
+    if (in_array($payment, ['ATM', 'VietQR', 'sepay'])) {
+        $payment_config['account_no'] = empty($payment_config['account_no']) ? [] : array_map('trim', explode(',', $payment_config['account_no']));
+        $payment_config['account_name'] = empty($payment_config['account_no']) ? [] : array_map('trim', explode(',', $payment_config['account_name']));
+        $payment_config['acq_id'] = empty($payment_config['account_no']) ? [] : array_map('trim', explode(',', $payment_config['acq_id']));
+    }
+    if (in_array($payment, ['ATM', 'VietQR'])) {
         // Lấy một số thông tin ngân hàng khi nạp API
         if (!empty($payment_config['acq_id']) and !empty($payment_config['account_no']) and !empty($payment_config['account_name'])) {
             $is_vietqr = true;
-            $cacheFile = NV_LANG_DATA . '_vietqr_banks_' . NV_CACHE_PREFIX . '.cache';
-            $cacheTTL = 3600;
-            if (($cache = $nv_Cache->getItem($module_name, $cacheFile, $cacheTTL)) != false) {
-                $array_banks = json_decode($cache, true);
-            } else {
-                $banks = file_get_contents('https://api.vietqr.io/v1/banks');
-                $banks = json_decode($banks, true);
-
-                if (is_array($banks) and !empty($banks['data'])) {
-                    foreach ($banks['data'] as $bank) {
-                        if ($bank['vietqr'] > 1) {
-                            // Ngân hàng quét mã được mới hiển thị
-                            $array_banks[$bank['bin']] = $bank;
-                        }
-                    }
-                }
-                $nv_Cache->setItem($module_name, $cacheFile, json_encode($array_banks), $cacheTTL);
-            }
+            $array_banks = getVietqrBanksV1();
         }
+    }
+    if ($payment == 'sepay') {
+        $payment_config['bank_branch'] = empty($payment_config['account_no']) ? [] : array_map('trim', explode(';', $payment_config['bank_branch']));
+        $array_banks = getVietqrBanksV2();
     }
 
     // Xử lý kết quả trả về của cổng thanh toán
@@ -249,7 +237,8 @@ if ($nv_Request->isset_request('payment', 'get')) {
         // Cập nhật đơn hàng rồi quay lại
         // Module liên kết tự xử lý kết quả
         // Không cập nhật nếu cổng thanh toán VNPAY
-        if ($payment != 'vnpay') {
+        // Không cập nhật luôn nếu cổng thanh toán SePay vì webhook Sepay đã cập nhật
+        if ($payment != 'vnpay' and $payment != 'sepay') {
             // Cập nhật lại giao dịch
             $sql = 'UPDATE ' . $db_config['prefix'] . "_" . $module_data . '_transaction SET
                 transaction_id = ' . $db->quote($responseData['transaction_id']) . ', transaction_status = ' . $responseData['transaction_status'] . ',
@@ -263,7 +252,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
             // Cập nhật lại đơn hàng
             $check = $db->query("UPDATE " . $db_config['prefix'] . "_" . $module_data . "_orders SET
                 paid_status=" . $responseData['transaction_status'] . ",
-                paid_id=" . $db->quote(vsprintf('WP%010s', $transaction['id'])) . ",
+                paid_id=" . $db->quote(sprintf('WP%010s', $transaction['id'])) . ",
                 paid_time=" . $responseData['transaction_time'] . "
             WHERE id=" . $order_id);
             if (!$check) {
@@ -280,7 +269,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
         )) {
             $accountants_emails = array_filter(array_unique(array_map("trim", explode(',', $module_config[$module_name]['accountants_emails']))));
 
-            $email_order_code = empty($transaction['order_id']) ? vsprintf('GD%010s', $transaction['id']) : vsprintf('WP%010s', $transaction['id']);
+            $email_order_code = empty($transaction['order_id']) ? sprintf('GD%010s', $transaction['id']) : sprintf('WP%010s', $transaction['id']);
             $email_created_time = nv_date('H:i d/m/Y', $transaction['created_time']);
             $email_customer_name = $lang_module['email_notice_visitor'];
             if (!empty($transaction['customer_id'])) {
@@ -321,7 +310,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
 
     // Lưu mới phiên thanh toán
     $transaction = [];
-    $transaction_info = sprintf($lang_module['paygate_tranmess'], vsprintf('DH%010s', $order_info['id']));
+    $transaction_info = sprintf($lang_module['paygate_tranmess'], sprintf('DH%010s', $order_info['id']));
     // Tạo ngẫu nhiên một khóa xem như là Private key để tính checksum
     $tokenkey = md5($global_config['sitekey'] . $user_info['userid'] . NV_CURRENTTIME . $order_info['money_amount'] . $order_info['money_unit'] . $payment . nv_genpass());
 
@@ -355,9 +344,10 @@ if ($nv_Request->isset_request('payment', 'get')) {
     $post['atm_acq'] = -1; // Offset key của ngân hàng nhận
     $post['vietqr_screenshots'] = ''; // Tên ảnh chụp màn hình hiện tại
     $post['vietqr_screenshots_key'] = ''; // Khóa ảnh chụp màn hình hiện tại
+    $post['to_account'] = ''; // Sepay số tài khoản nhận
 
     // Quy định tiếng Việt không dấu, tối đa 25 ký tự. Không ký tự đặc biệt
-    $post['atm_transaction_info'] = ucfirst(str_replace('-', ' ', change_alias(sprintf($lang_module['paygate_tranmess1'], vsprintf('DH%010s', $order_id)))));
+    $post['atm_transaction_info'] = ucfirst(str_replace('-', ' ', change_alias(sprintf($lang_module['paygate_tranmess1'], sprintf('DH%010s', $order_id)))));
     $post['transaction_data'] = '';
 
     // Gọi API lấy mã VietQR
@@ -395,7 +385,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
                 'body' => json_encode($body),
                 'timeout' => 10,
                 'decompress' => false,
-                //'sslverify' => false
+                'sslverify' => false
             ];
 
             $http = new Http($global_config, NV_TEMP_DIR);
@@ -421,6 +411,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
         nv_jsonOutput($respon);
     }
 
+    // Xử lý riêng cổng ATM và VietQR
     if ($payment == 'ATM' or $payment == 'VietQR') {
         $isSubmit = false;
         $error = $atm_error = '';
@@ -459,6 +450,45 @@ if ($nv_Request->isset_request('payment', 'get')) {
         }
     }
 
+    // Xử lý riêng cổng SePay
+    if ($payment == 'sepay') {
+        $isSubmit = false;
+        $error = $sepay_error = '';
+
+        if ($nv_Request->isset_request('fsubmit', 'post')) {
+            $isSubmit = true;
+
+            unset($fcode);
+            if ($module_captcha == 'recaptcha') {
+                // Xác định giá trị của captcha nhập vào nếu sử dụng reCaptcha
+                $fcode = $nv_Request->get_title('g-recaptcha-response', 'post', '');
+            } elseif ($module_captcha == 'captcha') {
+                // Xác định giá trị của captcha nhập vào nếu sử dụng captcha hình
+                $fcode = $nv_Request->get_title('fcode', 'post', '');
+            }
+
+            define('NV_IS_SEPAY_FORM', true);
+            require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.form.php';
+
+            if (isset($fcode) and !nv_capcha_txt($fcode, $module_captcha)) {
+                $error = ($module_captcha == 'recaptcha') ? $lang_global['securitycodeincorrect1'] : $lang_global['securitycodeincorrect'];
+            } elseif (!empty($sepay_error)) {
+                $error = $sepay_error;
+            } else {
+                // Xử lý trước khi lưu CSDL
+                require NV_ROOTDIR . '/modules/' . $module_file . '/payment/' . $payment . '.presave.php';
+            }
+        }
+
+        if (!$isSubmit or !empty($error)) {
+            $contents = nv_theme_wallet_sepay_pay($order_info, $row_payment, $post, $error);
+
+            include NV_ROOTDIR . '/includes/header.php';
+            echo nv_site_theme($contents);
+            include NV_ROOTDIR . '/includes/footer.php';
+        }
+    }
+
     $transaction['id'] = $db->insert_id("INSERT INTO " . $db_config['prefix'] . "_" . $module_data . "_transaction (
         created_time, status, money_unit, money_total, money_net, money_discount, money_revenue, userid, adminid, order_id, customer_id, customer_name,
         customer_email, customer_phone, customer_address, customer_info, transaction_id, transaction_type, transaction_status, transaction_time,
@@ -477,7 +507,7 @@ if ($nv_Request->isset_request('payment', 'get')) {
 
     // Tạo dữ liệu cổng thanh toán
     $post = [];
-    $post['transaction_code'] = vsprintf('WP%010s', $transaction['id']);
+    $post['transaction_code'] = sprintf('WP%010s', $transaction['id']);
     $post['transaction_info'] = sprintf($lang_module['paygate_tranmess_send'], $post['transaction_code'], NV_SERVER_NAME);
     $post['money_net'] = $money_net;
     $post['money_unit'] = $pay_money;
@@ -496,11 +526,9 @@ if ($nv_Request->isset_request('payment', 'get')) {
     }
 
     if (!empty($url)) {
-        Header("Location: " . $url);
-    } else {
-        nv_redirect_location($order_info['payurl']);
+        nv_redirect_location($url);
     }
-    die();
+    nv_redirect_location($order_info['payurl']);
 }
 
 if (empty($order_info['order_object']) and empty($order_info['order_name'])) {

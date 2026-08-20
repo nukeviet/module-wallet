@@ -8,8 +8,9 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_SYSTEM'))
+if (!defined('NV_SYSTEM')) {
     die('Stop!!!');
+}
 
 require NV_ROOTDIR . '/modules/' . $module_file . '/global.functions.php';
 
@@ -19,8 +20,6 @@ $module_config[$module_name]['minimum_amount'] = !empty($module_config[$module_n
 $module_config[$module_name]['recharge_rate'] = !empty($module_config[$module_name]['recharge_rate']) ? unserialize($module_config[$module_name]['recharge_rate']) : array();
 
 /**
- * nv_wallet_money_in()
- *
  * @param mixed $userid
  * @param mixed $money_unit
  * @param mixed $money
@@ -57,8 +56,6 @@ function nv_wallet_money_in($userid, $money_unit, $money, $note_creat = '')
 }
 
 /**
- * nv_wallet_exchange()
- *
  * @param mixed $userid -- ID thành viên
  * @param mixed $money_unit -- Loại tiền cộng vào
  * @param mixed $moneyexchange -- Số tiền cộng vào
@@ -102,8 +99,6 @@ function nv_wallet_exchange($userid, $money_unit, $moneyexchange, $moneysub, $to
 }
 
 /**
- * getInfoMoney()
- *
  * @param mixed $money_unit
  * @return
  */
@@ -143,8 +138,6 @@ function getInfoMoney($money_unit)
 }
 
 /**
- * nv_wallet_checkRate()
- *
  * @param mixed $money1
  * @param mixed $money2
  * @return
@@ -166,8 +159,6 @@ function nv_wallet_checkRate($money1, $money2)
 }
 
 /**
- * nv_wallet_tinhtoan()
- *
  * @param mixed $money1
  * @param mixed $money2
  * @param mixed $totalmoneyexchange
@@ -190,8 +181,6 @@ function nv_wallet_tinhtoan($money1, $money2, $totalmoneyexchange)
 }
 
 /**
- * updateTransaction()
- *
  * @param mixed $moneyexchange
  * @param mixed $moneyunit
  * @param mixed $status
@@ -231,4 +220,64 @@ function updateTransaction($moneyexchange, $moneyunit, $status, $userid, $transi
     $data_insert['tokenkey'] = '';
 
     return $db->insert_id($sql, 'id', $data_insert);
+}
+
+/**
+ * @return array
+ */
+function getVietqrBanksV1()
+{
+    global $nv_Cache, $module_name;
+
+    $cacheFile = NV_LANG_DATA . '_vietqr_banks_' . NV_CACHE_PREFIX . '.cache';
+    $cacheTTL = 3600;
+    if (($cache = $nv_Cache->getItem($module_name, $cacheFile, $cacheTTL)) != false) {
+        $array_banks = json_decode($cache, true);
+    } else {
+        $array_banks = [];
+        $banks = file_get_contents('https://api.vietqr.io/v1/banks');
+        $banks = json_decode($banks, true);
+
+        if (is_array($banks) and !empty($banks['data'])) {
+            foreach ($banks['data'] as $bank) {
+                if ($bank['vietqr'] > 1) {
+                    // Ngân hàng quét mã được mới hiển thị
+                    $array_banks[$bank['bin']] = $bank;
+                }
+            }
+        }
+        $nv_Cache->setItem($module_name, $cacheFile, json_encode($array_banks), $cacheTTL);
+    }
+
+    return $array_banks;
+}
+
+/**
+ * @return array
+ */
+function getVietqrBanksV2()
+{
+    global $nv_Cache, $module_name;
+
+    $cacheFile = NV_LANG_DATA . '_vietqrv2_banks_' . NV_CACHE_PREFIX . '.cache';
+    $cacheTTL = 3600;
+    if (($cache = $nv_Cache->getItem($module_name, $cacheFile, $cacheTTL)) != false) {
+        $array_banks = json_decode($cache, true);
+    } else {
+        $array_banks = [];
+        $banks = file_get_contents('https://api.vietqr.io/v2/banks');
+        $banks = json_decode($banks, true);
+
+        if (is_array($banks) and !empty($banks['data'])) {
+            foreach ($banks['data'] as $bank) {
+                if (!empty($bank['transferSupported'])) {
+                    // Ngân hàng quét mã được mới hiển thị
+                    $array_banks[$bank['bin']] = $bank;
+                }
+            }
+        }
+        $nv_Cache->setItem($module_name, $cacheFile, json_encode($array_banks), $cacheTTL);
+    }
+
+    return $array_banks;
 }

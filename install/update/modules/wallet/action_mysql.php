@@ -31,6 +31,7 @@ if (empty($num_table)) {
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admin_groups";
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_admins";
     $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_ipn_logs";
+    $sql_drop_module[] = "DROP TABLE IF EXISTS " . $db_config['prefix'] . "_" . $module_data . "_sepay_logs";
 
     $sql_create_module = $sql_drop_module;
     $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_epay_log(
@@ -254,6 +255,28 @@ if (empty($num_table)) {
       KEY request_method (request_method),
       KEY request_time (request_time)
     ) ENGINE=INNODB";
+
+    // Ghi log SePay Webhooks
+    $sql_create_module[] = "CREATE TABLE IF NOT EXISTS " . $db_config['prefix'] . "_" . $module_data . "_sepay_logs (
+      id int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID bên Sepay',
+      gateway varchar(50) NOT NULL DEFAULT '' COMMENT 'Tên ngân hàng nhận',
+      banktime int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Thời gian giao dịch phía ngân hàng',
+      addtime int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Thời gian ghi nhận được webhooks',
+      content varchar(255) NOT NULL DEFAULT '' COMMENT 'Nội dung giao dịch',
+      transfer_amount double NOT NULL DEFAULT 0 COMMENT 'Số tiền giao dịch',
+      accumulated double NOT NULL DEFAULT 0 COMMENT 'Số dư lũy kế',
+      sub_account varchar(100) NOT NULL DEFAULT '' COMMENT 'Tài khoản phụ',
+      reference_code varchar(100) NOT NULL DEFAULT '' COMMENT 'Mã tham chiếu của tin nhắn sms',
+      description text NOT NULL DEFAULT '' COMMENT 'Toàn bộ nội dung tin nhắn sms',
+      status tinyint(1) NOT NULL DEFAULT 0 COMMENT '0 sai cú pháp, 1 đúng cú pháp',
+      mapping_status tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 xử lý thành công, 0 xử lý thất bại',
+      PRIMARY KEY (id),
+      KEY banktime (banktime),
+      KEY addtime (addtime),
+      KEY status (status),
+      KEY mapping_status (mapping_status),
+      KEY transfer_amount (transfer_amount)
+    ) ENGINE=INNODB COMMENT='Các giao dịch chuyển tiền vào tài khoản ghi nhận qua SePay'";
 }
 
 $sql = "SELECT * FROM " . NV_CONFIG_GLOBALTABLE . " WHERE lang ='" . $lang . "' AND module='" . $module_name . "'";

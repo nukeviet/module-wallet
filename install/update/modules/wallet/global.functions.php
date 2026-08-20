@@ -8,12 +8,11 @@
  * @Createdate Friday, March 9, 2018 6:24:54 AM
  */
 
-if (!defined('NV_MAINFILE'))
+if (!defined('NV_MAINFILE')) {
     die('Stop!!!');
+}
 
 /**
- * get_display_money()
- *
  * @param mixed $amount
  * @param integer $digis
  * @param string $dec_point
@@ -29,8 +28,24 @@ function get_display_money($amount, $digis = 2, $dec_point = ',', $thousan_step 
 }
 
 /**
- * get_db_money()
+ * Hàm hiển thị số tiền đã định dạng theo ngôn ngữ giao diện
  *
+ * @param float $amount
+ * @return string
+ */
+function display_money($amount)
+{
+    if (NV_LANG_INTERFACE == 'vi') {
+        $dec_point = ',';
+        $thousan_step = '.';
+    } else {
+        $dec_point = '.';
+        $thousan_step = ',';
+    }
+    return get_display_money($amount, 2, $dec_point, $thousan_step);
+}
+
+/**
  * @param mixed $amount
  * @param mixed $currency
  * @return

@@ -15,8 +15,6 @@ if (!defined('NV_IS_FILE_ADMIN')) {
 $page_title = $lang_module['setup_payment'];
 
 /**
- * drawselect_number()
- *
  * @param string $select_name
  * @param integer $number_start
  * @param integer $number_end

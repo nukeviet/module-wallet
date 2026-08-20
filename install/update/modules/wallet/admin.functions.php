@@ -46,7 +46,7 @@ function getInfoUser($userid)
  * @param mixed $status cộng hay trừ tiền
  * @return
  */
-function update_money($userid, $money, $money_unit = 'VND', $currTranStatus, $oldTranStatus, $status)
+function update_money($userid, $money, $money_unit, $currTranStatus, $oldTranStatus, $status)
 {
     global $db, $db_config, $module_data;
 

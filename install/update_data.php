@@ -12,13 +12,13 @@ if (!defined('NV_IS_UPDATE')) {
     die('Stop!!!');
 }
 
-$nv_update_config = array();
+$nv_update_config = [];
 
 // Kieu nang cap 1: Update; 2: Upgrade
 $nv_update_config['type'] = 1;
 
 // ID goi cap nhat
-$nv_update_config['packageID'] = 'NVUWALLET4502';
+$nv_update_config['packageID'] = 'NVUWALLET4600';
 
 // Cap nhat cho module nao, de trong neu la cap nhat NukeViet, ten thu muc module neu la cap nhat module
 $nv_update_config['formodule'] = 'wallet';
@@ -27,63 +27,84 @@ $nv_update_config['formodule'] = 'wallet';
 $nv_update_config['id'] = 269;
 $nv_update_config['author'] = 'VINADES.,JSC <contact@vinades.vn>';
 $nv_update_config['note'] = '';
-$nv_update_config['release_date'] = 1664008363;
-$nv_update_config['support_website'] = 'https://github.com/nukeviet/module-wallet/tree/to-4.5.02';
-$nv_update_config['to_version'] = '4.5.02';
-$nv_update_config['allow_old_version'] = array('4.3.01', '4.5.00');
+$nv_update_config['release_date'] = 1787196640;
+$nv_update_config['support_website'] = 'https://github.com/nukeviet/module-wallet/tree/to-4.6.00';
+$nv_update_config['to_version'] = '4.6.00';
+$nv_update_config['allow_old_version'] = [
+    '4.3.01',
+    '4.5.00',
+    '4.5.02',
+    '4.5.04',
+    '4.6.00',
+];
 
 // 0:Nang cap bang tay, 1:Nang cap tu dong, 2:Nang cap nua tu dong
 $nv_update_config['update_auto_type'] = 1;
 
-$nv_update_config['lang'] = array();
-$nv_update_config['lang']['vi'] = array();
+$nv_update_config['lang'] = [];
+$nv_update_config['lang']['vi'] = [];
 
 // Tiếng Việt
 $nv_update_config['lang']['vi']['nv_up_f1'] = 'Cập nhật CSDL phiên bản 4.3.00';
 $nv_update_config['lang']['vi']['nv_up_f2'] = 'Cập nhật CSDL phiên bản 4.3.02';
 $nv_update_config['lang']['vi']['nv_up_f3'] = 'Cập nhật CSDL phiên bản 4.5.00';
+$nv_update_config['lang']['vi']['nv_up_f4'] = 'Cập nhật CSDL phiên bản 4.5.04';
+$nv_update_config['lang']['vi']['nv_up_f5'] = 'Cập nhật CSDL phiên bản 4.6.00';
+
 $nv_update_config['lang']['vi']['nv_up_finish'] = 'Đánh dấu phiên bản mới';
 
-$nv_update_config['tasklist'] = array();
+$nv_update_config['tasklist'] = [];
 
-$nv_update_config['tasklist'][] = array(
+$nv_update_config['tasklist'][] = [
     'r' => '4.3.01',
     'rq' => 1,
     'l' => 'nv_up_f1',
     'f' => 'nv_up_f1'
-);
+];
 
-$nv_update_config['tasklist'][] = array(
+$nv_update_config['tasklist'][] = [
     'r' => '4.3.02',
     'rq' => 1,
     'l' => 'nv_up_f2',
     'f' => 'nv_up_f2'
-);
-$nv_update_config['tasklist'][] = array(
+];
+$nv_update_config['tasklist'][] = [
     'r' => '4.5.00',
     'rq' => 1,
     'l' => 'nv_up_f3',
     'f' => 'nv_up_f3'
-);
+];
+$nv_update_config['tasklist'][] = [
+    'r' => '4.5.04',
+    'rq' => 1,
+    'l' => 'nv_up_f4',
+    'f' => 'nv_up_f4'
+];
+$nv_update_config['tasklist'][] = [
+    'r' => '4.6.00',
+    'rq' => 1,
+    'l' => 'nv_up_f5',
+    'f' => 'nv_up_f5'
+];
 
-$nv_update_config['tasklist'][] = array(
-    'r' => '4.5.02',
+$nv_update_config['tasklist'][] = [
+    'r' => $nv_update_config['to_version'],
     'rq' => 1,
     'l' => 'nv_up_finish',
     'f' => 'nv_up_finish'
-);
+];
 
 // Danh sach cac function
 /*
 Chuan hoa tra ve:
-array(
+[
 'status' =>
 'complete' =>
 'next' =>
 'link' =>
 'lang' =>
 'message' =>
-);
+];
 status: Trang thai tien trinh dang chay
 - 0: That bai
 - 1: Thanh cong
@@ -106,18 +127,18 @@ Duoc ho tro boi bien $nv_update_baseurl de load lai nhieu lan mot function
 Kieu cap nhat module duoc ho tro boi bien $old_module_version
 */
 
-$array_modlang_update = array();
-$array_modtable_update = array();
+$array_modlang_update = [];
+$array_modtable_update = [];
 
 // Lay danh sach ngon ngu
 $result = $db->query("SELECT lang FROM " . $db_config['prefix'] . "_setup_language WHERE setup=1");
 while (list($_tmp) = $result->fetch(PDO::FETCH_NUM)) {
-    $array_modlang_update[$_tmp] = array("lang" => $_tmp, "mod" => array());
+    $array_modlang_update[$_tmp] = ["lang" => $_tmp, "mod" => []];
 
     // Get all module
     $result1 = $db->query("SELECT title, module_data FROM " . $db_config['prefix'] . "_" . $_tmp . "_modules WHERE module_file=" . $db->quote($nv_update_config['formodule']));
     while (list($_modt, $_modd) = $result1->fetch(PDO::FETCH_NUM)) {
-        $array_modlang_update[$_tmp]['mod'][] = array("module_title" => $_modt, "module_data" => $_modd);
+        $array_modlang_update[$_tmp]['mod'][] = ["module_title" => $_modt, "module_data" => $_modd];
         $array_modtable_update[] = $db_config['prefix'] . "_" . $_tmp . "_" . $_modd;
     }
 }
@@ -131,14 +152,14 @@ while (list($_tmp) = $result->fetch(PDO::FETCH_NUM)) {
 function nv_up_f1()
 {
     global $nv_update_baseurl, $db, $db_config, $nv_Cache, $array_modlang_update;
-    $return = array(
+    $return = [
         'status' => 1,
         'complete' => 1,
         'next' => 1,
         'link' => 'NO',
         'lang' => 'NO',
         'message' => ''
-    );
+    ];
 
 
     foreach ($array_modlang_update as $lang => $array_mod) {
@@ -146,10 +167,10 @@ function nv_up_f1()
             try {
                 $db->query("INSERT INTO " . NV_CONFIG_GLOBALTABLE . " (
                     lang, module, config_name, config_value
-                ) VALUES 
+                ) VALUES
                     ('" . $lang . "', '" . $module_info['module_title'] . "', 'allow_exchange_pay', '1')
                 ");
-            } catch (PDOException $e) {
+            } catch (Throwable $e) {
                 trigger_error($e->getMessage());
             }
 
@@ -158,7 +179,7 @@ function nv_up_f1()
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange
                     CHANGE exchange exchange DOUBLE NOT NULL DEFAULT '1' "
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
@@ -166,16 +187,16 @@ function nv_up_f1()
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange
                     ADD exchange_from DOUBLE NOT NULL DEFAULT '1' AFTER than_unit "
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
-        
+
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange_log
                     CHANGE exchange exchange DOUBLE NOT NULL DEFAULT '1' "
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
@@ -183,16 +204,16 @@ function nv_up_f1()
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange_log
                     ADD exchange_from DOUBLE NOT NULL DEFAULT '1' AFTER than_unit "
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
-        
+
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_orders
                     ADD paid_id VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'ID giao dịch' AFTER paid_status "
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
         }
@@ -209,26 +230,26 @@ function nv_up_f1()
 function nv_up_f2()
 {
     global $nv_update_baseurl, $db, $db_config, $nv_Cache, $array_modlang_update;
-    $return = array(
+    $return = [
         'status' => 1,
         'complete' => 1,
         'next' => 1,
         'link' => 'NO',
         'lang' => 'NO',
         'message' => ''
-    );
+    ];
 
     foreach ($array_modlang_update as $lang => $array_mod) {
         foreach ($array_mod['mod'] as $module_info) {
             try {
                 $db->query("INSERT INTO " . NV_CONFIG_GLOBALTABLE . " (
                     lang, module, config_name, config_value
-                ) VALUES 
+                ) VALUES
                     ('" . $lang . "', '" . $module_info['module_title'] . "', 'accountants_emails', ''),
                     ('" . $lang . "', '" . $module_info['module_title'] . "', 'transaction_expiration_time', '0'),
                     ('" . $lang . "', '" . $module_info['module_title'] . "', 'next_update_transaction_time', '0')
                 ");
-            } catch (PDOException $e) {
+            } catch (Throwable $e) {
                 trigger_error($e->getMessage());
             }
 
@@ -248,10 +269,10 @@ function nv_up_f2()
                     KEY request_time (request_time)
                 ) ENGINE=INNODB";
                 $db->query($sql);
-            } catch (PDOException $e) {
+            } catch (Throwable $e) {
                 trigger_error($e->getMessage());
             }
-        
+
             try {
                 $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_admins(
                     admin_id mediumint(8) NOT NULL,
@@ -262,10 +283,10 @@ function nv_up_f2()
                     KEY gid (gid)
                 ) ENGINE=INNODB";
                 $db->query($sql);
-            } catch (PDOException $e) {
+            } catch (Throwable $e) {
                 trigger_error($e->getMessage());
             }
-        
+
             try {
                 $sql = "CREATE TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_admin_groups(
                     gid smallint(4) NOT NULL AUTO_INCREMENT,
@@ -296,115 +317,115 @@ function nv_up_f2()
                     KEY is_viewstats (is_viewstats)
                 ) ENGINE=INNODB";
                 $db->query($sql);
-            } catch (PDOException $e) {
+            } catch (Throwable $e) {
                 trigger_error($e->getMessage());
             }
-        
+
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_payment
                     ADD active_completed_email TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Kích hoạt gửi email thông báo các giao dịch chưa hoàn thành' AFTER allowedoptionalmoney,
                     ADD active_incomplete_email TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Kích hoạt gửi email thông báo các giao dịch đã hoàn thành' AFTER active_completed_email "
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
-        
+
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction
                     ADD is_expired TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '0: Chưa hết hạn, 1: Hết hạn' AFTER tokenkey,
                     ADD INDEX is_expired (is_expired) "
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
-        
+
             //Thay đổi Enginee của các bảng dữ liệu
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_epay_log ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_exchange_log ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_money ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_money_sys ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_payment ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_payment_discount ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_smslog ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction 
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction
                     DROP INDEX customer_name, ADD INDEX customer_name (customer_name(191)) USING BTREE"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
-                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction 
+                    "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction
                     DROP INDEX customer_email, ADD INDEX customer_email (customer_email(191)) USING BTREE"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_transaction ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
             try {
                 $db->query(
                     "ALTER TABLE " . $db_config['prefix'] . "_" . $module_info['module_data'] . "_orders ENGINE = INNODB"
                 );
-            } catch(PDOException $e) {
+            } catch(Throwable $e) {
                 trigger_error($e->getMessage());
             }
         }
@@ -413,31 +434,28 @@ function nv_up_f2()
 }
 
 /**
- * nv_up_f3()
- *
- * @return
- *
+ * @return array
  */
 function nv_up_f3()
 {
     global $nv_update_baseurl, $db, $db_config, $nv_Cache, $array_modlang_update;
-    $return = array(
+    $return = [
         'status' => 1,
         'complete' => 1,
         'next' => 1,
         'link' => 'NO',
         'lang' => 'NO',
         'message' => ''
-    );
+    ];
     foreach ($array_modlang_update as $lang => $array_mod) {
         foreach ($array_mod['mod'] as $module_info) {
             try {
                 $db->query("INSERT INTO " . NV_CONFIG_GLOBALTABLE . " (
                     lang, module, config_name, config_value
-                ) VALUES 
+                ) VALUES
                     ('" . $lang . "', '" . $module_info['module_title'] . "', 'captcha_type', 'captcha')
                 ");
-            } catch (PDOException $e) {
+            } catch (Throwable $e) {
                 trigger_error($e->getMessage());
             }
         }
@@ -446,23 +464,99 @@ function nv_up_f3()
 }
 
 /**
- * nv_up_finish()
- *
- * @return
- *
+ * @return array
  */
-function nv_up_finish()
+function nv_up_f4()
 {
-    global $nv_update_baseurl, $db, $db_config, $nv_Cache, $nv_update_config;
-
-    $return = array(
+    global $nv_update_baseurl, $db, $db_config, $nv_Cache, $array_modlang_update;
+    $return = [
         'status' => 1,
         'complete' => 1,
         'next' => 1,
         'link' => 'NO',
         'lang' => 'NO',
         'message' => ''
-    );
+    ];
+    foreach ($array_modlang_update as $lang => $array_mod) {
+        foreach ($array_mod['mod'] as $module_info) {
+            $table_prefix = $db_config['prefix'] . "_" . $module_info['module_data'];
+
+            // Thêm bảng log sepay
+            try {
+                $db->query("CREATE TABLE " . $table_prefix . "_sepay_logs (
+                id int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID bên Sepay',
+                gateway varchar(50) NOT NULL DEFAULT '' COMMENT 'Tên ngân hàng nhận',
+                banktime int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Thời gian giao dịch phía ngân hàng',
+                addtime int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Thời gian ghi nhận được webhooks',
+                content varchar(255) NOT NULL DEFAULT '' COMMENT 'Nội dung giao dịch',
+                transfer_amount double NOT NULL DEFAULT 0 COMMENT 'Số tiền giao dịch',
+                accumulated double NOT NULL DEFAULT 0 COMMENT 'Số dư lũy kế',
+                sub_account varchar(100) NOT NULL DEFAULT '' COMMENT 'Tài khoản phụ',
+                reference_code varchar(100) NOT NULL DEFAULT '' COMMENT 'Mã tham chiếu của tin nhắn sms',
+                description text NOT NULL DEFAULT '' COMMENT 'Toàn bộ nội dung tin nhắn sms',
+                status tinyint(1) NOT NULL DEFAULT 0 COMMENT '0 sai cú pháp, 1 đúng cú pháp',
+                mapping_status tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 xử lý thành công, 0 xử lý thất bại',
+                PRIMARY KEY (id),
+                KEY banktime (banktime),
+                KEY addtime (addtime),
+                KEY status (status),
+                KEY mapping_status (mapping_status),
+                KEY transfer_amount (transfer_amount)
+                ) ENGINE=InnoDB COMMENT='Các giao dịch chuyển tiền vào tài khoản ghi nhận qua SePay';");
+            } catch (Throwable $e) {
+                trigger_error($e->getMessage());
+            }
+        }
+    }
+    return $return;
+}
+
+/**
+ * @return array
+ */
+function nv_up_f5()
+{
+    global $nv_update_baseurl, $db, $db_config, $nv_Cache, $array_modlang_update;
+    $return = [
+        'status' => 1,
+        'complete' => 1,
+        'next' => 1,
+        'link' => 'NO',
+        'lang' => 'NO',
+        'message' => ''
+    ];
+    foreach ($array_modlang_update as $lang => $array_mod) {
+        foreach ($array_mod['mod'] as $module_info) {
+            // Thêm cấu hình captcha_type nếu chưa có.
+            try {
+                $db->query("INSERT IGNORE INTO " . NV_CONFIG_GLOBALTABLE . " (
+                    lang, module, config_name, config_value
+                ) VALUES
+                    ('" . $lang . "', '" . $module_info['module_title'] . "', 'captcha_type', 'captcha')
+                ");
+            } catch (Throwable $e) {
+                trigger_error($e->getMessage());
+            }
+        }
+    }
+    return $return;
+}
+
+/**
+ * @return array
+ */
+function nv_up_finish()
+{
+    global $nv_update_baseurl, $db, $db_config, $nv_Cache, $nv_update_config;
+
+    $return = [
+        'status' => 1,
+        'complete' => 1,
+        'next' => 1,
+        'link' => 'NO',
+        'lang' => 'NO',
+        'message' => ''
+    ];
 
     try {
         $num = $db->query("SELECT COUNT(*) FROM " . $db_config['prefix'] . "_setup_extensions WHERE basename='" . $nv_update_config['formodule'] . "' AND type='module'")->fetchColumn();
@@ -473,7 +567,7 @@ function nv_up_finish()
                 id, type, title, is_sys, is_virtual, basename, table_prefix, version, addtime, author, note
             ) VALUES (
                 ". $nv_update_config['id'] .", 'module', '" . $nv_update_config['formodule'] . "', 0, 1,
-                '" . $nv_update_config['formodule'] . "', '" . $nv_update_config['formodule'] . "', '" . $version . "', " . NV_CURRENTTIME . ", 
+                '" . $nv_update_config['formodule'] . "', '" . $nv_update_config['formodule'] . "', '" . $version . "', " . NV_CURRENTTIME . ",
                 '". $nv_update_config['author'] ."', '". $nv_update_config['note'] ."'
             )");
         } else {
@@ -483,7 +577,7 @@ function nv_up_finish()
                 author='". $nv_update_config['author'] ."'
             WHERE basename='" . $nv_update_config['formodule'] . "' AND type='module'");
         }
-    } catch (PDOException $e) {
+    } catch (Throwable $e) {
         trigger_error($e->getMessage());
     }
 
