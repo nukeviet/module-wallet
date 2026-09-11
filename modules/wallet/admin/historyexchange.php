@@ -48,7 +48,9 @@ $numf = $result_page->fetchColumn();
 $all_page = ($numf) ? $numf : 1;
 
 $arr_list_transaction = array();
-while (list($log_id, $money_unit, $than_unit, $exchange_from, $exchange_to, $time_begin, $time_end) = $result->fetch(3)) {
+while ($_scratch = $result->fetch(3)) {
+    list($log_id, $money_unit, $than_unit, $exchange_from, $exchange_to, $time_begin, $time_end) = $_scratch;
+    unset($_scratch);
     $arr_list_transaction[$log_id] = array(
         'log_id' => $log_id, //
         'money_unit' => $money_unit, //

@@ -51,8 +51,8 @@ class nusoap_xmlschema extends nusoap_base  {
 	* @param	string $namespaces namespaces defined in enclosing XML
 	* @access   public
 	*/
-	function nusoap_xmlschema($schema='',$xml='',$namespaces=array()){
-		parent::nusoap_base();
+	function __construct($schema='',$xml='',$namespaces=array()){
+		parent::__construct();
 		$this->debug('nusoap_xmlschema class instantiated, inside constructor');
 		// files
 		$this->schema = $schema;
@@ -119,16 +119,13 @@ class nusoap_xmlschema extends nusoap_base  {
 	    	// Set the options for parsing the XML data.
 	    	xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
 
-	    	// Set the object for the parser.
-	    	xml_set_object($this->parser, $this);
-
 	    	// Set the element handlers for the parser.
 			if($type == "schema"){
-		    	xml_set_element_handler($this->parser, 'schemaStartElement','schemaEndElement');
-		    	xml_set_character_data_handler($this->parser,'schemaCharacterData');
+		    	xml_set_element_handler($this->parser, [$this, 'schemaStartElement'], [$this, 'schemaEndElement']);
+		    	xml_set_character_data_handler($this->parser, [$this, 'schemaCharacterData']);
 			} elseif($type == "xml"){
-				xml_set_element_handler($this->parser, 'xmlStartElement','xmlEndElement');
-		    	xml_set_character_data_handler($this->parser,'xmlCharacterData');
+				xml_set_element_handler($this->parser, [$this, 'xmlStartElement'], [$this, 'xmlEndElement']);
+		    	xml_set_character_data_handler($this->parser, [$this, 'xmlCharacterData']);
 			}
 
 		    // Parse the XML file.
@@ -143,7 +140,7 @@ class nusoap_xmlschema extends nusoap_base  {
 				$this->setError($errstr);
 	    	}
             
-			xml_parser_free($this->parser);
+			version_compare(PHP_VERSION, '8.0.0', '<') && xml_parser_free($this->parser);
 		} else{
 			$this->debug('no xml passed to parseString()!!');
 			$this->setError('no xml passed to parseString()!!');

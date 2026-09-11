@@ -54,6 +54,11 @@ class wsdl extends nusoap_base {
 	var $password = '';				// Password for HTTP authentication
 	var $authtype = '';				// Type of HTTP authentication
 	var $certRequest = array();		// Certificate for HTTP SSL authentication
+	// Declared explicitly: creating dynamic properties is deprecated since PHP 8.2
+	var $currentPortOperation;
+	var $opStatus;
+	var $serviceName;
+	var $wsdl_info;
 
     /**
      * constructor
@@ -69,8 +74,8 @@ class wsdl extends nusoap_base {
 	 * @param boolean $use_curl try to use cURL
      * @access public 
      */
-    function wsdl($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30,$curl_options=null,$use_curl=false){
-		parent::nusoap_base();
+    function __construct($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30,$curl_options=null,$use_curl=false){
+		parent::__construct();
 		$this->debug("ctor wsdl=$wsdl timeout=$timeout response_timeout=$response_timeout");
         $this->proxyhost = $proxyhost;
         $this->proxyport = $proxyport;
@@ -259,11 +264,9 @@ class wsdl extends nusoap_base {
         // Set the options for parsing the XML data.
         // xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
         xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0); 
-        // Set the object for the parser.
-        xml_set_object($this->parser, $this); 
         // Set the element handlers for the parser.
-        xml_set_element_handler($this->parser, 'start_element', 'end_element');
-        xml_set_character_data_handler($this->parser, 'character_data');
+        xml_set_element_handler($this->parser, [$this, 'start_element'], [$this, 'end_element']);
+        xml_set_character_data_handler($this->parser, [$this, 'character_data']);
         // Parse the XML file.
         if (!xml_parse($this->parser, $wsdl_string, true)) {
             // Display an error message.
@@ -279,7 +282,7 @@ class wsdl extends nusoap_base {
             return false;
         } 
 		// free the parser
-        xml_parser_free($this->parser);
+        version_compare(PHP_VERSION, '8.0.0', '<') && xml_parser_free($this->parser);
         $this->debug('Parsing WSDL done');
 		// catch wsdl parse errors
 		if($this->getError()){

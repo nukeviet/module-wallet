@@ -162,7 +162,7 @@ if ($mode == 'month') {
     $sql = 'SELECT MAX(created_time) max_year, MIN(created_time) min_year FROM ' . $db_config['prefix'] . '_' . $module_data . '_transaction WHERE status = 1';
     $result = $db->query($sql);
 
-    list($max_year, $min_year) = $result->fetch(3);
+    list($max_year, $min_year) = $result->fetch(3) ?: [null, null];
 
     if ($min_year) {
         $min_year = date('Y', $min_year);

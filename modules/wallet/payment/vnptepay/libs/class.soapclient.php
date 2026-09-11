@@ -80,6 +80,12 @@ class nusoap_client extends nusoap_base  {
 	 * @access   public
 	 */
 	var $faultdetail;
+	// Declared explicitly: creating dynamic properties is deprecated since PHP 8.2
+	var $wsdl;
+	var $wsdlFile;
+	var $operation;
+	var $opData;
+	var $return;
 
 	/**
 	* constructor
@@ -95,8 +101,8 @@ class nusoap_client extends nusoap_base  {
 	* @param	string $portName optional portName in WSDL document
 	* @access   public
 	*/
-	function nusoap_client($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30, $portName = ''){
-		parent::nusoap_base();
+	function __construct($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30, $portName = ''){
+		parent::__construct();
 		$this->endpoint = $endpoint;
 		$this->proxyhost = $proxyhost;
 		$this->proxyport = $proxyport;

@@ -48,6 +48,9 @@ class soap_transport_http extends nusoap_base {
 								// certpassword: SSL certificate password
 								// verifypeer: default is 1
 								// verifyhost: default is 1
+	// Declared explicitly: creating dynamic properties is deprecated since PHP 8.2
+	var $fp;
+	var $tryagain;
 
 	/**
 	* constructor
@@ -57,8 +60,8 @@ class soap_transport_http extends nusoap_base {
 	* @param boolean $use_curl Whether to try to force cURL use
 	* @access public
 	*/
-	function soap_transport_http($url, $curl_options = NULL, $use_curl = false){
-		parent::nusoap_base();
+	function __construct($url, $curl_options = NULL, $use_curl = false){
+		parent::__construct();
 		$this->debug("ctor url=$url use_curl=$use_curl curl_options:");
 		$this->appendDebug($this->varDump($curl_options));
 		$this->setURL($url);
@@ -235,7 +238,7 @@ class soap_transport_http extends nusoap_base {
 		
 		// set response timeout
 		$this->debug('set response timeout to ' . $response_timeout);
-		socket_set_timeout( $this->fp, $response_timeout);
+		stream_set_timeout( $this->fp, $response_timeout);
 
 		$this->debug('socket connected');
 		return true;
@@ -451,7 +454,7 @@ class soap_transport_http extends nusoap_base {
 	* @access   public
 	* @deprecated
 	*/
-	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies) {
+	function sendHTTPS($data, $timeout, $response_timeout, $cookies) {
 		return $this->send($data, $timeout, $response_timeout, $cookies);
 	}
 	
@@ -972,7 +975,7 @@ class soap_transport_http extends nusoap_base {
 			}
 			$this->debug($err);
 			$this->setError($err);
-			curl_close($this->ch);
+			version_compare(PHP_VERSION, '8.0.0', '<') && curl_close($this->ch);
 	    	return false;
 		} else {
 			//echo '<pre>';
@@ -981,7 +984,7 @@ class soap_transport_http extends nusoap_base {
 		}
 		// close curl
 		$this->debug('No cURL error, closing cURL');
-		curl_close($this->ch);
+		version_compare(PHP_VERSION, '8.0.0', '<') && curl_close($this->ch);
 		
 		// try removing skippable headers
 		$savedata = $data;

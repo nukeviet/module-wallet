@@ -47,6 +47,9 @@ class nusoap_parser extends nusoap_base {
 	var $multirefs = array();
 	// toggle for auto-decoding element content
 	var $decode_utf8 = true;
+	// Declared explicitly: creating dynamic properties is deprecated since PHP 8.2
+	var $parser;
+	var $methodNamespace;
 
 	/**
 	* constructor that actually does the parsing
@@ -57,8 +60,8 @@ class nusoap_parser extends nusoap_base {
 	* @param    string $decode_utf8 whether to decode UTF-8 to ISO-8859-1
 	* @access   public
 	*/
-	function nusoap_parser($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
-		parent::nusoap_base();
+	function __construct($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
+		parent::__construct();
 		$this->xml = $xml;
 		$this->xml_encoding = $encoding;
 		$this->method = $method;
@@ -96,11 +99,9 @@ class nusoap_parser extends nusoap_base {
 			//xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
 			xml_parser_set_option($this->parser, XML_OPTION_CASE_FOLDING, 0);
 			xml_parser_set_option($this->parser, XML_OPTION_TARGET_ENCODING, $this->xml_encoding);
-			// Set the object for the parser.
-			xml_set_object($this->parser, $this);
 			// Set the element handlers for the parser.
-			xml_set_element_handler($this->parser, 'start_element','end_element');
-			xml_set_character_data_handler($this->parser,'character_data');
+			xml_set_element_handler($this->parser, [$this, 'start_element'], [$this, 'end_element']);
+			xml_set_character_data_handler($this->parser, [$this, 'character_data']);
 
 			// Parse the XML file.
 			if(!xml_parse($this->parser,$xml,true)){
@@ -116,7 +117,11 @@ class nusoap_parser extends nusoap_base {
 				$this->appendDebug($this->varDump($this->message));
 				$this->debug('parsed successfully, found root struct: '.$this->root_struct.' of name '.$this->root_struct_name);
 				// get final value
-				$this->soapresponse = $this->message[$this->root_struct]['result'];
+				// root_struct may be unset when the payload has no recognised body;
+				// reading it unguarded warns on PHP 8 (undefined key / offset on null)
+				$this->soapresponse = isset($this->message[$this->root_struct]['result'])
+					? $this->message[$this->root_struct]['result']
+					: null;
 				// get header value
 				if($this->root_header != '' && isset($this->message[$this->root_header]['result'])){
 					$this->soapheader = $this->message[$this->root_header]['result'];
@@ -136,7 +141,7 @@ class nusoap_parser extends nusoap_base {
 					}
 				}
 			}
-			xml_parser_free($this->parser);
+			version_compare(PHP_VERSION, '8.0.0', '<') && xml_parser_free($this->parser);
 		} else {
 			$this->debug('xml was empty, didn\'t parse!');
 			$this->setError('xml was empty, didn\'t parse!');
@@ -419,7 +424,7 @@ class nusoap_parser extends nusoap_base {
 			// raw UTF-8 that, e.g., might not map to iso-8859-1
 			// TODO: this can also be handled with xml_parser_set_option($this->parser, XML_OPTION_TARGET_ENCODING, "ISO-8859-1");
 			if($this->decode_utf8){
-				$data = utf8_decode($data);
+				$data = mb_convert_encoding($data, 'ISO-8859-1', 'UTF-8');
 			}
 		}
         $this->message[$pos]['cdata'] .= $data;
@@ -490,13 +495,13 @@ class nusoap_parser extends nusoap_base {
 			return (int) $value;
 		}
 		if ($type == 'float' || $type == 'double' || $type == 'decimal') {
-			return (double) $value;
+			return (float) $value;
 		}
 		if ($type == 'boolean') {
 			if (strtolower($value) == 'false' || strtolower($value) == 'f') {
 				return false;
 			}
-			return (boolean) $value;
+			return (bool) $value;
 		}
 		if ($type == 'base64' || $type == 'base64Binary') {
 			$this->debug('Decode base64 value');

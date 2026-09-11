@@ -161,6 +161,8 @@ class nusoap_server extends nusoap_base {
 	 * @access public
 	 */
 	var $debug_flag = false;
+	// Declared explicitly: creating dynamic properties is deprecated since PHP 8.2
+	var $opData;
 
 
 	/**
@@ -170,8 +172,8 @@ class nusoap_server extends nusoap_base {
     * @param mixed $wsdl file path or URL (string), or wsdl instance (object)
 	* @access   public
 	*/
-	function nusoap_server($wsdl=false){
-		parent::nusoap_base();
+	function __construct($wsdl=false){
+		parent::__construct();
 		// turn on debugging?
 		global $debug;
 		global $HTTP_SERVER_VARS;
@@ -381,7 +383,7 @@ class nusoap_server extends nusoap_base {
 				$this->request .= "$k: $v\r\n";
 				$this->debug("$k: $v");
 			}
-		} elseif (is_array($HTTP_SERVER_VARS)) {
+		} elseif (isset($HTTP_SERVER_VARS) && is_array($HTTP_SERVER_VARS)) {
 			$this->debug("In parse_http_headers, use HTTP_SERVER_VARS");
 			foreach ($HTTP_SERVER_VARS as $k => $v) {
 				if (substr($k, 0, 5) == 'HTTP_') {

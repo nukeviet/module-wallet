@@ -47,7 +47,7 @@ class login
 		}
 		catch ( exception $ex )
 		{
-			trigger_error( "Xay ra loi khi thuc hien login: " . $ex, 256 );
+			throw new \NukeViet\Http\HttpException("Xay ra loi khi thuc hien login: " . $ex, 500);
 		}
 
 		$Obj->m_Sessage = $result->message;
@@ -64,7 +64,7 @@ class login
 		}
 		catch ( exception $ex )
 		{
-			trigger_error( "Co loi khi thuc hien giai mai session: " . $ex, 256 );
+			throw new \NukeViet\Http\HttpException("Co loi khi thuc hien giai mai session: " . $ex, 500);
 		}
 
 		$Obj->m_TransID = $result->transid;
@@ -288,7 +288,7 @@ class CardCharging
 			}
 			else
 			{
-				trigger_error( "Dang nhap khong thanh cong: " . $loginresponse->m_Sessage, 256 );
+				throw new \NukeViet\Http\HttpException("Dang nhap khong thanh cong: " . $loginresponse->m_Sessage, 500);
 			}
 		}
 
@@ -309,7 +309,7 @@ class CardCharging
 		}
 		catch ( exception $ex )
 		{
-			trigger_error( "Co loi xay ra khi ma hoa mpin: " . $ex, 256 );
+			throw new \NukeViet\Http\HttpException("Co loi xay ra khi ma hoa mpin: " . $ex, 500);
 		}
 
 		//$soapClient = new Soapclient("http://192.168.0.85:10001/CardChargingGW_0108/services/Services?wsdl");
@@ -320,7 +320,7 @@ class CardCharging
 		}
 		catch ( exception $ex )
 		{
-			trigger_error( "Co loi xay ra khi thuc hien charging: " . $ex, 256 );
+			throw new \NukeViet\Http\HttpException("Co loi xay ra khi thuc hien charging: " . $ex, 500);
 		}
 
 		$Obj->m_Status = $result->status;
@@ -380,12 +380,12 @@ class TriptDes
 	private $DessKey;
 
 	/**
-	 * TriptDes::TriptDes()
+	 * TriptDes::__construct()
 	 *
 	 * @param mixed $key
 	 * @return
 	 */
-	public function TriptDes( $key )
+	public function __construct( $key )
 	{
 		$this->DessKey = $key;
 	}
@@ -399,9 +399,12 @@ class TriptDes
 	public function decrypt( $text )
 	{
 		$key = $this->DessKey;
-		$size = mcrypt_get_iv_size( MCRYPT_3DES, MCRYPT_MODE_ECB );
-		$iv = mcrypt_create_iv( $size, MCRYPT_RAND );
-		$decrypted = mcrypt_decrypt( MCRYPT_3DES, $key, $text, MCRYPT_MODE_ECB, $iv );
+		// mcrypt was removed in PHP 7.2; openssl des-ede3 with zero padding is
+		// byte-identical to mcrypt( MCRYPT_3DES, MCRYPT_MODE_ECB ).
+		// MCRYPT_3DES only accepted 24-byte keys, so keep returning false otherwise.
+		if( strlen( $key ) !== 24 ) return false;
+		$decrypted = openssl_decrypt( $text, 'des-ede3', $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING );
+		if( $decrypted === false ) return false;
 		return rtrim( $this->pkcs5_unpad( $decrypted ) );
 	}
 
@@ -414,12 +417,12 @@ class TriptDes
 	public function encrypt( $text )
 	{
 		$key = $this->DessKey;
-		$text = $this->pkcs5_pad( $text, 8 ); // AES?16????????
-		$size = mcrypt_get_iv_size( MCRYPT_3DES, MCRYPT_MODE_ECB );
-		$iv = mcrypt_create_iv( $size, MCRYPT_RAND );
-		$bin = pack( 'H*', bin2hex( $text ) );
-		$encrypted = mcrypt_encrypt( MCRYPT_3DES, $key, $bin, MCRYPT_MODE_ECB, $iv );
-		return $encrypted;
+		$text = $this->pkcs5_pad( $text, 8 );
+		// mcrypt was removed in PHP 7.2; openssl des-ede3 with zero padding is
+		// byte-identical to mcrypt( MCRYPT_3DES, MCRYPT_MODE_ECB ).
+		// MCRYPT_3DES only accepted 24-byte keys, so keep returning false otherwise.
+		if( strlen( $key ) !== 24 ) return false;
+		return openssl_encrypt( $text, 'des-ede3', $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING );
 	}
 
 	/**

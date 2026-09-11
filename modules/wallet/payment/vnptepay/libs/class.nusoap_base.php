@@ -222,7 +222,7 @@ class nusoap_base {
 	*
 	* @access	public
 	*/
-	function nusoap_base() {
+	function __construct() {
 		$this->debugLevel = $GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'];
 	}
 
@@ -860,7 +860,7 @@ class nusoap_base {
 			$sec = time();
 			$usec = 0;
 		}
-		return strftime('%Y-%m-%d %H:%M:%S', $sec) . '.' . sprintf('%06d', $usec);
+		return date('Y-m-d H:i:s', $sec) . '.' . sprintf('%06d', $usec);
 	}
 
 	/**
